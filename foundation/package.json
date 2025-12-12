@@ -1,0 +1,31 @@
+{
+  "name": "@minions/foundation",
+  "version": "1.0.0",
+  "description": "Foundation infrastructure for the Minions autonomous multi-agent system",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --coverage",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:no-coverage": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": ["agents", "foundation", "infrastructure", "autonomous", "ai", "multi-agent"],
+  "author": "Minions Team",
+  "license": "MIT",
+  "dependencies": {
+    "eventemitter3": "^5.0.1",
+    "pino": "^8.16.2",
+    "pino-pretty": "^10.2.3",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
+    "@types/node": "^20.9.0",
+    "eslint": "^8.53.0",
+    "prettier": "^3.1.0",
+    "@jest/globals": "^29.7.0"
+  }
+}

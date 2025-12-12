@@ -1,0 +1,74 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Commands
+
+```bash
+# Install all dependencies (run from root)
+npm run install:all
+
+# Run tests (uses Jest with coverage, from foundation/)
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run a single test file
+cd foundation && NODE_OPTIONS=--experimental-vm-modules jest tests/eventBus.test.js
+
+# Run tests matching a pattern
+cd foundation && NODE_OPTIONS=--experimental-vm-modules jest --testNamePattern="should publish"
+```
+
+## Architecture
+
+Minions is an event-driven framework for orchestrating autonomous AI agents. The codebase uses ES modules (`"type": "module"`) and Node.js 18+.
+
+### Core Components
+
+**Foundation Layer** (`foundation/`):
+- `event-bus/AgentEventBus.js` - Singleton pub/sub system for agent communication. All components get the same instance via `getEventBus()`
+- `health-monitor/HealthMonitor.js` - Tracks agent health status with heartbeats
+- `metrics-collector/MetricsCollector.js` - Records execution metrics per agent
+- `rollback-manager/RollbackManager.js` - Checkpoint/rollback for failure recovery
+- `alerting/AlertingSystem.js` - Triggers alerts on anomalies
+- `common/logger.js` - Pino-based logger factory (`createLogger('ComponentName')`)
+
+**Manager Agent** (`agents/manager-agent/`):
+- `orchestrator.js` - Core execution coordinator. Agents register via `registerAgent(name, loaderFn, dependencies)`. Executes agents in dependency order with configurable concurrency
+- `autonomous-loop-manager.js` - Manages test-fix-verify cycles, triggered by TESTS_FAILED events
+- `dependency-graph.js` - Builds execution order from agent dependencies
+
+**Skills** (`agents/skills/`):
+- Reusable agent capabilities that extend `BaseSkill.js`
+- Each skill has a factory function (e.g., `getAutoFixer()`, `getCodeReviewer()`)
+
+### Key Patterns
+
+1. **Singleton Pattern**: Core services use singleton factories (e.g., `getEventBus()`, `getOrchestrator()`)
+
+2. **Event-Driven Communication**: Agents communicate via EventTypes defined in `foundation/event-bus/eventTypes.js`:
+   - `AGENT_STARTED/COMPLETED/FAILED` - Lifecycle events
+   - `TESTS_STARTED/COMPLETED/FAILED` - Test events
+   - `AUTO_FIX_REQUESTED/FIX_COMPLETED` - Fix cycle events
+
+3. **Agent Registration**: Agents register with the orchestrator using a loader function pattern:
+   ```javascript
+   orchestrator.registerAgent('my-agent', async () => agentInstance, ['dependency-agent']);
+   ```
+
+4. **Framework Initialization**: Use `initializeMinions()` from `index.js` to set up all components with proper wiring
+
+## Testing
+
+Tests are in `foundation/tests/` using Jest. Coverage threshold is 85% for branches, functions, lines, and statements. Tests require `NODE_OPTIONS=--experimental-vm-modules` for ES module support.
+
+## Documentation
+
+Detailed documentation is available in the `docs/` folder:
+- `docs/api-reference.md` - Complete API documentation for all components
+- `docs/architecture.md` - Deep dive into framework internals and data flows
+- `docs/getting-started.md` - Step-by-step setup and first agent tutorial
+- `docs/creating-agents.md` - Agent development patterns and best practices
+- `docs/skills-guide.md` - Using and creating skills

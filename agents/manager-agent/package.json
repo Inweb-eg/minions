@@ -1,0 +1,9 @@
+{
+  "name": "@minions/manager-agent",
+  "version": "1.0.0",
+  "description": "Manager Agent for orchestrating the Minions multi-agent system",
+  "type": "module",
+  "keywords": ["agent", "orchestration", "manager", "autonomous"],
+  "author": "Minions Team",
+  "license": "MIT"
+}
