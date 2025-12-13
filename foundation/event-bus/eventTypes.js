@@ -109,7 +109,42 @@ export const EventTypes = {
   TECH_STACK_SELECTED: 'architect:techstack:selected',
   VALIDATION_PASSED: 'architect:validation:passed',
   VALIDATION_FAILED: 'architect:validation:failed',
-  DECISION_LOGGED: 'architect:decision:logged'
+  DECISION_LOGGED: 'architect:decision:logged',
+
+  // Planner Agent events (Phase 3)
+  // Incoming events (requests to Planner-Agent)
+  CREATE_PLAN: 'planner:plan:create',
+  EXECUTE_PLAN: 'planner:plan:execute',
+  PAUSE_EXECUTION: 'planner:execution:pause',
+  RESUME_EXECUTION: 'planner:execution:resume',
+  RUN_ITERATION: 'planner:iteration:run',
+  REPORT_BLOCKER: 'planner:blocker:report',
+
+  // Outgoing events (Planner-Agent outputs)
+  PLAN_CREATED: 'planner:plan:created',
+  EXECUTION_STARTED: 'planner:execution:started',
+  EXECUTION_PAUSED: 'planner:execution:paused',
+  EXECUTION_RESUMED: 'planner:execution:resumed',
+  EXECUTION_COMPLETED: 'planner:execution:completed',
+  EXECUTION_FAILED: 'planner:execution:failed',
+
+  // Task coordination events
+  TASK_ASSIGNED: 'planner:task:assigned',
+  TASK_STARTED: 'planner:task:started',
+  TASK_COMPLETED: 'planner:task:completed',
+  TASK_FAILED: 'planner:task:failed',
+  TASK_RETRYING: 'planner:task:retrying',
+
+  // Progress events
+  PROGRESS_UPDATED: 'planner:progress:updated',
+  BLOCKER_DETECTED: 'planner:blocker:detected',
+  BLOCKER_RESOLVED: 'planner:blocker:resolved',
+
+  // Iteration events
+  ITERATION_STARTED: 'planner:iteration:started',
+  ITERATION_COMPLETED: 'planner:iteration:completed',
+  ITERATION_ESCALATED: 'planner:iteration:escalated',
+  PHASE_COMPLETED: 'planner:phase:completed'
 };
 
 export default EventTypes;

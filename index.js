@@ -32,6 +32,13 @@
  * - TechSelector: Technology stack selection
  * - DriftDetector: Architectural drift detection
  *
+ * Phase 3 - Planner Agent:
+ * - PlannerAgent: Execution engine that converts plans into action
+ * - ExecutionPlanner: Topological sort and parallel execution groups
+ * - AgentCoordinator: Task assignment and retry handling
+ * - ProgressTracker: Velocity, ETA, and blocker detection
+ * - IterationManager: Build → Test → Fix cycle management
+ *
  * @module minions
  */
 
@@ -151,6 +158,29 @@ export {
   DriftCategories
 } from './agents/architect-agent/index.js';
 
+// Planner Agent exports (Phase 3)
+export {
+  getPlannerAgent,
+  resetPlannerAgent,
+  PlannerAgent,
+  AgentState as PlannerAgentState,
+  PlannerEvents,
+  ExecutionStatus,
+  ExecutionPlanner,
+  PlanPhase,
+  TaskPriority,
+  TaskStatus,
+  AgentCoordinator,
+  AssignmentStrategy,
+  AgentStatus,
+  ProgressTracker,
+  ProgressStatus,
+  IterationManager,
+  IterationPhase,
+  IterationStatus,
+  EscalationLevel
+} from './agents/planner-agent/index.js';
+
 /**
  * Initialize the Minions framework
  *
@@ -163,6 +193,7 @@ export {
  * @param {boolean} options.enableEnhancedEventBus - Enable enhanced event bus (default: false)
  * @param {boolean} options.enableVisionAgent - Enable Vision Agent (default: false)
  * @param {boolean} options.enableArchitectAgent - Enable Architect Agent (default: false)
+ * @param {boolean} options.enablePlannerAgent - Enable Planner Agent (default: false)
  * @param {number} options.maxConcurrency - Max concurrent agents (default: 5)
  * @returns {Object} Initialized framework components
  *
@@ -192,6 +223,7 @@ export async function initializeMinions(options = {}) {
     enableEnhancedEventBus = false,
     enableVisionAgent = false,
     enableArchitectAgent = false,
+    enablePlannerAgent = false,
     maxConcurrency = 5
   } = options;
 
@@ -214,6 +246,9 @@ export async function initializeMinions(options = {}) {
 
   // Phase 2 imports (Architect Agent)
   const { getArchitectAgent } = await import('./agents/architect-agent/index.js');
+
+  // Phase 3 imports (Planner Agent)
+  const { getPlannerAgent } = await import('./agents/planner-agent/index.js');
 
   const eventBus = getEventBus();
   const orchestrator = getOrchestrator();
@@ -265,6 +300,17 @@ export async function initializeMinions(options = {}) {
     await architectAgent.initialize(eventBus);
   }
 
+  // Phase 3 components (Planner Agent)
+  let plannerAgent = null;
+
+  if (enablePlannerAgent) {
+    plannerAgent = getPlannerAgent({
+      maxConcurrency: options.maxConcurrency || maxConcurrency,
+      ...options.plannerAgentOptions
+    });
+    await plannerAgent.initialize(eventBus);
+  }
+
   // Configure orchestrator
   orchestrator.maxConcurrency = maxConcurrency;
 
@@ -303,7 +349,9 @@ export async function initializeMinions(options = {}) {
     // Phase 1 components
     visionAgent,
     // Phase 2 components
-    architectAgent
+    architectAgent,
+    // Phase 3 components
+    plannerAgent
   };
 }
 
