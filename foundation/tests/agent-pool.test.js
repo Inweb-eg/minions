@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, jest } from '@jest/globals';
-import AgentPool, { getAgentPool } from '../../../.claude/agents/manager-agent/agent-pool.js';
+import AgentPool, { getAgentPool } from '../../agents/manager-agent/agent-pool.js';
 
 describe('AgentPool', () => {
   let pool;

@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
-import Orchestrator, { getOrchestrator } from '../../../.claude/agents/manager-agent/orchestrator.js';
+import Orchestrator, { getOrchestrator } from '../../agents/manager-agent/orchestrator.js';
 
 describe('Orchestrator', () => {
   let orchestrator;

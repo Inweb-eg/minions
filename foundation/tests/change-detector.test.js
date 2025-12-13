@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
-import ChangeDetector, { getChangeDetector } from '../../../.claude/agents/manager-agent/change-detector.js';
+import ChangeDetector, { getChangeDetector } from '../../agents/manager-agent/change-detector.js';
 
 describe('ChangeDetector', () => {
   let detector;

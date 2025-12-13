@@ -1,8 +1,8 @@
 import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
-import { getOrchestrator } from '../../../.claude/agents/manager-agent/orchestrator.js';
-import { getChangeDetector } from '../../../.claude/agents/manager-agent/change-detector.js';
-import { getAgentPool } from '../../../.claude/agents/manager-agent/agent-pool.js';
-import { getDependencyGraph } from '../../../.claude/agents/manager-agent/dependency-graph.js';
+import { getOrchestrator } from '../../agents/manager-agent/orchestrator.js';
+import { getChangeDetector } from '../../agents/manager-agent/change-detector.js';
+import { getAgentPool } from '../../agents/manager-agent/agent-pool.js';
+import { getDependencyGraph } from '../../agents/manager-agent/dependency-graph.js';
 import { getEventBus } from '../event-bus/AgentEventBus.js';
 import { getMetricsCollector } from '../metrics-collector/MetricsCollector.js';
 import { getRollbackManager } from '../rollback-manager/RollbackManager.js';

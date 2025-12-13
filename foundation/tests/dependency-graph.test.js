@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach } from '@jest/globals';
-import DependencyGraph, { getDependencyGraph } from '../../../.claude/agents/manager-agent/dependency-graph.js';
+import DependencyGraph, { getDependencyGraph } from '../../agents/manager-agent/dependency-graph.js';
 
 describe('DependencyGraph', () => {
   let graph;
