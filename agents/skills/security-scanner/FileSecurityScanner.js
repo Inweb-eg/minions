@@ -16,7 +16,7 @@ import fs from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
 import { BaseSkill, SEVERITY, CATEGORY, createSkillGetter } from '../BaseSkill.js';
-import { EventTypes } from '../../../../agents/foundation/event-bus/eventTypes.js';
+import { EventTypes } from '../../../foundation/event-bus/eventTypes.js';
 
 /**
  * FileSecurityScanner

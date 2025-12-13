@@ -7,7 +7,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { createLogger } from '../../../../agents/foundation/common/logger.js';
+import { createLogger } from '../../../foundation/common/logger.js';
 
 const logger = createLogger('FixGenerator');
 

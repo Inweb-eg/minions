@@ -1,9 +1,9 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import { createLogger } from '../../../agents/foundation/common/logger.js';
+import { createLogger } from '../../foundation/common/logger.js';
 import { getDependencyGraph } from './dependency-graph.js';
-import { getEventBus } from '../../../agents/foundation/event-bus/AgentEventBus.js';
-import { EventTypes } from '../../../agents/foundation/event-bus/eventTypes.js';
+import { getEventBus } from '../../foundation/event-bus/AgentEventBus.js';
+import { EventTypes } from '../../foundation/event-bus/eventTypes.js';
 
 const execPromise = promisify(exec);
 const logger = createLogger('ChangeDetector');

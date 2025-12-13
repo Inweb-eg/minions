@@ -12,6 +12,26 @@
  * - Orchestrator: Coordinates multi-agent execution
  * - AutonomousLoopManager: Manages test-fix-verify cycles
  *
+ * Phase 0 Foundation Enhancements:
+ * - MemoryStore: Persistent key-value store with SQLite backend
+ * - DecisionLogger: Captures agent decisions with context and reasoning
+ * - EnhancedEventBus: Priority queuing, request-response patterns, persistence
+ * - StateMachine: Reusable state machine framework for agent behavior
+ *
+ * Phase 1 - Vision Agent:
+ * - VisionAgent: Product owner that understands project goals
+ * - ReadmeParser: README analysis and feature extraction
+ * - FeatureDecomposer: Epic → Story → Task decomposition
+ * - ProductStateManager: Feature lifecycle tracking
+ * - AcceptanceGenerator: Acceptance criteria generation
+ *
+ * Phase 2 - Architect Agent:
+ * - ArchitectAgent: Technical authority for architectural decisions
+ * - BlueprintGenerator: System blueprint generation
+ * - ApiContractManager: API contract management
+ * - TechSelector: Technology stack selection
+ * - DriftDetector: Architectural drift detection
+ *
  * @module minions
  */
 
@@ -23,6 +43,41 @@ export { getMetricsCollector, default as MetricsCollector } from './foundation/m
 export { getAlertingSystem, default as AlertingSystem } from './foundation/alerting/AlertingSystem.js';
 export { getRollbackManager, default as RollbackManager } from './foundation/rollback-manager/RollbackManager.js';
 export { createLogger, LOG_LEVELS } from './foundation/common/logger.js';
+
+// Phase 0 Foundation Enhancement exports
+export {
+  getMemoryStore,
+  resetMemoryStore,
+  MemoryNamespace,
+  default as MemoryStore
+} from './foundation/memory-store/MemoryStore.js';
+
+export {
+  getDecisionLogger,
+  resetDecisionLogger,
+  DecisionType,
+  DecisionOutcome,
+  default as DecisionLogger
+} from './foundation/memory-store/DecisionLogger.js';
+
+export {
+  getEnhancedEventBus,
+  resetEnhancedEventBus,
+  MessagePriority,
+  BroadcastChannel,
+  default as EnhancedEventBus
+} from './foundation/event-bus/EnhancedEventBus.js';
+
+export {
+  createAgentStateMachine,
+  getStateMachine,
+  removeStateMachine,
+  getAllStateMachines,
+  clearStateMachines,
+  AgentState,
+  TransitionResult,
+  default as StateMachine
+} from './foundation/state-machine/StateMachine.js';
 
 // Analyzer exports
 export { BaseAnalyzer } from './foundation/analyzers/BaseAnalyzer.js';
@@ -47,6 +102,55 @@ export { getDependencyAnalyzer } from './agents/skills/dependency-analyzer/index
 export { getTestGenerator } from './agents/skills/test-generator/index.js';
 export { getSecurityScanner } from './agents/skills/security-scanner/index.js';
 
+// Specialized Agent exports
+export { getTesterAgent } from './agents/tester-agent/index.js';
+export { getDockerAgent } from './agents/docker-agent/index.js';
+export { getGithubAgent } from './agents/github-agent/index.js';
+export { getCodebaseAnalyzer } from './agents/codebase-analyzer-agent/index.js';
+export { getDocumentAgent } from './agents/document-agent/document-agent.js';
+
+// Vision Agent exports (Phase 1)
+export {
+  getVisionAgent,
+  resetVisionAgent,
+  VisionAgent,
+  AgentState as VisionAgentState,
+  VisionEvents,
+  ReadmeParser,
+  FeatureType,
+  SectionType,
+  FeatureDecomposer,
+  ComplexityLevel,
+  WorkItemType,
+  StoryCategory,
+  ProductStateManager,
+  FeatureStatus,
+  ProgressMethod,
+  AcceptanceGenerator,
+  CriteriaFormat,
+  CriteriaCategory
+} from './agents/vision-agent/index.js';
+
+// Architect Agent exports (Phase 2)
+export {
+  getArchitectAgent,
+  resetArchitectAgent,
+  ArchitectAgent,
+  AgentState as ArchitectAgentState,
+  ArchitectEvents,
+  BlueprintGenerator,
+  ArchitecturalPatterns,
+  ComponentTypes,
+  SystemLayers,
+  ApiContractManager,
+  HttpMethods,
+  StatusCategories,
+  TechSelector,
+  TechCategories,
+  DriftDetector,
+  DriftCategories
+} from './agents/architect-agent/index.js';
+
 /**
  * Initialize the Minions framework
  *
@@ -54,15 +158,21 @@ export { getSecurityScanner } from './agents/skills/security-scanner/index.js';
  * @param {boolean} options.enableMetrics - Enable metrics collection (default: true)
  * @param {boolean} options.enableHealth - Enable health monitoring (default: true)
  * @param {boolean} options.enableAlerting - Enable alerting system (default: true)
+ * @param {boolean} options.enableMemoryStore - Enable persistent memory store (default: true)
+ * @param {boolean} options.enableDecisionLogger - Enable decision logging (default: true)
+ * @param {boolean} options.enableEnhancedEventBus - Enable enhanced event bus (default: false)
+ * @param {boolean} options.enableVisionAgent - Enable Vision Agent (default: false)
+ * @param {boolean} options.enableArchitectAgent - Enable Architect Agent (default: false)
  * @param {number} options.maxConcurrency - Max concurrent agents (default: 5)
  * @returns {Object} Initialized framework components
  *
  * @example
  * import { initializeMinions } from 'minions';
  *
- * const { orchestrator, eventBus, metricsCollector } = await initializeMinions({
+ * const { orchestrator, eventBus, metricsCollector, memoryStore } = await initializeMinions({
  *   enableMetrics: true,
  *   enableHealth: true,
+ *   enableMemoryStore: true,
  *   maxConcurrency: 3
  * });
  *
@@ -77,6 +187,11 @@ export async function initializeMinions(options = {}) {
     enableMetrics = true,
     enableHealth = true,
     enableAlerting = true,
+    enableMemoryStore = true,
+    enableDecisionLogger = true,
+    enableEnhancedEventBus = false,
+    enableVisionAgent = false,
+    enableArchitectAgent = false,
     maxConcurrency = 5
   } = options;
 
@@ -89,6 +204,17 @@ export async function initializeMinions(options = {}) {
   const { getRollbackManager } = await import('./foundation/rollback-manager/RollbackManager.js');
   const { getAutonomousLoopManager } = await import('./agents/manager-agent/autonomous-loop-manager.js');
 
+  // Phase 0 imports
+  const { getMemoryStore } = await import('./foundation/memory-store/MemoryStore.js');
+  const { getDecisionLogger } = await import('./foundation/memory-store/DecisionLogger.js');
+  const { getEnhancedEventBus } = await import('./foundation/event-bus/EnhancedEventBus.js');
+
+  // Phase 1 imports (Vision Agent)
+  const { getVisionAgent } = await import('./agents/vision-agent/index.js');
+
+  // Phase 2 imports (Architect Agent)
+  const { getArchitectAgent } = await import('./agents/architect-agent/index.js');
+
   const eventBus = getEventBus();
   const orchestrator = getOrchestrator();
   const metricsCollector = enableMetrics ? getMetricsCollector() : null;
@@ -96,6 +222,48 @@ export async function initializeMinions(options = {}) {
   const alertingSystem = enableAlerting ? getAlertingSystem() : null;
   const rollbackManager = getRollbackManager();
   const autonomousLoopManager = getAutonomousLoopManager();
+
+  // Phase 0 components
+  let memoryStore = null;
+  let decisionLogger = null;
+  let enhancedEventBus = null;
+
+  if (enableMemoryStore) {
+    memoryStore = getMemoryStore(options.memoryStoreOptions || {});
+    await memoryStore.initialize();
+  }
+
+  if (enableDecisionLogger) {
+    decisionLogger = getDecisionLogger();
+    await decisionLogger.initialize();
+  }
+
+  if (enableEnhancedEventBus) {
+    enhancedEventBus = getEnhancedEventBus(options.enhancedEventBusOptions || {});
+    await enhancedEventBus.initialize();
+  }
+
+  // Phase 1 components (Vision Agent)
+  let visionAgent = null;
+
+  if (enableVisionAgent) {
+    visionAgent = getVisionAgent({
+      projectRoot: options.projectRoot || process.cwd(),
+      ...options.visionAgentOptions
+    });
+    await visionAgent.initialize(eventBus);
+  }
+
+  // Phase 2 components (Architect Agent)
+  let architectAgent = null;
+
+  if (enableArchitectAgent) {
+    architectAgent = getArchitectAgent({
+      projectRoot: options.projectRoot || process.cwd(),
+      ...options.architectAgentOptions
+    });
+    await architectAgent.initialize(eventBus);
+  }
 
   // Configure orchestrator
   orchestrator.maxConcurrency = maxConcurrency;
@@ -127,7 +295,15 @@ export async function initializeMinions(options = {}) {
     healthMonitor,
     alertingSystem,
     rollbackManager,
-    autonomousLoopManager
+    autonomousLoopManager,
+    // Phase 0 components
+    memoryStore,
+    decisionLogger,
+    enhancedEventBus,
+    // Phase 1 components
+    visionAgent,
+    // Phase 2 components
+    architectAgent
   };
 }
 

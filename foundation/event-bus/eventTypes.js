@@ -78,7 +78,38 @@ export const EventTypes = {
   GENERATE_TESTS: 'GENERATE_TESTS',
 
   // Skill lifecycle events
-  SKILL_READY: 'SKILL_READY'
+  SKILL_READY: 'SKILL_READY',
+
+  // Vision Agent events (Phase 1)
+  // Incoming events (requests to Vision-Agent)
+  PARSE_README: 'vision:parse:readme',
+  DECOMPOSE_FEATURE: 'vision:decompose:feature',
+  GET_PRODUCT_STATE: 'vision:state:get',
+  GENERATE_ACCEPTANCE: 'vision:acceptance:generate',
+
+  // Outgoing events (Vision-Agent outputs)
+  README_PARSED: 'vision:readme:parsed',
+  FEATURE_DECOMPOSED: 'vision:feature:decomposed',
+  PRODUCT_STATE_UPDATED: 'vision:state:updated',
+  ACCEPTANCE_GENERATED: 'vision:acceptance:generated',
+  IMPLICIT_REQUIREMENTS_DETECTED: 'vision:implicit:detected',
+
+  // Architect Agent events (Phase 2)
+  // Incoming events (from other agents to Architect)
+  REQUIREMENTS_READY: 'vision:requirements:ready',
+  ARCHITECTURE_REQUEST: 'architect:request',
+  VALIDATE_CODE_REQUEST: 'architect:validate:code',
+
+  // Outgoing events (from Architect to other agents)
+  BLUEPRINT_CREATED: 'architect:blueprint:created',
+  BLUEPRINT_UPDATED: 'architect:blueprint:updated',
+  CONTRACT_DEFINED: 'architect:contract:defined',
+  CONTRACT_VIOLATION: 'architect:contract:violation',
+  DRIFT_DETECTED: 'architect:drift:detected',
+  TECH_STACK_SELECTED: 'architect:techstack:selected',
+  VALIDATION_PASSED: 'architect:validation:passed',
+  VALIDATION_FAILED: 'architect:validation:failed',
+  DECISION_LOGGED: 'architect:decision:logged'
 };
 
 export default EventTypes;

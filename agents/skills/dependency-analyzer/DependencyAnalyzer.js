@@ -13,9 +13,9 @@
 import fs from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
-import { getEventBus } from '../../../../agents/foundation/event-bus/AgentEventBus.js';
-import { EventTypes } from '../../../../agents/foundation/event-bus/eventTypes.js';
-import { createLogger } from '../../../../agents/foundation/common/logger.js';
+import { getEventBus } from '../../../foundation/event-bus/AgentEventBus.js';
+import { EventTypes } from '../../../foundation/event-bus/eventTypes.js';
+import { createLogger } from '../../../foundation/common/logger.js';
 
 const logger = createLogger('DependencyAnalyzer');
 

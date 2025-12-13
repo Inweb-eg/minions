@@ -11,7 +11,7 @@
 import fs from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
-import { createLogger } from '../../../../agents/foundation/common/logger.js';
+import { createLogger } from '../../../foundation/common/logger.js';
 
 const logger = createLogger('FixApplier');
 
