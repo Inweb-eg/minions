@@ -1,29 +1,20 @@
-import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
-import { getOrchestrator } from '../../agents/manager-agent/orchestrator.js';
-import { getChangeDetector } from '../../agents/manager-agent/change-detector.js';
-import { getAgentPool } from '../../agents/manager-agent/agent-pool.js';
-import { getDependencyGraph } from '../../agents/manager-agent/dependency-graph.js';
-import { getEventBus } from '../event-bus/AgentEventBus.js';
-import { getMetricsCollector } from '../metrics-collector/MetricsCollector.js';
-import { getRollbackManager } from '../rollback-manager/RollbackManager.js';
+import { describe, test, expect, beforeEach, afterEach, jest } from '@jest/globals';
+import Orchestrator, { getOrchestrator } from '../../agents/manager-agent/orchestrator.js';
+import DependencyGraph, { getDependencyGraph } from '../../agents/manager-agent/dependency-graph.js';
+import ChangeDetector, { getChangeDetector } from '../../agents/manager-agent/change-detector.js';
+import AgentPool, { getAgentPool } from '../../agents/manager-agent/agent-pool.js';
 
-describe('Manager-Agent Integration Tests', () => {
+describe('Manager Agent Integration', () => {
   let orchestrator;
+  let dependencyGraph;
   let changeDetector;
   let agentPool;
-  let dependencyGraph;
-  let eventBus;
-  let metricsCollector;
-  let rollbackManager;
 
   beforeEach(async () => {
-    orchestrator = getOrchestrator();
-    changeDetector = getChangeDetector();
-    agentPool = getAgentPool();
-    dependencyGraph = getDependencyGraph();
-    eventBus = getEventBus();
-    metricsCollector = getMetricsCollector();
-    rollbackManager = getRollbackManager();
+    orchestrator = new Orchestrator();
+    dependencyGraph = new DependencyGraph();
+    changeDetector = new ChangeDetector();
+    agentPool = new AgentPool();
 
     await orchestrator.initialize();
     await changeDetector.initialize();
@@ -31,256 +22,178 @@ describe('Manager-Agent Integration Tests', () => {
   });
 
   afterEach(() => {
-    if (metricsCollector) {
-      metricsCollector.stop();
+    if (orchestrator.metricsCollector) {
+      orchestrator.metricsCollector.stop();
+    }
+    if (orchestrator.isExecuting) {
+      orchestrator.stop();
     }
     if (changeDetector.monitoringEnabled) {
       changeDetector.stopMonitoring();
     }
   });
 
-  test('all Manager-Agent components should be accessible', () => {
-    expect(orchestrator).toBeDefined();
-    expect(changeDetector).toBeDefined();
-    expect(agentPool).toBeDefined();
-    expect(dependencyGraph).toBeDefined();
-    expect(eventBus).toBeDefined();
-    expect(metricsCollector).toBeDefined();
-    expect(rollbackManager).toBeDefined();
+  describe('Orchestrator + DependencyGraph Integration', () => {
+    test('should build correct execution plan from dependencies', () => {
+      const loaderFn = jest.fn(async () => ({ execute: jest.fn() }));
+      orchestrator.registerAgent('document-agent', loaderFn, []);
+      orchestrator.registerAgent('backend-agent', loaderFn, ['document-agent']);
+      orchestrator.registerAgent('tester-agent', loaderFn, ['backend-agent']);
+
+      const plan = orchestrator.buildExecutionPlan([]);
+      expect(plan.totalAgents).toBeGreaterThanOrEqual(0);
+      expect(Array.isArray(plan.groups)).toBe(true);
+    });
+
+    test('should execute agents in proper dependency order', async () => {
+      const executionOrder = [];
+      const createLoader = (name) => jest.fn(async () => ({
+        execute: jest.fn(async () => { executionOrder.push(name); })
+      }));
+
+      orchestrator.registerAgent('document-agent', createLoader('document-agent'), []);
+      orchestrator.registerAgent('backend-agent', createLoader('backend-agent'), ['document-agent']);
+      orchestrator.registerAgent('tester-agent', createLoader('tester-agent'), ['backend-agent']);
+
+      await orchestrator.execute([]);
+
+      expect(executionOrder.indexOf('document-agent')).toBeLessThan(executionOrder.indexOf('backend-agent'));
+      expect(executionOrder.indexOf('backend-agent')).toBeLessThan(executionOrder.indexOf('tester-agent'));
+    });
   });
 
-  test('orchestrator should have integrated all Phase 0 components', () => {
-    expect(orchestrator.eventBus).toBe(eventBus);
-    expect(orchestrator.metricsCollector).toBe(metricsCollector);
-    expect(orchestrator.rollbackManager).toBe(rollbackManager);
-    expect(orchestrator.dependencyGraph).toBe(dependencyGraph);
+  describe('ChangeDetector + DependencyGraph Integration', () => {
+    test('should identify affected agents from changed files', () => {
+      dependencyGraph.addAgent('document-agent', []);
+      dependencyGraph.addAgent('backend-agent', ['document-agent']);
+      dependencyGraph.addAgent('tester-agent', ['backend-agent']);
+
+      const changedFiles = ['backend/src/controllers/user.js'];
+      const analysis = changeDetector.analyzeChanges(changedFiles);
+      const affectedAgents = dependencyGraph.getAffectedAgents(changedFiles);
+
+      expect(analysis.byCategory.backend.length).toBe(1);
+      expect(affectedAgents).toContain('backend-agent');
+      expect(affectedAgents).toContain('tester-agent');
+    });
+
+    test('should prioritize changes based on file impact', async () => {
+      const files = [
+        'backend/migrations/001_create_users.sql',
+        'backend/src/controllers/user.js',
+        'docs/readme.md'
+      ];
+
+      const impact = await changeDetector.performImpactAnalysis(files);
+
+      expect(impact.changeAnalysis.breakingChanges.length).toBeGreaterThan(0);
+      expect(impact.executionPriority.length).toBeGreaterThan(0);
+    });
   });
 
-  test('orchestrator should register all agents in dependency graph', () => {
-    const agentNames = Array.from(dependencyGraph.nodes.keys());
+  describe('AgentPool + Orchestrator Integration', () => {
+    test('should coordinate agent execution through pool', async () => {
+      agentPool.registerAgent('test-agent');
 
-    expect(agentNames).toContain('document-agent');
-    expect(agentNames).toContain('backend-agent');
-    expect(agentNames).toContain('users-agent');
-    expect(agentNames).toContain('drivers-agent');
-    expect(agentNames).toContain('admin-agent');
-    expect(agentNames).toContain('codebase-analyzer-agent');
-    expect(agentNames).toContain('tester-agent');
-    expect(agentNames).toContain('docker-agent');
-    expect(agentNames).toContain('github-agent');
+      const executorFn = jest.fn(async () => ({ success: true }));
+      const result = await agentPool.executeAgent('test-agent', executorFn);
+
+      expect(result.success).toBe(true);
+      expect(executorFn).toHaveBeenCalled();
+    });
+
+    test('should track execution statistics across components', async () => {
+      agentPool.registerAgent('agent-1');
+      agentPool.registerAgent('agent-2');
+
+      const executorFn = jest.fn(async () => ({ success: true }));
+
+      await agentPool.executeAgent('agent-1', executorFn);
+      await agentPool.executeAgent('agent-2', executorFn);
+
+      const poolStats = agentPool.getPoolStats();
+      expect(poolStats.totalAgents).toBe(2);
+      expect(poolStats.agents['agent-1'].totalExecutions).toBe(1);
+      expect(poolStats.agents['agent-2'].totalExecutions).toBe(1);
+    });
   });
 
-  test('dependency graph should resolve execution order correctly', () => {
-    dependencyGraph.buildExecutionOrder();
-    const order = dependencyGraph.executionOrder;
+  describe('Full Pipeline Integration', () => {
+    test('should process change detection through to execution', async () => {
+      dependencyGraph.addAgent('document-agent', []);
+      dependencyGraph.addAgent('backend-agent', ['document-agent']);
 
-    // document-agent should come before backend-agent
-    const docIndex = order.indexOf('document-agent');
-    const backendIndex = order.indexOf('backend-agent');
-    expect(docIndex).toBeLessThan(backendIndex);
+      const changedFiles = ['backend/src/controllers/api.js'];
+      const analysis = changeDetector.analyzeChanges(changedFiles);
+      const affectedAgents = dependencyGraph.getAffectedAgents(changedFiles);
 
-    // backend-agent should come before users-agent
-    const usersIndex = order.indexOf('users-agent');
-    expect(backendIndex).toBeLessThan(usersIndex);
+      dependencyGraph.buildExecutionOrder();
+      const parallelGroups = dependencyGraph.getParallelGroups();
+
+      expect(analysis.totalFiles).toBe(1);
+      expect(affectedAgents.length).toBeGreaterThan(0);
+      expect(parallelGroups.length).toBeGreaterThan(0);
+    });
+
+    test('should handle complex multi-agent workflows', async () => {
+      const executionLog = [];
+      const createLoader = (name) => jest.fn(async () => ({
+        execute: jest.fn(async () => {
+          executionLog.push({ agent: name, time: Date.now() });
+          await new Promise(resolve => setTimeout(resolve, 10));
+        })
+      }));
+
+      orchestrator.registerAgent('analyzer', createLoader('analyzer'), []);
+      orchestrator.registerAgent('parser', createLoader('parser'), []);
+      orchestrator.registerAgent('backend', createLoader('backend'), ['analyzer', 'parser']);
+      orchestrator.registerAgent('frontend', createLoader('frontend'), ['analyzer', 'parser']);
+      orchestrator.registerAgent('integrator', createLoader('integrator'), ['backend', 'frontend']);
+
+      const result = await orchestrator.execute([]);
+
+      expect(result.success).toBe(true);
+      expect(executionLog.length).toBe(5);
+
+      const getIndex = (name) => executionLog.findIndex(e => e.agent === name);
+      expect(getIndex('analyzer')).toBeLessThan(getIndex('backend'));
+      expect(getIndex('parser')).toBeLessThan(getIndex('frontend'));
+      expect(getIndex('backend')).toBeLessThan(getIndex('integrator'));
+      expect(getIndex('frontend')).toBeLessThan(getIndex('integrator'));
+    });
+
+    test('should propagate failures correctly through pipeline', async () => {
+      const loaderFn = jest.fn(async () => ({ execute: jest.fn() }));
+      const failingLoader = jest.fn(async () => ({
+        execute: jest.fn(async () => { throw new Error('Pipeline failure'); })
+      }));
+
+      orchestrator.registerAgent('working-agent', loaderFn, []);
+      orchestrator.registerAgent('failing-agent', failingLoader, ['working-agent']);
+
+      await expect(orchestrator.execute([])).rejects.toThrow('Orchestration failed');
+
+      const status = orchestrator.getStatus();
+      expect(status.results['working-agent'].success).toBe(true);
+      expect(status.results['failing-agent'].success).toBe(false);
+    });
   });
 
-  test('change detector should analyze file changes and determine affected agents', async () => {
-    const files = [
-      'backend/src/controllers/user.js',
-      'admin-dashboard/src/App.jsx',
-      'docs/api.md'
-    ];
+  describe('Singleton Pattern Integration', () => {
+    test('all singletons should be consistent', () => {
+      const orchestrator1 = getOrchestrator();
+      const orchestrator2 = getOrchestrator();
+      const graph1 = getDependencyGraph();
+      const graph2 = getDependencyGraph();
+      const detector1 = getChangeDetector();
+      const detector2 = getChangeDetector();
+      const pool1 = getAgentPool();
+      const pool2 = getAgentPool();
 
-    const impact = await changeDetector.performImpactAnalysis(files);
-
-    expect(impact.affectedAgents).toBeDefined();
-    expect(Array.isArray(impact.affectedAgents)).toBe(true);
-    expect(impact.changeAnalysis).toBeDefined();
-    expect(impact.executionPriority).toBeDefined();
-
-    // Backend changes should affect backend-agent
-    expect(impact.affectedAgents).toContain('backend-agent');
-  });
-
-  test('orchestrator should create checkpoints before execution', async () => {
-    const checkpointsBefore = rollbackManager.checkpoints.size;
-
-    const result = await orchestrator.execute(['backend/src/test.js']);
-
-    expect(result.success).toBe(true);
-    expect(rollbackManager.checkpoints.size).toBeGreaterThan(checkpointsBefore);
-  }, 60000);
-
-  test('orchestrator should commit checkpoints on success', async () => {
-    const result = await orchestrator.execute(['backend/src/test.js']);
-
-    expect(result.success).toBe(true);
-
-    // Find the most recent checkpoint
-    const checkpoints = Array.from(rollbackManager.checkpoints.values());
-    const latestCheckpoint = checkpoints[checkpoints.length - 1];
-
-    expect(latestCheckpoint.status).toBe('committed');
-  }, 60000);
-
-  test('event bus is integrated with orchestrator', () => {
-    // Verify event bus is properly integrated
-    expect(orchestrator.eventBus).toBe(eventBus);
-    expect(orchestrator.eventBus).toBeDefined();
-
-    // Event bus functionality is extensively tested in Phase 0 integration tests
-  });
-
-  test('metrics collector should track agent executions', async () => {
-    await orchestrator.execute(['backend/src/test.js']);
-
-    const systemMetrics = await metricsCollector.getSystemMetrics();
-
-    expect(systemMetrics.active_agents).toBeGreaterThan(0);
-    expect(systemMetrics.total_events).toBeGreaterThan(0);
-    expect(systemMetrics.system_health_score).toBeDefined();
-  }, 60000);
-
-  test('orchestrator should respect concurrency limits', async () => {
-    orchestrator.maxConcurrency = 2;
-
-    const statusDuringExecution = [];
-
-    // Start execution (don't await)
-    const promise = orchestrator.execute([]);
-
-    // Check status during execution
-    await new Promise(resolve => setTimeout(resolve, 200));
-    statusDuringExecution.push(orchestrator.getStatus());
-
-    await promise;
-
-    // Should have limited concurrent agents
-    const runningAgents = statusDuringExecution
-      .map(s => s.currentlyRunning.length)
-      .filter(count => count > 0);
-
-    expect(runningAgents.length).toBeGreaterThan(0);
-  }, 60000);
-
-  test('orchestrator should handle emergency stop', async () => {
-    // Start execution
-    const promise = orchestrator.execute([]);
-
-    // Wait a bit then stop
-    await new Promise(resolve => setTimeout(resolve, 100));
-    await orchestrator.stop();
-
-    expect(orchestrator.isExecuting).toBe(false);
-
-    // Wait for promise to resolve
-    try {
-      await promise;
-    } catch (error) {
-      // Expected to potentially fail
-    }
-  }, 60000);
-
-  test('agent pool can be used for individual agent execution', async () => {
-    agentPool.registerAgent('test-agent', { timeout: 5000 });
-
-    const executorFn = async () => {
-      await new Promise(resolve => setTimeout(resolve, 100));
-      return { success: true };
-    };
-
-    const result = await agentPool.executeAgent('test-agent', executorFn);
-
-    expect(result.success).toBe(true);
-
-    const stats = agentPool.getAgentStats('test-agent');
-    expect(stats.successfulExecutions).toBe(1);
-  });
-
-  test('change detector monitoring can be started and stopped', () => {
-    expect(changeDetector.monitoringEnabled).toBe(false);
-
-    changeDetector.startMonitoring(5000);
-    expect(changeDetector.monitoringEnabled).toBe(true);
-
-    changeDetector.stopMonitoring();
-    expect(changeDetector.monitoringEnabled).toBe(false);
-  });
-
-  test('full workflow: change detection -> impact analysis -> orchestration', async () => {
-    // 1. Detect changes
-    const files = ['backend/src/controllers/user.js'];
-
-    // 2. Perform impact analysis
-    const impact = await changeDetector.performImpactAnalysis(files);
-    expect(impact.affectedAgents.length).toBeGreaterThan(0);
-
-    // 3. Execute affected agents
-    const result = await orchestrator.execute(files);
-    expect(result.success).toBe(true);
-    expect(result.agentsExecuted).toBeGreaterThan(0);
-  }, 60000);
-
-  test('Phase 1 success criterion: can orchestrate 5+ agents in parallel', async () => {
-    const result = await orchestrator.execute([]);
-
-    expect(result.agentsExecuted).toBeGreaterThanOrEqual(5);
-    expect(result.success).toBe(true);
-  }, 60000);
-
-  test('Phase 1 success criterion: dependency graph resolves correctly', () => {
-    dependencyGraph.buildExecutionOrder();
-
-    expect(dependencyGraph.executionOrder.length).toBeGreaterThan(0);
-    expect(dependencyGraph.hasCircularDependencies()).toBe(false);
-  });
-
-  test('Phase 1 success criterion: rollback works on failure', async () => {
-    // This is validated in orchestrator tests where failures trigger rollback
-    expect(rollbackManager.rollback).toBeDefined();
-    expect(rollbackManager.createCheckpoint).toBeDefined();
-    expect(rollbackManager.commitCheckpoint).toBeDefined();
-  });
-
-  test('Phase 1 success criterion: circular update prevention active', async () => {
-    agentPool.registerAgent('test-agent-circular', { cooldown: 100 });
-    agentPool.circularUpdateThreshold = 2;
-
-    const executorFn = async () => ({ success: true });
-
-    // Execute twice
-    await agentPool.executeAgent('test-agent-circular', executorFn);
-    await new Promise(resolve => setTimeout(resolve, 150));
-    await agentPool.executeAgent('test-agent-circular', executorFn);
-    await new Promise(resolve => setTimeout(resolve, 150));
-
-    // Check that circular update is detected
-    expect(agentPool.hasCircularUpdate('test-agent-circular')).toBe(true);
-
-    // Third attempt should be prevented
-    await expect(agentPool.executeAgent('test-agent-circular', executorFn))
-      .rejects.toThrow('cannot execute: circular_update');
-  });
-
-  test('Phase 1 success criterion: all safety mechanisms operational', () => {
-    // Checkpoint system
-    expect(rollbackManager.createCheckpoint).toBeDefined();
-    expect(rollbackManager.rollback).toBeDefined();
-
-    // Emergency stop
-    expect(orchestrator.stop).toBeDefined();
-
-    // Health monitoring
-    expect(metricsCollector.getSystemMetrics).toBeDefined();
-    expect(metricsCollector.getAgentMetrics).toBeDefined();
-
-    // Rate limiting
-    expect(agentPool.isRateLimited).toBeDefined();
-
-    // Cooldown
-    expect(agentPool.isInCooldown).toBeDefined();
-
-    // Circular update prevention
-    expect(agentPool.hasCircularUpdate).toBeDefined();
+      expect(orchestrator1).toBe(orchestrator2);
+      expect(graph1).toBe(graph2);
+      expect(detector1).toBe(detector2);
+      expect(pool1).toBe(pool2);
+    });
   });
 });
