@@ -1,0 +1,30 @@
+{
+  "name": "@minions/docker-agent",
+  "version": "1.0.0",
+  "description": "Docker Agent - Container management, builds, security scanning, and health monitoring",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules npx jest --watch",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules npx jest --coverage"
+  },
+  "keywords": [
+    "docker",
+    "containers",
+    "builds",
+    "security",
+    "monitoring",
+    "agent"
+  ],
+  "author": "Minions Team",
+  "license": "MIT",
+  "dependencies": {
+    "dockerode": "^4.0.0",
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.7.0",
+    "jest": "^29.7.0"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "@minions/tester-agent",
+  "version": "1.0.0",
+  "description": "Multi-platform test runner and analyzer - supports Jest, Flutter, Vitest, Playwright",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules npx jest --watch",
+    "test:coverage": "NODE_OPTIONS=--experimental-vm-modules npx jest --coverage",
+    "run:all": "node tester-agent.js"
+  },
+  "keywords": [
+    "testing",
+    "test-runner",
+    "jest",
+    "flutter-test",
+    "playwright",
+    "vitest",
+    "agent"
+  ],
+  "author": "Minions Team",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/parser": "^7.23.0",
+    "@babel/traverse": "^7.23.0",
+    "@babel/generator": "^7.23.0",
+    "@babel/types": "^7.23.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
