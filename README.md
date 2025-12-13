@@ -8,52 +8,61 @@ Minions is an event-driven framework for building and orchestrating multiple AI 
 
 ### Key Features
 
-- **Event-Driven Architecture** - Centralized pub/sub system for loose coupling between agents
+- **Event-Driven Architecture** - Centralized pub/sub system with 80+ event types for loose coupling between agents
 - **Dependency-Based Orchestration** - Agents execute in topologically-sorted order with parallel execution support
 - **Health Monitoring & Alerting** - Real-time health tracking with configurable alert thresholds
 - **Autonomous Fix Loops** - Automatic test-fix-verify cycles with tiered recovery strategies
 - **Checkpoint & Rollback** - Git-aware checkpointing for safe failure recovery
 - **Built-in Skills** - Auto-fixer, code review, security scanning, dependency analysis, test generation
+- **Specialized Agents** - Pre-built agents for testing, Docker, GitHub, codebase analysis, and documentation
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                         YOUR PROJECT                         │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│   ┌─────────────────────────────────────────────────────┐   │
-│   │                    ORCHESTRATOR                      │   │
-│   │  - Dependency resolution (topological sort)         │   │
-│   │  - Parallel execution with concurrency control      │   │
-│   │  - Checkpoint/rollback on failure                   │   │
-│   └──────────────────────┬──────────────────────────────┘   │
-│                          │                                   │
-│   ┌──────────────────────▼──────────────────────────────┐   │
-│   │                     EVENT BUS                        │   │
-│   │  - Pub/Sub for agent communication                  │   │
-│   │  - Event history (configurable retention)           │   │
-│   │  - Error isolation per subscriber                   │   │
-│   └─────┬─────────┬─────────┬─────────┬─────────────────┘   │
-│         │         │         │         │                      │
-│   ┌─────▼───┐ ┌───▼───┐ ┌───▼───┐ ┌───▼───┐                │
-│   │ Agent 1 │ │Agent 2│ │Agent 3│ │Agent N│                │
-│   │ (Your)  │ │(Your) │ │(Your) │ │(Your) │                │
-│   └─────────┘ └───────┘ └───────┘ └───────┘                │
-│                                                              │
-│   ┌─────────────────────────────────────────────────────┐   │
-│   │              FOUNDATION SERVICES                     │   │
-│   │  ┌───────────┐ ┌───────────┐ ┌───────────────────┐  │   │
-│   │  │  Health   │ │  Metrics  │ │    Alerting       │  │   │
-│   │  │  Monitor  │ │ Collector │ │    System         │  │   │
-│   │  └───────────┘ └───────────┘ └───────────────────┘  │   │
-│   │  ┌───────────┐ ┌───────────┐ ┌───────────────────┐  │   │
-│   │  │ Rollback  │ │  Logger   │ │    Analyzers      │  │   │
-│   │  │ Manager   │ │           │ │ (Security, Perf)  │  │   │
-│   │  └───────────┘ └───────────┘ └───────────────────┘  │   │
-│   └─────────────────────────────────────────────────────┘   │
-│                                                              │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              YOUR PROJECT                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │                          ORCHESTRATOR                                │   │
+│   │  - Dependency resolution (topological sort)                         │   │
+│   │  - Parallel execution with concurrency control                      │   │
+│   │  - Checkpoint/rollback on failure                                   │   │
+│   └───────────────────────────────┬─────────────────────────────────────┘   │
+│                                   │                                          │
+│   ┌───────────────────────────────▼─────────────────────────────────────┐   │
+│   │                           EVENT BUS                                  │   │
+│   │  - Pub/Sub for agent communication (80+ event types)                │   │
+│   │  - Event history (configurable retention)                           │   │
+│   │  - Error isolation per subscriber                                   │   │
+│   └─────┬─────────┬─────────┬─────────┬─────────┬─────────┬─────────────┘   │
+│         │         │         │         │         │         │                  │
+│   ┌─────▼───┐ ┌───▼───┐ ┌───▼───┐ ┌───▼───┐ ┌───▼───┐ ┌───▼───┐            │
+│   │ Tester  │ │Docker │ │GitHub │ │  Doc  │ │Custom │ │Custom │            │
+│   │  Agent  │ │ Agent │ │ Agent │ │ Agent │ │Agent 1│ │Agent N│            │
+│   └─────────┘ └───────┘ └───────┘ └───────┘ └───────┘ └───────┘            │
+│                                                                              │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │                        SKILLS LAYER                                  │   │
+│   │  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────────────┐    │   │
+│   │  │ AutoFixer │ │  Code     │ │ Security  │ │    Test           │    │   │
+│   │  │           │ │ Reviewer  │ │ Scanner   │ │   Generator       │    │   │
+│   │  └───────────┘ └───────────┘ └───────────┘ └───────────────────┘    │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │                      FOUNDATION SERVICES                             │   │
+│   │  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────────────┐    │   │
+│   │  │  Health   │ │  Metrics  │ │  Alerting │ │    Rollback       │    │   │
+│   │  │  Monitor  │ │ Collector │ │  System   │ │    Manager        │    │   │
+│   │  └───────────┘ └───────────┘ └───────────┘ └───────────────────┘    │   │
+│   │  ┌───────────┐ ┌───────────┐ ┌───────────────────────────────────┐  │   │
+│   │  │  Logger   │ │ Analyzers │ │       AST Parser (Babel)          │  │   │
+│   │  │  (Pino)   │ │           │ │                                   │  │   │
+│   │  └───────────┘ └───────────┘ └───────────────────────────────────┘  │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Installation
@@ -108,6 +117,270 @@ async function main() {
 }
 
 main();
+```
+
+## Core Components
+
+### Orchestrator
+
+Coordinates agent execution with dependency resolution and parallel processing:
+
+```javascript
+const { orchestrator } = await initializeMinions();
+
+// Register agents with dependencies
+orchestrator.registerAgent('data-agent', loaderFn, []);
+orchestrator.registerAgent('analyzer', loaderFn, ['data-agent']);
+orchestrator.registerAgent('reporter', loaderFn, ['analyzer']);
+
+// Execute - runs: data-agent → analyzer → reporter
+const result = await orchestrator.execute();
+
+// Check status
+const status = orchestrator.getStatus();
+```
+
+### Autonomous Loop Manager
+
+Manages test-fix-verify cycles automatically:
+
+```javascript
+import { getAutonomousLoopManager } from 'minions';
+
+const loopManager = getAutonomousLoopManager();
+
+// Register custom matcher for routing failures to agents
+loopManager.registerAgentMatcher((failure, platform) => {
+  if (failure.file?.includes('api/')) return 'api-agent';
+  if (failure.file?.includes('frontend/')) return 'frontend-agent';
+  return null;
+});
+
+// Register agents that can fix issues
+loopManager.registerAgent('api-agent', apiAgentInstance);
+
+// Loop triggers automatically on TESTS_FAILED events
+```
+
+### Health Monitor
+
+Tracks agent health with configurable checks:
+
+```javascript
+import { getHealthMonitor, HealthStatus } from 'minions';
+
+const healthMonitor = getHealthMonitor();
+
+// Register custom health check
+healthMonitor.registerHealthCheck('my-agent', async (metrics) => ({
+  passed: metrics.custom_metric > threshold,
+  message: 'Custom metric check'
+}));
+
+// Get health summary
+const summary = healthMonitor.getHealthSummary();
+// { total_agents, healthy, degraded, unhealthy, average_score }
+```
+
+### Alerting System
+
+Triggers alerts on threshold violations:
+
+```javascript
+import { getAlertingSystem } from 'minions';
+
+const alerting = getAlertingSystem();
+
+// Register alert handlers
+alerting.registerHandler('slack', async (alert) => {
+  await slack.send({
+    channel: '#alerts',
+    text: `[${alert.severity}] ${alert.title}: ${alert.message}`
+  });
+});
+
+// Update thresholds
+alerting.updateThresholds('P1_CRITICAL', {
+  errorRate: 15,      // Trigger at 15% error rate
+  executionTime: 600000  // 10 minutes
+});
+```
+
+## Specialized Agents
+
+Minions includes pre-built specialized agents for common development workflows.
+
+### Tester Agent
+
+Multi-platform test orchestration with comprehensive analysis capabilities:
+
+```javascript
+import { getTesterAgent } from 'minions';
+
+const tester = getTesterAgent();
+
+// Run tests with multiple capabilities
+await tester.runTests({
+  platform: 'backend',
+  testPaths: ['tests/'],
+  coverage: true
+});
+
+// Features:
+// - Multi-platform runners (Backend, React, Flutter, E2E)
+// - Coverage analysis with gap detection
+// - Regression detection
+// - Flaky test identification
+// - Performance benchmarking
+// - Mutation testing
+// - Bug and fix suggestion reports
+```
+
+### Docker Agent
+
+Complete Docker lifecycle management:
+
+```javascript
+import { getDockerAgent } from 'minions';
+
+const docker = getDockerAgent();
+
+// Validate and build Docker images
+await docker.validate('./Dockerfile');
+await docker.build({ context: '.', tag: 'myapp:latest' });
+
+// Features:
+// - File, config, and dependency change detection
+// - Dockerfile and docker-compose validation
+// - Image size optimization
+// - Layer analysis
+// - Vulnerability scanning
+// - Health and resource monitoring
+```
+
+### GitHub Agent
+
+Complete GitHub automation:
+
+```javascript
+import { getGithubAgent } from 'minions';
+
+const github = getGithubAgent();
+
+// Manage branches and PRs
+await github.createBranch('feature/new-feature');
+await github.createPullRequest({
+  title: 'Add new feature',
+  body: 'Description...',
+  base: 'main',
+  head: 'feature/new-feature'
+});
+
+// Features:
+// - Branch and PR management
+// - Automated code review engine
+// - Merge conflict detection and resolution
+// - Issue tracking and management
+// - Release management with analytics
+```
+
+### Codebase Analyzer Agent
+
+System-wide deep analysis across codebases:
+
+```javascript
+import { getCodebaseAnalyzer } from 'minions';
+
+const analyzer = getCodebaseAnalyzer();
+
+// Run comprehensive analysis
+const report = await analyzer.analyze({
+  projectRoot: '/path/to/project',
+  analyzers: ['security', 'performance', 'dependencies', 'technical-debt']
+});
+
+// Features:
+// - Codebase-level security scanning
+// - Performance analysis across files
+// - Dependency mapping
+// - API contract validation
+// - Technical debt measurement
+```
+
+### Document Agent
+
+Bidirectional code-documentation synchronization:
+
+```javascript
+import { getDocumentAgent } from 'minions';
+
+const docAgent = getDocumentAgent();
+
+// Sync documentation with code
+await docAgent.sync({
+  codeDir: 'src/',
+  docsDir: 'docs/',
+  mode: 'bidirectional'
+});
+
+// Features:
+// - Code → Docs: Parse code and update documentation (OpenAPI, CHANGELOG)
+// - Docs → Code: Parse docs and generate platform-specific digests
+// - Breaking change detection
+// - Conflict resolution
+// - Document versioning
+// - Incremental parsing with caching
+```
+
+## Built-in Skills
+
+### Auto-Fixer
+
+```javascript
+import { getAutoFixer } from 'minions';
+
+const autoFixer = getAutoFixer({ projectRoot: '/path/to/project' });
+await autoFixer.initialize();
+await autoFixer.handleTestFailure({ testOutput, failedTests });
+```
+
+### Code Reviewer
+
+```javascript
+import { getCodeReviewer } from 'minions';
+
+const reviewer = getCodeReviewer();
+await reviewer.initialize();
+const review = await reviewer.review('/path/to/file.js');
+// { issues, qualityScore, summary }
+```
+
+### Security Scanner
+
+```javascript
+import { getSecurityScanner } from 'minions';
+
+const scanner = getSecurityScanner();
+const results = await scanner.scan('/path/to/project');
+// Detects: hardcoded secrets, SQL injection, XSS, weak auth, etc.
+```
+
+### Test Generator
+
+```javascript
+import { getTestGenerator } from 'minions';
+
+const generator = getTestGenerator();
+const tests = await generator.generate('/path/to/source.js');
+```
+
+### Dependency Analyzer
+
+```javascript
+import { getDependencyAnalyzer } from 'minions';
+
+const analyzer = getDependencyAnalyzer();
+const deps = await analyzer.analyze('/path/to/project');
 ```
 
 ## Creating Custom Agents
@@ -198,181 +471,72 @@ EventTypes.METRICS_COLLECTED   // Metrics snapshot taken
 EventTypes.ALERT_TRIGGERED     // Alert threshold exceeded
 EventTypes.AGENT_HEALTH_CHECK  // Health check performed
 
-// See foundation/event-bus/eventTypes.js for full list
-```
-
-## Core Components
-
-### Orchestrator
-
-Coordinates agent execution with dependency resolution and parallel processing:
-
-```javascript
-const { orchestrator } = await initializeMinions();
-
-// Register agents with dependencies
-orchestrator.registerAgent('data-agent', loaderFn, []);
-orchestrator.registerAgent('analyzer', loaderFn, ['data-agent']);
-orchestrator.registerAgent('reporter', loaderFn, ['analyzer']);
-
-// Execute - runs: data-agent → analyzer → reporter
-const result = await orchestrator.execute();
-
-// Check status
-const status = orchestrator.getStatus();
-```
-
-### Autonomous Loop Manager
-
-Manages test-fix-verify cycles automatically:
-
-```javascript
-import { getAutonomousLoopManager } from 'minions';
-
-const loopManager = getAutonomousLoopManager();
-
-// Register custom matcher for routing failures to agents
-loopManager.registerAgentMatcher((failure, platform) => {
-  if (failure.file?.includes('api/')) return 'api-agent';
-  if (failure.file?.includes('frontend/')) return 'frontend-agent';
-  return null;
-});
-
-// Register agents that can fix issues
-loopManager.registerAgent('api-agent', apiAgentInstance);
-
-// Loop triggers automatically on TESTS_FAILED events
-```
-
-### Health Monitor
-
-Tracks agent health with configurable checks:
-
-```javascript
-import { getHealthMonitor, HealthStatus } from 'minions';
-
-const healthMonitor = getHealthMonitor();
-
-// Register custom health check
-healthMonitor.registerHealthCheck('my-agent', async (metrics) => ({
-  passed: metrics.custom_metric > threshold,
-  message: 'Custom metric check'
-}));
-
-// Get health summary
-const summary = healthMonitor.getHealthSummary();
-// { total_agents, healthy, degraded, unhealthy, average_score }
-```
-
-### Alerting System
-
-Triggers alerts on threshold violations:
-
-```javascript
-import { getAlertingSystem } from 'minions';
-
-const alerting = getAlertingSystem();
-
-// Register alert handlers
-alerting.registerHandler('slack', async (alert) => {
-  await slack.send({
-    channel: '#alerts',
-    text: `[${alert.severity}] ${alert.title}: ${alert.message}`
-  });
-});
-
-// Update thresholds
-alerting.updateThresholds('P1_CRITICAL', {
-  errorRate: 15,      // Trigger at 15% error rate
-  executionTime: 600000  // 10 minutes
-});
-```
-
-## Built-in Skills
-
-### Auto-Fixer
-
-```javascript
-import { getAutoFixer } from 'minions';
-
-const autoFixer = getAutoFixer({ projectRoot: '/path/to/project' });
-await autoFixer.initialize();
-await autoFixer.handleTestFailure({ testOutput, failedTests });
-```
-
-### Code Reviewer
-
-```javascript
-import { getCodeReviewer } from 'minions';
-
-const reviewer = getCodeReviewer();
-await reviewer.initialize();
-const review = await reviewer.review('/path/to/file.js');
-// { issues, qualityScore, summary }
-```
-
-### Security Scanner
-
-```javascript
-import { getSecurityScanner } from 'minions';
-
-const scanner = getSecurityScanner();
-const results = await scanner.scan('/path/to/project');
-// Detects: hardcoded secrets, SQL injection, XSS, weak auth, etc.
-```
-
-### Test Generator
-
-```javascript
-import { getTestGenerator } from 'minions';
-
-const generator = getTestGenerator();
-const tests = await generator.generate('/path/to/source.js');
-```
-
-### Dependency Analyzer
-
-```javascript
-import { getDependencyAnalyzer } from 'minions';
-
-const analyzer = getDependencyAnalyzer();
-const deps = await analyzer.analyze('/path/to/project');
+// See foundation/event-bus/eventTypes.js for full list (80+ events)
 ```
 
 ## Project Structure
 
 ```
 minions/
-├── index.js                 # Main entry point & exports
+├── index.js                    # Main entry point & exports
 ├── package.json
-├── foundation/              # Core infrastructure
-│   ├── event-bus/          # AgentEventBus, EventTypes
-│   ├── health-monitor/     # HealthMonitor, HealthStatus
-│   ├── metrics-collector/  # MetricsCollector
-│   ├── alerting/           # AlertingSystem
-│   ├── rollback-manager/   # RollbackManager (git-aware)
-│   ├── analyzers/          # BaseAnalyzer, SecurityScanner, PerformanceAnalyzer
-│   ├── parsers/            # ASTParser (Babel-based)
-│   ├── common/             # Logger (Pino-based)
-│   └── tests/              # Unit tests (Jest)
+├── foundation/                 # Core infrastructure
+│   ├── event-bus/             # AgentEventBus, EventTypes (80+ events)
+│   ├── health-monitor/        # HealthMonitor, HealthStatus
+│   ├── metrics-collector/     # MetricsCollector
+│   ├── alerting/              # AlertingSystem
+│   ├── rollback-manager/      # RollbackManager (git-aware)
+│   ├── analyzers/             # BaseAnalyzer, SecurityScanner, PerformanceAnalyzer
+│   ├── parsers/               # ASTParser (Babel-based)
+│   ├── common/                # Logger (Pino-based)
+│   └── tests/                 # Unit tests (Jest)
 ├── agents/
-│   ├── manager-agent/      # Orchestration components
+│   ├── manager-agent/         # Orchestration components
 │   │   ├── orchestrator.js
 │   │   ├── autonomous-loop-manager.js
 │   │   ├── autonomous-build-manager.js
 │   │   ├── dependency-graph.js
 │   │   ├── change-detector.js
 │   │   └── agent-pool.js
-│   └── skills/             # Reusable capabilities
-│       ├── BaseSkill.js
-│       ├── auto-fixer/
-│       ├── code-review/
-│       ├── security-scanner/
-│       ├── dependency-analyzer/
-│       └── test-generator/
-└── examples/               # Usage examples
-    ├── basic-usage.js
-    └── example-agent.js
+│   ├── skills/                # Reusable capabilities
+│   │   ├── BaseSkill.js
+│   │   ├── auto-fixer/
+│   │   ├── code-review/
+│   │   ├── security-scanner/
+│   │   ├── dependency-analyzer/
+│   │   └── test-generator/
+│   ├── tester-agent/          # Multi-platform testing
+│   │   ├── generators/        # Test generation
+│   │   ├── runners/           # Test execution
+│   │   ├── analyzers/         # Coverage, regression, flaky detection
+│   │   ├── benchmarks/        # Performance benchmarking
+│   │   └── reports/           # Report generation
+│   ├── docker-agent/          # Docker lifecycle
+│   │   ├── detectors/         # Change detection
+│   │   ├── builders/          # Image building
+│   │   ├── validators/        # Dockerfile validation
+│   │   ├── optimizers/        # Size optimization
+│   │   └── monitors/          # Health monitoring
+│   ├── github-agent/          # GitHub automation
+│   │   ├── branches/          # Branch/PR management
+│   │   ├── reviews/           # Code review engine
+│   │   ├── merges/            # Merge management
+│   │   └── releases/          # Release management
+│   ├── codebase-analyzer-agent/   # Deep codebase analysis
+│   │   └── analyzers/         # Security, performance, debt
+│   └── document-agent/        # Documentation sync
+│       ├── parsers/           # Code↔Docs parsing
+│       ├── digest-generators/ # Platform-specific digests
+│       └── validators/        # Document validation
+├── examples/                  # Usage examples
+│   ├── basic-usage.js
+│   └── example-agent.js
+└── docs/                      # Documentation
+    ├── api-reference.md
+    ├── architecture.md
+    ├── getting-started.md
+    ├── creating-agents.md
+    └── skills-guide.md
 ```
 
 ## Configuration
@@ -476,6 +640,14 @@ class CustomSkill extends BaseSkill {
 ## API Reference
 
 See [docs/api-reference.md](docs/api-reference.md) for complete API documentation.
+
+## Documentation
+
+- [API Reference](docs/api-reference.md) - Complete API documentation for all components
+- [Architecture Guide](docs/architecture.md) - Deep dive into framework internals and data flows
+- [Getting Started](docs/getting-started.md) - Step-by-step setup and first agent tutorial
+- [Creating Agents](docs/creating-agents.md) - Agent development patterns and best practices
+- [Skills Guide](docs/skills-guide.md) - Using and creating skills
 
 ## License
 

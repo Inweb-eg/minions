@@ -5,6 +5,7 @@ Guide for using and creating skills in the Minions framework.
 ## Table of Contents
 
 - [What are Skills?](#what-are-skills)
+- [Skills vs Specialized Agents](#skills-vs-specialized-agents)
 - [Built-in Skills](#built-in-skills)
 - [Using Skills](#using-skills)
 - [Creating Custom Skills](#creating-custom-skills)
@@ -30,6 +31,99 @@ Skills differ from agents:
 | Lifecycle | Registered with orchestrator | Used by agents |
 | Communication | Publishes events | Returns results |
 | State | Has execution state | Has issue tracking |
+
+---
+
+## Skills vs Specialized Agents
+
+The framework provides both **Skills** and **Specialized Agents**. Here's when to use each:
+
+### Skills
+
+Low-level, focused capabilities that are composed by agents:
+
+```javascript
+import { getCodeReviewer, getSecurityScanner } from 'minions';
+
+// Skills are simple, focused tools
+const reviewer = getCodeReviewer();
+const result = await reviewer.review('src/api.js');
+```
+
+**Use Skills when:**
+- You need a single, focused capability
+- You're building a custom agent that combines multiple capabilities
+- You need fine-grained control over the workflow
+
+### Specialized Agents
+
+High-level, comprehensive agents with multiple sub-components:
+
+```javascript
+import { getTesterAgent, getCodebaseAnalyzer } from 'minions';
+
+// Specialized agents provide complete workflows
+const tester = getTesterAgent();
+const results = await tester.runTests({
+  platform: 'backend',
+  coverage: true
+});
+```
+
+**Use Specialized Agents when:**
+- You need a complete workflow (testing, Docker, GitHub, etc.)
+- You want built-in integration between related capabilities
+- You need platform-specific functionality
+
+### Comparison Table
+
+| Feature | Skills | Specialized Agents |
+|---------|--------|-------------------|
+| Scope | Single capability | Complete workflow |
+| Complexity | Simple API | Rich API with sub-components |
+| Integration | Manual composition | Built-in integration |
+| Examples | CodeReviewer, SecurityScanner | TesterAgent, DockerAgent |
+| Use Case | Building blocks | End-to-end workflows |
+
+### Combining Skills and Specialized Agents
+
+You can use both together:
+
+```javascript
+import {
+  getTesterAgent,
+  getCodeReviewer,
+  getSecurityScanner
+} from 'minions';
+
+class QualityPipeline {
+  async run() {
+    // Use specialized agent for testing
+    const tester = getTesterAgent();
+    const testResults = await tester.runTests({
+      platform: 'backend',
+      coverage: true
+    });
+
+    // Use skills for additional analysis
+    const reviewer = getCodeReviewer();
+    const scanner = getSecurityScanner();
+
+    const changedFiles = this.getChangedFiles();
+    for (const file of changedFiles) {
+      await reviewer.review(file);
+    }
+
+    const securityResults = await scanner.scan('./src');
+
+    return {
+      tests: testResults,
+      codeQuality: reviewer.generateSummary(),
+      security: securityResults
+    };
+  }
+}
+```
 
 ---
 

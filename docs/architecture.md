@@ -6,6 +6,7 @@ Deep dive into the Minions framework architecture.
 
 - [Design Principles](#design-principles)
 - [Component Architecture](#component-architecture)
+- [Specialized Agents Architecture](#specialized-agents-architecture)
 - [Data Flow](#data-flow)
 - [Algorithms](#algorithms)
 - [Error Handling](#error-handling)
@@ -43,18 +44,30 @@ This ensures:
 ### 3. Layered Architecture
 
 ```
-┌─────────────────────────────────────────────┐
-│         Application Layer (Agents)           │
-├─────────────────────────────────────────────┤
-│         Orchestration & Management           │
-│  (Orchestrator, AutonomousLoopManager, etc.) │
-├─────────────────────────────────────────────┤
-│         Skills & Analyzers                   │
-│  (AutoFixer, CodeReviewer, SecurityScanner)  │
-├─────────────────────────────────────────────┤
-│         Foundation (Observability & Control) │
-│  (EventBus, Metrics, Health, Alerting)      │
-└─────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      Application Layer (Your Custom Agents)                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                        Specialized Agents Layer                              │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐ ┌──────────────┐  │
+│  │  Tester  │ │  Docker  │ │  GitHub  │ │   Codebase   │ │   Document   │  │
+│  │  Agent   │ │  Agent   │ │  Agent   │ │   Analyzer   │ │    Agent     │  │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────────┘ └──────────────┘  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                       Orchestration & Management                             │
+│         (Orchestrator, AutonomousLoopManager, AgentPool, DependencyGraph)   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                           Skills & Analyzers                                 │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐ ┌──────────────┐  │
+│  │AutoFixer │ │  Code    │ │ Security │ │    Test      │ │  Dependency  │  │
+│  │          │ │ Reviewer │ │ Scanner  │ │  Generator   │ │   Analyzer   │  │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────────┘ └──────────────┘  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                     Foundation (Observability & Control)                     │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐ ┌──────────────┐  │
+│  │ EventBus │ │ Metrics  │ │  Health  │ │   Alerting   │ │   Rollback   │  │
+│  │ (80+ ev) │ │Collector │ │ Monitor  │ │    System    │ │   Manager    │  │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────────┘ └──────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 Each layer only depends on layers below it.
@@ -362,6 +375,209 @@ Remaining? → Iterate (up to maxIterations)
   }
 }
 ```
+
+---
+
+## Specialized Agents Architecture
+
+The framework includes five pre-built specialized agents for common development workflows.
+
+### TesterAgent Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        TesterAgent                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐ │
+│  │  Generators │  │   Runners   │  │       Analyzers         │ │
+│  │             │  │             │  │                         │ │
+│  │ - Backend   │  │ - Backend   │  │ - Coverage Analyzer     │ │
+│  │ - React     │  │ - React     │  │ - Regression Detector   │ │
+│  │ - Mock Gen  │  │ - Flutter   │  │ - Flaky Test Detector   │ │
+│  │             │  │ - E2E       │  │ - Performance Analyzer  │ │
+│  │             │  │             │  │ - Mutation Engine       │ │
+│  └─────────────┘  └─────────────┘  │ - Quality Analyzer      │ │
+│                                     └─────────────────────────┘ │
+│  ┌─────────────────────┐  ┌───────────────────────────────────┐ │
+│  │     Benchmarks      │  │          Reports                  │ │
+│  │                     │  │                                   │ │
+│  │ - Backend Benchmark │  │ - Test Report Generator           │ │
+│  │ - Frontend Benchmark│  │ - Coverage Report Generator       │ │
+│  │ - Load Test Runner  │  │ - Performance Report Generator    │ │
+│  │ - Regression Detect │  │ - Bug Report Generator            │ │
+│  │                     │  │ - Fix Suggestion Generator        │ │
+│  └─────────────────────┘  └───────────────────────────────────┘ │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key Capabilities:**
+- Multi-platform test execution (Backend, React, Flutter, E2E)
+- Automated test generation with edge case identification
+- Coverage analysis with gap detection
+- Regression detection across test runs
+- Flaky test identification and tracking
+- Performance benchmarking with regression alerts
+- Mutation testing for test quality validation
+
+### DockerAgent Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        DockerAgent                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │    Detectors    │  │    Builders     │  │   Validators    │ │
+│  │                 │  │                 │  │                 │ │
+│  │ - File Change   │  │ - Base Builder  │  │ - Dockerfile    │ │
+│  │ - Config Change │  │ - Multi-stage   │  │ - Build         │ │
+│  │ - Dependency    │  │   Support       │  │ - Compose       │ │
+│  │   Change        │  │                 │  │ - Health        │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+│                                                                  │
+│  ┌─────────────────────────┐  ┌─────────────────────────────┐  │
+│  │       Optimizers        │  │         Monitors            │  │
+│  │                         │  │                             │  │
+│  │ - Size Optimizer        │  │ - Health Monitor            │  │
+│  │ - Layer Analyzer        │  │ - Resource Monitor          │  │
+│  │ - Vulnerability Scanner │  │                             │  │
+│  └─────────────────────────┘  └─────────────────────────────┘  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key Capabilities:**
+- Change detection for Dockerfile, config, and dependencies
+- Image building with multi-stage support
+- Dockerfile and docker-compose validation
+- Image size optimization recommendations
+- Layer analysis for cache efficiency
+- Vulnerability scanning
+- Runtime health and resource monitoring
+
+### GithubAgent Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        GithubAgent                               │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────────────┐  ┌─────────────────────────────────┐  │
+│  │      Branches       │  │           Reviews               │  │
+│  │                     │  │                                 │  │
+│  │ - Branch Manager    │  │ - Code Analyzer                 │  │
+│  │ - PR Manager        │  │ - Review Commenter              │  │
+│  │                     │  │ - Review Decision               │  │
+│  └─────────────────────┘  └─────────────────────────────────┘  │
+│                                                                  │
+│  ┌─────────────────────┐  ┌─────────────────────────────────┐  │
+│  │       Merges        │  │          Releases               │  │
+│  │                     │  │                                 │  │
+│  │ - Merge Manager     │  │ - Release Manager               │  │
+│  │ - Issue Manager     │  │ - Analytics                     │  │
+│  └─────────────────────┘  └─────────────────────────────────┘  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key Capabilities:**
+- Branch creation and management
+- Pull request lifecycle management
+- Automated code review with comments
+- Merge conflict detection and resolution
+- Issue tracking and management
+- Release management with automated notes
+- Repository analytics
+
+### CodebaseAnalyzer Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     CodebaseAnalyzer                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │                       Analyzers                              ││
+│  │                                                              ││
+│  │  ┌──────────────────┐  ┌──────────────────────────────────┐ ││
+│  │  │ Security Scanner │  │  Performance Analyzer            │ ││
+│  │  │ (Codebase-wide)  │  │  (Cross-file analysis)           │ ││
+│  │  └──────────────────┘  └──────────────────────────────────┘ ││
+│  │                                                              ││
+│  │  ┌──────────────────┐  ┌──────────────────────────────────┐ ││
+│  │  │ Dependency Mapper│  │  API Contract Validator          │ ││
+│  │  │ (Graph analysis) │  │  (OpenAPI ↔ Code)                │ ││
+│  │  └──────────────────┘  └──────────────────────────────────┘ ││
+│  │                                                              ││
+│  │  ┌──────────────────────────────────────────────────────┐   ││
+│  │  │              Technical Debt Analyzer                  │   ││
+│  │  │  (Complexity, duplication, maintainability scoring)   │   ││
+│  │  └──────────────────────────────────────────────────────┘   ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key Capabilities:**
+- System-wide security vulnerability scanning
+- Performance hotspot identification
+- Dependency graph analysis with circular detection
+- API contract validation against OpenAPI specs
+- Technical debt measurement and tracking
+- Maintainability scoring
+
+### DocumentAgent Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                       DocumentAgent                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │                  Code Parsers (Code → Docs)                  ││
+│  │                                                              ││
+│  │  - Backend Code Parser      - Breaking Change Detector       ││
+│  │  - OpenAPI Updater          - Changelog Updater              ││
+│  │  - Integration Docs Updater - Document Versioner             ││
+│  │  - Impact Analyzer          - Conflict Detector              ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │                  Docs Parsers (Docs → Code)                  ││
+│  │                                                              ││
+│  │  - API Parser               - React Parser                   ││
+│  │  - Architecture Parser      - Flutter Parser                 ││
+│  │  - Feature Parser                                            ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                  │
+│  ┌──────────────────────┐  ┌────────────────────────────────┐  │
+│  │   Digest Generators  │  │         Validators             │  │
+│  │                      │  │                                │  │
+│  │  - Backend Digest    │  │  - Document Validator          │  │
+│  │  - Admin Digest      │  │  - Digest Validator            │  │
+│  │  - User Digest       │  │                                │  │
+│  │  - Driver Digest     │  │                                │  │
+│  └──────────────────────┘  └────────────────────────────────┘  │
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │                    DocumentCache                             ││
+│  │            (Incremental parsing with caching)                ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key Capabilities:**
+- Bidirectional code-documentation synchronization
+- Code → Docs: Extract documentation from code
+- Docs → Code: Generate platform-specific digests
+- OpenAPI specification synchronization
+- CHANGELOG automation from git history
+- Breaking change detection
+- Document versioning and conflict resolution
+- Incremental parsing with intelligent caching
 
 ---
 

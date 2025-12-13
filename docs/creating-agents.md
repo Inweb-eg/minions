@@ -279,7 +279,88 @@ class AutoFixAgent {
 export default AutoFixAgent;
 ```
 
-### Pattern 4: Skill-Based Agent
+### Pattern 4: Specialized Agent Integration
+
+Agent that integrates with specialized agents:
+
+```javascript
+import {
+  getEventBus,
+  EventTypes,
+  createLogger,
+  getTesterAgent,
+  getDockerAgent,
+  getGithubAgent,
+  getCodebaseAnalyzer
+} from 'minions';
+
+const logger = createLogger('CIAgent');
+
+class CIAgent {
+  constructor(options = {}) {
+    this.name = 'ci-agent';
+    this.eventBus = getEventBus();
+    this.projectRoot = options.projectRoot || process.cwd();
+  }
+
+  async initialize() {
+    // Initialize specialized agents
+    this.tester = getTesterAgent();
+    this.docker = getDockerAgent();
+    this.github = getGithubAgent();
+    this.analyzer = getCodebaseAnalyzer();
+
+    logger.info('Specialized agents initialized');
+  }
+
+  async execute() {
+    await this.initialize();
+
+    const results = {
+      analysis: null,
+      tests: null,
+      docker: null,
+      pr: null
+    };
+
+    // Run codebase analysis
+    logger.info('Running codebase analysis...');
+    results.analysis = await this.analyzer.analyze({
+      projectRoot: this.projectRoot,
+      analyzers: ['security', 'performance']
+    });
+
+    // Run tests
+    logger.info('Running tests...');
+    results.tests = await this.tester.runTests({
+      platform: 'backend',
+      testPaths: ['tests/'],
+      coverage: true
+    });
+
+    // Build Docker image if tests pass
+    if (results.tests.success) {
+      logger.info('Building Docker image...');
+      results.docker = await this.docker.build({
+        context: this.projectRoot,
+        tag: 'myapp:latest'
+      });
+    }
+
+    // Publish results
+    this.eventBus.publish(EventTypes.AGENT_COMPLETED, {
+      agent: this.name,
+      results
+    });
+
+    return { success: results.tests.success, results };
+  }
+}
+
+export default CIAgent;
+```
+
+### Pattern 5: Skill-Based Agent
 
 Agent that uses built-in skills:
 

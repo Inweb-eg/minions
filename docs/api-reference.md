@@ -15,6 +15,12 @@ Complete API documentation for the Minions framework.
 - [AgentPool](#agentpool)
 - [DependencyGraph](#dependencygraph)
 - [ChangeDetector](#changedetector)
+- [Specialized Agents](#specialized-agents)
+  - [TesterAgent](#testeragent)
+  - [DockerAgent](#dockeragent)
+  - [GithubAgent](#githubagent)
+  - [CodebaseAnalyzer](#codebaseanalyzer)
+  - [DocumentAgent](#documentagent)
 - [Skills](#skills)
 - [Analyzers](#analyzers)
 - [ASTParser](#astparser)
@@ -923,6 +929,546 @@ Get agents affected by file changes.
 ```javascript
 const affected = graph.getAffectedAgents(['src/api/users.js']);
 // ['api-agent', 'tester-agent']
+```
+
+---
+
+## Specialized Agents
+
+### TesterAgent
+
+Multi-platform test orchestration with comprehensive analysis capabilities.
+
+#### getTesterAgent()
+
+```javascript
+import { getTesterAgent } from 'minions';
+const tester = getTesterAgent();
+```
+
+#### tester.runTests(options)
+
+Run tests for a specific platform.
+
+```javascript
+const results = await tester.runTests({
+  platform: 'backend',      // 'backend', 'react', 'flutter', 'e2e'
+  testPaths: ['tests/'],    // Test directories or files
+  coverage: true,           // Enable coverage analysis
+  watch: false              // Watch mode
+});
+```
+
+**Returns:**
+```javascript
+{
+  success: boolean,
+  summary: {
+    total: number,
+    passed: number,
+    failed: number,
+    skipped: number
+  },
+  failures: [{
+    test: string,
+    file: string,
+    error: string,
+    stack: string
+  }],
+  coverage?: CoverageReport,
+  duration: number
+}
+```
+
+#### tester.generateTests(sourceFile)
+
+Generate tests for a source file.
+
+```javascript
+const tests = await tester.generateTests('src/api/users.js');
+// {
+//   testFile: 'src/api/__tests__/users.test.js',
+//   testCases: [...],
+//   mocks: [...]
+// }
+```
+
+#### tester.analyzeCoverage(coverageData)
+
+Analyze code coverage and identify gaps.
+
+```javascript
+const analysis = await tester.analyzeCoverage(coverageData);
+// {
+//   summary: { lines, branches, functions, statements },
+//   gaps: [{ file, uncoveredLines, suggestions }],
+//   recommendations: [...]
+// }
+```
+
+#### tester.detectFlaky(testResults)
+
+Detect flaky tests from historical results.
+
+```javascript
+const flaky = await tester.detectFlaky(testHistory);
+// [{
+//   test: 'should handle async...',
+//   file: 'api.test.js',
+//   flakinessScore: 0.15,
+//   failurePatterns: [...]
+// }]
+```
+
+#### tester.runBenchmarks(options)
+
+Run performance benchmarks.
+
+```javascript
+const benchmarks = await tester.runBenchmarks({
+  type: 'backend',          // 'backend', 'frontend', 'load'
+  scenarios: ['api-latency', 'db-queries'],
+  iterations: 100
+});
+```
+
+---
+
+### DockerAgent
+
+Complete Docker lifecycle management.
+
+#### getDockerAgent()
+
+```javascript
+import { getDockerAgent } from 'minions';
+const docker = getDockerAgent();
+```
+
+#### docker.validate(dockerfilePath)
+
+Validate a Dockerfile.
+
+```javascript
+const validation = await docker.validate('./Dockerfile');
+// {
+//   valid: boolean,
+//   errors: [],
+//   warnings: [],
+//   suggestions: []
+// }
+```
+
+#### docker.build(options)
+
+Build a Docker image.
+
+```javascript
+const result = await docker.build({
+  context: '.',
+  dockerfile: './Dockerfile',
+  tag: 'myapp:latest',
+  buildArgs: { NODE_ENV: 'production' },
+  cache: true
+});
+```
+
+#### docker.optimize(imageName)
+
+Analyze and optimize a Docker image.
+
+```javascript
+const optimization = await docker.optimize('myapp:latest');
+// {
+//   currentSize: '500MB',
+//   potentialSize: '200MB',
+//   suggestions: [
+//     { type: 'multi-stage', savings: '150MB' },
+//     { type: 'layer-order', impact: 'cache-efficiency' }
+//   ]
+// }
+```
+
+#### docker.scanVulnerabilities(imageName)
+
+Scan image for security vulnerabilities.
+
+```javascript
+const scan = await docker.scanVulnerabilities('myapp:latest');
+// {
+//   vulnerabilities: [{
+//     severity: 'HIGH',
+//     package: 'openssl',
+//     version: '1.0.2',
+//     fixedIn: '1.1.1',
+//     description: '...'
+//   }],
+//   summary: { critical: 0, high: 2, medium: 5, low: 10 }
+// }
+```
+
+#### docker.validateCompose(composePath)
+
+Validate a docker-compose file.
+
+```javascript
+const validation = await docker.validateCompose('./docker-compose.yml');
+```
+
+#### docker.monitorHealth(containerName)
+
+Monitor container health.
+
+```javascript
+const health = await docker.monitorHealth('myapp-container');
+// {
+//   status: 'healthy',
+//   checks: [...],
+//   resources: { cpu: '5%', memory: '150MB' }
+// }
+```
+
+---
+
+### GithubAgent
+
+Complete GitHub automation.
+
+#### getGithubAgent()
+
+```javascript
+import { getGithubAgent } from 'minions';
+const github = getGithubAgent();
+```
+
+#### github.createBranch(branchName, options)
+
+Create a new branch.
+
+```javascript
+await github.createBranch('feature/new-feature', {
+  base: 'main',
+  checkout: true
+});
+```
+
+#### github.createPullRequest(options)
+
+Create a pull request.
+
+```javascript
+const pr = await github.createPullRequest({
+  title: 'Add user authentication',
+  body: 'This PR adds...',
+  base: 'main',
+  head: 'feature/auth',
+  draft: false,
+  labels: ['enhancement'],
+  reviewers: ['username']
+});
+// { number: 123, url: 'https://github.com/...' }
+```
+
+#### github.reviewCode(prNumber)
+
+Perform automated code review.
+
+```javascript
+const review = await github.reviewCode(123);
+// {
+//   decision: 'COMMENT',  // 'APPROVE', 'REQUEST_CHANGES', 'COMMENT'
+//   comments: [{
+//     path: 'src/api.js',
+//     line: 42,
+//     body: 'Consider adding error handling here'
+//   }],
+//   summary: '...'
+// }
+```
+
+#### github.mergePullRequest(prNumber, options)
+
+Merge a pull request.
+
+```javascript
+await github.mergePullRequest(123, {
+  method: 'squash',         // 'merge', 'squash', 'rebase'
+  commitMessage: 'feat: add auth (#123)',
+  deleteSourceBranch: true
+});
+```
+
+#### github.createRelease(options)
+
+Create a GitHub release.
+
+```javascript
+const release = await github.createRelease({
+  tag: 'v1.2.0',
+  name: 'Version 1.2.0',
+  body: 'Release notes...',
+  draft: false,
+  prerelease: false,
+  generateNotes: true
+});
+```
+
+#### github.manageIssue(issueNumber, action)
+
+Manage GitHub issues.
+
+```javascript
+await github.manageIssue(456, {
+  action: 'close',          // 'close', 'reopen', 'label', 'assign'
+  labels: ['bug', 'fixed'],
+  assignees: ['developer']
+});
+```
+
+---
+
+### CodebaseAnalyzer
+
+System-wide deep analysis across codebases.
+
+#### getCodebaseAnalyzer()
+
+```javascript
+import { getCodebaseAnalyzer } from 'minions';
+const analyzer = getCodebaseAnalyzer();
+```
+
+#### analyzer.analyze(options)
+
+Run comprehensive codebase analysis.
+
+```javascript
+const report = await analyzer.analyze({
+  projectRoot: '/path/to/project',
+  analyzers: ['security', 'performance', 'dependencies', 'technical-debt'],
+  exclude: ['node_modules', 'dist']
+});
+```
+
+**Returns:**
+```javascript
+{
+  security: {
+    vulnerabilities: [...],
+    score: 85,
+    recommendations: [...]
+  },
+  performance: {
+    issues: [...],
+    hotspots: [...],
+    score: 78
+  },
+  dependencies: {
+    graph: {...},
+    outdated: [...],
+    conflicts: [...],
+    unused: [...]
+  },
+  technicalDebt: {
+    score: 72,
+    items: [...],
+    estimatedEffort: '40 hours',
+    priority: [...]
+  }
+}
+```
+
+#### analyzer.scanSecurity(options)
+
+Deep security scan.
+
+```javascript
+const security = await analyzer.scanSecurity({
+  projectRoot: '/path',
+  includeTests: false
+});
+```
+
+#### analyzer.analyzePerformance(options)
+
+Performance analysis across the codebase.
+
+```javascript
+const perf = await analyzer.analyzePerformance({
+  projectRoot: '/path',
+  focus: ['database', 'api', 'memory']
+});
+```
+
+#### analyzer.mapDependencies(options)
+
+Create a dependency map.
+
+```javascript
+const deps = await analyzer.mapDependencies({
+  projectRoot: '/path',
+  includeDevDeps: true,
+  depth: 3
+});
+// {
+//   graph: { nodes: [...], edges: [...] },
+//   circular: [...],
+//   unused: [...],
+//   duplicates: [...]
+// }
+```
+
+#### analyzer.measureTechnicalDebt(options)
+
+Measure technical debt.
+
+```javascript
+const debt = await analyzer.measureTechnicalDebt({
+  projectRoot: '/path',
+  baseline: previousReport
+});
+// {
+//   score: 72,
+//   trend: 'improving',
+//   items: [...],
+//   byCategory: { ... }
+// }
+```
+
+#### analyzer.validateApiContracts(options)
+
+Validate API contracts.
+
+```javascript
+const contracts = await analyzer.validateApiContracts({
+  specPath: 'openapi.yaml',
+  codePath: 'src/api/'
+});
+// {
+//   valid: boolean,
+//   mismatches: [...],
+//   undocumented: [...],
+//   deprecated: [...]
+// }
+```
+
+---
+
+### DocumentAgent
+
+Bidirectional code-documentation synchronization.
+
+#### getDocumentAgent()
+
+```javascript
+import { getDocumentAgent } from 'minions';
+const docAgent = getDocumentAgent();
+```
+
+#### docAgent.sync(options)
+
+Synchronize code and documentation.
+
+```javascript
+const result = await docAgent.sync({
+  codeDir: 'src/',
+  docsDir: 'docs/',
+  mode: 'bidirectional',    // 'code-to-docs', 'docs-to-code', 'bidirectional'
+  dryRun: false
+});
+// {
+//   changes: [...],
+//   conflicts: [...],
+//   updated: { docs: 5, code: 2 }
+// }
+```
+
+#### docAgent.parseCode(options)
+
+Parse code to extract documentation.
+
+```javascript
+const parsed = await docAgent.parseCode({
+  files: ['src/api/*.js'],
+  extractJSDoc: true,
+  extractTypes: true
+});
+// {
+//   functions: [...],
+//   classes: [...],
+//   types: [...],
+//   exports: [...]
+// }
+```
+
+#### docAgent.updateOpenAPI(options)
+
+Update OpenAPI specification from code.
+
+```javascript
+await docAgent.updateOpenAPI({
+  codePath: 'src/api/',
+  specPath: 'openapi.yaml',
+  preserve: ['info', 'servers']
+});
+```
+
+#### docAgent.updateChangelog(options)
+
+Update CHANGELOG from git history.
+
+```javascript
+await docAgent.updateChangelog({
+  changelogPath: 'CHANGELOG.md',
+  since: 'v1.0.0',
+  categorize: true      // Group by type (feat, fix, etc.)
+});
+```
+
+#### docAgent.detectBreakingChanges(options)
+
+Detect breaking changes between versions.
+
+```javascript
+const breaking = await docAgent.detectBreakingChanges({
+  oldVersion: 'v1.0.0',
+  newVersion: 'HEAD'
+});
+// {
+//   breaking: [...],
+//   deprecations: [...],
+//   migrations: [...]
+// }
+```
+
+#### docAgent.generateDigest(options)
+
+Generate platform-specific documentation digest.
+
+```javascript
+const digest = await docAgent.generateDigest({
+  platform: 'backend',      // 'backend', 'admin', 'user', 'driver'
+  format: 'markdown',
+  includeExamples: true
+});
+```
+
+#### docAgent.validateDocs(options)
+
+Validate documentation quality and accuracy.
+
+```javascript
+const validation = await docAgent.validateDocs({
+  docsDir: 'docs/',
+  checkLinks: true,
+  checkExamples: true
+});
+// {
+//   valid: boolean,
+//   brokenLinks: [...],
+//   outdatedExamples: [...],
+//   missingDocs: [...]
+// }
 ```
 
 ---

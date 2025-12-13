@@ -459,7 +459,58 @@ alerting.registerHandler('email', async (alert) => {
 
 See [Creating Agents Guide](./creating-agents.md) for detailed patterns.
 
-### 2. Use Built-in Skills
+### 2. Use Specialized Agents
+
+The framework includes pre-built agents for common workflows:
+
+```javascript
+import {
+  getTesterAgent,
+  getDockerAgent,
+  getGithubAgent,
+  getCodebaseAnalyzer,
+  getDocumentAgent
+} from './minions/index.js';
+
+// Multi-platform testing with coverage analysis
+const tester = getTesterAgent();
+const testResults = await tester.runTests({
+  platform: 'backend',
+  testPaths: ['tests/'],
+  coverage: true
+});
+
+// Docker lifecycle management
+const docker = getDockerAgent();
+await docker.validate('./Dockerfile');
+await docker.build({ context: '.', tag: 'myapp:latest' });
+
+// GitHub automation
+const github = getGithubAgent();
+await github.createPullRequest({
+  title: 'Add feature',
+  body: 'Description...',
+  base: 'main',
+  head: 'feature/new'
+});
+
+// Deep codebase analysis
+const analyzer = getCodebaseAnalyzer();
+const report = await analyzer.analyze({
+  projectRoot: '.',
+  analyzers: ['security', 'performance', 'technical-debt']
+});
+
+// Documentation sync
+const docAgent = getDocumentAgent();
+await docAgent.sync({
+  codeDir: 'src/',
+  docsDir: 'docs/',
+  mode: 'bidirectional'
+});
+```
+
+### 3. Use Built-in Skills
 
 ```javascript
 import {
@@ -485,7 +536,7 @@ const scanner = getSecurityScanner();
 const securityResults = await scanner.scan('/path/to/project');
 ```
 
-### 3. Setup Autonomous Fix Loops
+### 4. Setup Autonomous Fix Loops
 
 ```javascript
 import { getAutonomousLoopManager } from './minions/index.js';
@@ -506,14 +557,14 @@ loopManager.registerAgent('frontend-agent', frontendAgentInstance);
 // Loop activates automatically on TESTS_FAILED events
 ```
 
-### 4. Read the Full Documentation
+### 5. Read the Full Documentation
 
 - [API Reference](./api-reference.md) - Complete API documentation
 - [Architecture Guide](./architecture.md) - Deep dive into internals
 - [Creating Agents](./creating-agents.md) - Agent development patterns
 - [Skills Guide](./skills-guide.md) - Using and creating skills
 
-### 5. Run the Examples
+### 6. Run the Examples
 
 ```bash
 # Basic usage
