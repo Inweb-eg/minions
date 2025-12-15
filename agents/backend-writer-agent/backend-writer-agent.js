@@ -106,6 +106,18 @@ export class BackendWriterAgent {
       this.skills.validator.defaultLib = config.validator;
     }
 
+    // Update TypeScript setting for all skills
+    if (config.typescript !== undefined || config.useTypeScript !== undefined) {
+      const useTs = config.typescript ?? config.useTypeScript;
+      this.config.useTypeScript = useTs;
+      Object.values(this.skills).forEach(skill => {
+        if (skill.setTypeScript) {
+          skill.setTypeScript(useTs);
+        }
+        skill.useTypeScript = useTs;
+      });
+    }
+
     this.logger.info('BackendWriterAgent configured', config);
   }
 
