@@ -208,6 +208,9 @@ export {
   getLocalizationGenerator,
   LocalizationGenerator,
   LOCALE,
+  getFlutterTestGenerator,
+  FlutterTestGenerator,
+  FLUTTER_TEST_TYPE,
   VERSION as FLUTTER_WRITER_VERSION,
   INFO as FLUTTER_WRITER_INFO
 } from './agents/flutter-writer-agent/index.js';
@@ -237,6 +240,10 @@ export {
   getControllerGenerator,
   ControllerGenerator,
   CONTROLLER_TYPE,
+  getBackendTestGenerator,
+  BackendTestGenerator,
+  BACKEND_TEST_TYPE,
+  TEST_FRAMEWORK,
   VERSION as BACKEND_WRITER_VERSION,
   INFO as BACKEND_WRITER_INFO
 } from './agents/backend-writer-agent/index.js';
@@ -268,6 +275,10 @@ export {
   PageGenerator as FrontendPageGenerator,
   PAGE_TYPE as FRONTEND_PAGE_TYPE,
   FRAMEWORK,
+  getFrontendTestGenerator,
+  FrontendTestGenerator,
+  FRONTEND_TEST_TYPE,
+  E2E_FRAMEWORK,
   VERSION as FRONTEND_WRITER_VERSION,
   INFO as FRONTEND_WRITER_INFO
 } from './agents/frontend-writer-agent/index.js';

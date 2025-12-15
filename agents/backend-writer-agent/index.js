@@ -52,6 +52,13 @@ export {
   CONTROLLER_TYPE
 } from './skills/controller-generator.js';
 
+export {
+  BackendTestGenerator,
+  getBackendTestGenerator,
+  BACKEND_TEST_TYPE,
+  TEST_FRAMEWORK
+} from './skills/test-generator.js';
+
 // Utilities
 export { createLogger } from './utils/logger.js';
 
@@ -73,7 +80,8 @@ export const INFO = {
     'service-generator',
     'middleware-generator',
     'validator-generator',
-    'controller-generator'
+    'controller-generator',
+    'test-generator'
   ],
   defaultConfig: {
     framework: 'express',

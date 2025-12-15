@@ -50,6 +50,12 @@ export {
   LOCALE
 } from './skills/localization-generator.js';
 
+export {
+  FlutterTestGenerator,
+  getFlutterTestGenerator,
+  TEST_TYPE as FLUTTER_TEST_TYPE
+} from './skills/test-generator.js';
+
 // Utilities
 export { createLogger } from './utils/logger.js';
 
@@ -71,7 +77,8 @@ export const INFO = {
     'service-generator',
     'bloc-generator',
     'page-generator',
-    'localization-generator'
+    'localization-generator',
+    'test-generator'
   ],
   defaultConfig: {
     stateManagement: 'bloc',

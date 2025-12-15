@@ -53,6 +53,13 @@ export {
   FRAMEWORK
 } from './skills/page-generator.js';
 
+export {
+  FrontendTestGenerator,
+  getFrontendTestGenerator,
+  FRONTEND_TEST_TYPE,
+  E2E_FRAMEWORK
+} from './skills/test-generator.js';
+
 // Utilities
 export { createLogger } from './utils/logger.js';
 
@@ -74,7 +81,8 @@ export const INFO = {
     'store-generator',
     'form-generator',
     'api-generator',
-    'page-generator'
+    'page-generator',
+    'test-generator'
   ],
   defaultConfig: {
     useTypeScript: true,
