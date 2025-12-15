@@ -1,0 +1,25 @@
+{
+  "name": "@minions/backend-writer-agent",
+  "version": "1.0.0",
+  "description": "Node.js/Express backend code generation agent",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./skills/*": "./skills/*.js"
+  },
+  "keywords": [
+    "minions",
+    "agent",
+    "code-generation",
+    "backend",
+    "express",
+    "nodejs",
+    "mongoose",
+    "sequelize"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "peerDependencies": {}
+}

@@ -8,6 +8,36 @@ export const EventTypes = {
   CODE_UPDATED: 'CODE_UPDATED',
   CODE_DELETED: 'CODE_DELETED',
 
+  // Code Writer Agent events
+  CODE_GENERATION_REQUESTED: 'code:generation:requested',
+  CODE_GENERATION_STARTED: 'code:generation:started',
+  CODE_GENERATION_COMPLETED: 'code:generation:completed',
+  CODE_GENERATION_FAILED: 'code:generation:failed',
+
+  // Flutter code generation events
+  FLUTTER_WIDGET_GENERATED: 'flutter:widget:generated',
+  FLUTTER_MODEL_GENERATED: 'flutter:model:generated',
+  FLUTTER_SERVICE_GENERATED: 'flutter:service:generated',
+  FLUTTER_BLOC_GENERATED: 'flutter:bloc:generated',
+  FLUTTER_PAGE_GENERATED: 'flutter:page:generated',
+  FLUTTER_L10N_GENERATED: 'flutter:l10n:generated',
+
+  // Backend code generation events
+  BACKEND_ROUTE_GENERATED: 'backend:route:generated',
+  BACKEND_MODEL_GENERATED: 'backend:model:generated',
+  BACKEND_SERVICE_GENERATED: 'backend:service:generated',
+  BACKEND_MIDDLEWARE_GENERATED: 'backend:middleware:generated',
+  BACKEND_VALIDATOR_GENERATED: 'backend:validator:generated',
+  BACKEND_CONTROLLER_GENERATED: 'backend:controller:generated',
+
+  // Frontend code generation events
+  FRONTEND_COMPONENT_GENERATED: 'frontend:component:generated',
+  FRONTEND_HOOK_GENERATED: 'frontend:hook:generated',
+  FRONTEND_STORE_GENERATED: 'frontend:store:generated',
+  FRONTEND_FORM_GENERATED: 'frontend:form:generated',
+  FRONTEND_API_GENERATED: 'frontend:api:generated',
+  FRONTEND_PAGE_GENERATED: 'frontend:page:generated',
+
   // Code analysis events
   CODE_ANALYZED: 'CODE_ANALYZED',
   QUALITY_SCORED: 'QUALITY_SCORED',

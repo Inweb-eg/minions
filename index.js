@@ -181,6 +181,97 @@ export {
   EscalationLevel
 } from './agents/planner-agent/index.js';
 
+// Writer Skills base class
+export { BaseWriterSkill, LANGUAGE, GENERATION_RESULT } from './agents/writer-skills/BaseWriterSkill.js';
+
+// Flutter Writer Agent exports
+export {
+  getFlutterWriterAgent,
+  FlutterWriterAgent,
+  // Skills
+  getWidgetGenerator,
+  WidgetGenerator,
+  WIDGET_TYPE,
+  WIDGET_PATTERN,
+  getModelGenerator as getFlutterModelGenerator,
+  ModelGenerator as FlutterModelGenerator,
+  MODEL_TYPE as FLUTTER_MODEL_TYPE,
+  getServiceGenerator as getFlutterServiceGenerator,
+  ServiceGenerator as FlutterServiceGenerator,
+  HTTP_METHOD as FLUTTER_HTTP_METHOD,
+  getBlocGenerator,
+  BlocGenerator,
+  BLOC_TYPE,
+  getPageGenerator as getFlutterPageGenerator,
+  PageGenerator as FlutterPageGenerator,
+  PAGE_TYPE as FLUTTER_PAGE_TYPE,
+  getLocalizationGenerator,
+  LocalizationGenerator,
+  LOCALE,
+  VERSION as FLUTTER_WRITER_VERSION,
+  INFO as FLUTTER_WRITER_INFO
+} from './agents/flutter-writer-agent/index.js';
+
+// Backend Writer Agent exports
+export {
+  getBackendWriterAgent,
+  BackendWriterAgent,
+  // Skills
+  getRouteGenerator,
+  RouteGenerator,
+  ROUTE_TYPE,
+  getModelGenerator as getBackendModelGenerator,
+  ModelGenerator as BackendModelGenerator,
+  ORM_TYPE,
+  MONGOOSE_TYPE,
+  getServiceGenerator as getBackendServiceGenerator,
+  ServiceGenerator as BackendServiceGenerator,
+  SERVICE_TYPE,
+  getMiddlewareGenerator,
+  MiddlewareGenerator,
+  MIDDLEWARE_TYPE,
+  getValidatorGenerator,
+  ValidatorGenerator,
+  VALIDATOR_LIB,
+  FIELD_TYPE as VALIDATOR_FIELD_TYPE,
+  getControllerGenerator,
+  ControllerGenerator,
+  CONTROLLER_TYPE,
+  VERSION as BACKEND_WRITER_VERSION,
+  INFO as BACKEND_WRITER_INFO
+} from './agents/backend-writer-agent/index.js';
+
+// Frontend Writer Agent exports
+export {
+  getFrontendWriterAgent,
+  FrontendWriterAgent,
+  // Skills
+  getComponentGenerator,
+  ComponentGenerator,
+  COMPONENT_TYPE,
+  CSS_FRAMEWORK,
+  getHookGenerator,
+  HookGenerator,
+  HOOK_TYPE,
+  getStoreGenerator,
+  StoreGenerator,
+  STORE_TYPE,
+  getFormGenerator,
+  FormGenerator,
+  FORM_TYPE,
+  FORM_FIELD_TYPE,
+  getApiGenerator,
+  ApiGenerator,
+  API_CLIENT,
+  HTTP_METHOD as FRONTEND_HTTP_METHOD,
+  getPageGenerator as getFrontendPageGenerator,
+  PageGenerator as FrontendPageGenerator,
+  PAGE_TYPE as FRONTEND_PAGE_TYPE,
+  FRAMEWORK,
+  VERSION as FRONTEND_WRITER_VERSION,
+  INFO as FRONTEND_WRITER_INFO
+} from './agents/frontend-writer-agent/index.js';
+
 /**
  * Initialize the Minions framework
  *

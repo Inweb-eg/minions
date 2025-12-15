@@ -1,0 +1,21 @@
+{
+  "name": "@minions/flutter-writer-agent",
+  "version": "1.0.0",
+  "description": "Flutter/Dart code generation agent with Widget, Model, Service, Bloc, Page, and Localization skills",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./skills/*": "./skills/*.js"
+  },
+  "keywords": [
+    "flutter",
+    "dart",
+    "code-generation",
+    "widgets",
+    "bloc",
+    "minions"
+  ],
+  "author": "Minions Framework",
+  "license": "MIT"
+}

@@ -1,0 +1,24 @@
+{
+  "name": "@minions/frontend-writer-agent",
+  "version": "1.0.0",
+  "description": "React/TypeScript frontend code generation agent",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./skills/*": "./skills/*.js"
+  },
+  "keywords": [
+    "minions",
+    "agent",
+    "code-generation",
+    "frontend",
+    "react",
+    "typescript",
+    "nextjs"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "peerDependencies": {}
+}
