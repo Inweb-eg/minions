@@ -272,6 +272,19 @@ export {
   INFO as FRONTEND_WRITER_INFO
 } from './agents/frontend-writer-agent/index.js';
 
+// Writer Agents Registry (Orchestrator Integration)
+export {
+  WriterAgentType,
+  registerWriterAgents,
+  initializeWriterAgents,
+  requestCodeGeneration,
+  generateCode,
+  getWriterAgent,
+  configureWriterAgent,
+  cleanup as cleanupWriterAgents,
+  isReady as isWriterAgentsReady
+} from './agents/writer-agents-registry.js';
+
 /**
  * Initialize the Minions framework
  *
@@ -285,6 +298,11 @@ export {
  * @param {boolean} options.enableVisionAgent - Enable Vision Agent (default: false)
  * @param {boolean} options.enableArchitectAgent - Enable Architect Agent (default: false)
  * @param {boolean} options.enablePlannerAgent - Enable Planner Agent (default: false)
+ * @param {boolean} options.enableWriterAgents - Enable Code Writer Agents (default: false)
+ * @param {Object} options.writerAgentOptions - Writer agent configuration
+ * @param {Object} options.writerAgentOptions.flutterConfig - Flutter Writer config
+ * @param {Object} options.writerAgentOptions.backendConfig - Backend Writer config
+ * @param {Object} options.writerAgentOptions.frontendConfig - Frontend Writer config
  * @param {number} options.maxConcurrency - Max concurrent agents (default: 5)
  * @returns {Object} Initialized framework components
  *
@@ -315,6 +333,7 @@ export async function initializeMinions(options = {}) {
     enableVisionAgent = false,
     enableArchitectAgent = false,
     enablePlannerAgent = false,
+    enableWriterAgents = false,
     maxConcurrency = 5
   } = options;
 
@@ -402,6 +421,15 @@ export async function initializeMinions(options = {}) {
     await plannerAgent.initialize(eventBus);
   }
 
+  // Code Writer Agents
+  let writerAgentsInitialized = false;
+
+  if (enableWriterAgents) {
+    const { initializeWriterAgents } = await import('./agents/writer-agents-registry.js');
+    await initializeWriterAgents(options.writerAgentOptions || {});
+    writerAgentsInitialized = true;
+  }
+
   // Configure orchestrator
   orchestrator.maxConcurrency = maxConcurrency;
 
@@ -442,7 +470,9 @@ export async function initializeMinions(options = {}) {
     // Phase 2 components
     architectAgent,
     // Phase 3 components
-    plannerAgent
+    plannerAgent,
+    // Code Writer Agents
+    writerAgentsInitialized
   };
 }
 
