@@ -332,6 +332,147 @@ await docAgent.sync({
 // - Incremental parsing with caching
 ```
 
+## Code Writer Agents
+
+Minions includes specialized code generation agents for different platforms.
+
+### Flutter Writer Agent
+
+Generates Flutter/Dart code with 6 specialized skills:
+
+```javascript
+import { getFlutterWriterAgent } from 'minions';
+
+const flutter = getFlutterWriterAgent();
+
+await flutter.configure({
+  projectPath: './my-flutter-app',
+  stateManagement: 'bloc',  // bloc | provider | riverpod
+  useFreezed: true
+});
+
+await flutter.initialize();
+
+// Generate a widget
+const widget = await flutter.generateWidget({
+  name: 'UserCard',
+  type: 'stateless',
+  props: [
+    { name: 'user', type: 'User', required: true },
+    { name: 'onTap', type: 'VoidCallback' }
+  ]
+});
+
+// Generate a Bloc
+const bloc = await flutter.generateBloc({
+  name: 'Auth',
+  events: ['Login', 'Logout', 'CheckStatus'],
+  states: ['Initial', 'Loading', 'Authenticated', 'Unauthenticated', 'Error']
+});
+
+// Skills:
+// - WidgetGenerator: Stateless/Stateful widgets
+// - ModelGenerator: Freezed/JSON serializable models
+// - ServiceGenerator: Dio-based API services
+// - BlocGenerator: Bloc/Cubit state management
+// - PageGenerator: Scaffold pages with navigation
+// - LocalizationGenerator: ARB files for i18n
+```
+
+### Backend Writer Agent
+
+Generates Node.js/Express backend code with 6 specialized skills:
+
+```javascript
+import { getBackendWriterAgent } from 'minions';
+
+const backend = getBackendWriterAgent();
+
+await backend.configure({
+  projectPath: './my-backend',
+  orm: 'mongoose',        // mongoose | sequelize
+  validator: 'joi'        // joi | zod
+});
+
+await backend.initialize();
+
+// Generate a route
+const route = await backend.generateRoute({
+  name: 'users',
+  basePath: '/api/users',
+  endpoints: [
+    { method: 'GET', path: '/', handler: 'list' },
+    { method: 'POST', path: '/', handler: 'create' },
+    { method: 'GET', path: '/:id', handler: 'getById' }
+  ]
+});
+
+// Generate a Mongoose model
+const model = await backend.generateModel({
+  name: 'User',
+  orm: 'mongoose',
+  fields: [
+    { name: 'email', type: 'string', required: true, unique: true },
+    { name: 'name', type: 'string', required: true },
+    { name: 'role', type: 'string', enum: ['admin', 'user'], default: 'user' }
+  ]
+});
+
+// Skills:
+// - RouteGenerator: Express routes with middleware
+// - ModelGenerator: Mongoose/Sequelize models
+// - ServiceGenerator: Business logic layer
+// - MiddlewareGenerator: Auth, rate limiting, error handling
+// - ValidatorGenerator: Joi/Zod validation schemas
+// - ControllerGenerator: Request handlers
+```
+
+### Frontend Writer Agent
+
+Generates React/TypeScript frontend code with 6 specialized skills:
+
+```javascript
+import { getFrontendWriterAgent } from 'minions';
+
+const frontend = getFrontendWriterAgent();
+
+await frontend.configure({
+  projectPath: './my-frontend',
+  stateManagement: 'context',  // context | zustand | redux
+  cssFramework: 'tailwind',
+  typescript: true
+});
+
+await frontend.initialize();
+
+// Generate a component
+const component = await frontend.generateComponent({
+  name: 'UserProfile',
+  type: 'functional',
+  props: [
+    { name: 'userId', type: 'string', required: true },
+    { name: 'onUpdate', type: '(user: User) => void' }
+  ],
+  hooks: ['useState', 'useEffect']
+});
+
+// Generate a custom hook
+const hook = await frontend.generateHook({
+  name: 'useUser',
+  type: 'query',
+  endpoint: '/api/users/:id',
+  returnType: 'User'
+});
+
+// Skills:
+// - ComponentGenerator: React functional components
+// - HookGenerator: Custom hooks (state, query, mutation)
+// - StoreGenerator: Context/Zustand/Redux stores
+// - FormGenerator: React Hook Form integration
+// - ApiGenerator: React Query/SWR hooks
+// - PageGenerator: Page components with layouts
+```
+
 ## Built-in Skills
 
 ### Auto-Fixer
@@ -524,10 +665,18 @@ minions/
 │   │   └── releases/          # Release management
 │   ├── codebase-analyzer-agent/   # Deep codebase analysis
 │   │   └── analyzers/         # Security, performance, debt
-│   └── document-agent/        # Documentation sync
-│       ├── parsers/           # Code↔Docs parsing
-│       ├── digest-generators/ # Platform-specific digests
-│       └── validators/        # Document validation
+│   ├── document-agent/        # Documentation sync
+│   │   ├── parsers/           # Code↔Docs parsing
+│   │   ├── digest-generators/ # Platform-specific digests
+│   │   └── validators/        # Document validation
+│   ├── flutter-writer-agent/  # Flutter code generation
+│   │   └── skills/            # Widget, Model, Service, Bloc, Page, L10n
+│   ├── backend-writer-agent/  # Backend code generation
+│   │   └── skills/            # Route, Model, Service, Middleware, Validator, Controller
+│   ├── frontend-writer-agent/ # Frontend code generation
+│   │   └── skills/            # Component, Hook, Store, Form, Api, Page
+│   └── writer-skills/         # Base class for writer skills
+│       └── BaseWriterSkill.js
 ├── examples/                  # Usage examples
 │   ├── basic-usage.js
 │   └── example-agent.js

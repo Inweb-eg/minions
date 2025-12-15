@@ -21,6 +21,10 @@ Complete API documentation for the Minions framework.
   - [GithubAgent](#githubagent)
   - [CodebaseAnalyzer](#codebaseanalyzer)
   - [DocumentAgent](#documentagent)
+- [Code Writer Agents](#code-writer-agents)
+  - [FlutterWriterAgent](#flutterwriteragent)
+  - [BackendWriterAgent](#backendwriteragent)
+  - [FrontendWriterAgent](#frontendwriteragent)
 - [Skills](#skills)
 - [Analyzers](#analyzers)
 - [ASTParser](#astparser)
@@ -1469,6 +1473,426 @@ const validation = await docAgent.validateDocs({
 //   outdatedExamples: [...],
 //   missingDocs: [...]
 // }
+```
+
+---
+
+## Code Writer Agents
+
+Specialized agents for generating platform-specific code.
+
+### FlutterWriterAgent
+
+Generates Flutter/Dart code with Bloc state management.
+
+#### getFlutterWriterAgent()
+
+```javascript
+import { getFlutterWriterAgent } from 'minions';
+const flutter = getFlutterWriterAgent();
+```
+
+#### flutter.configure(config)
+
+Configure the agent.
+
+```javascript
+await flutter.configure({
+  projectPath: './my-app',
+  stateManagement: 'bloc',  // 'bloc' | 'provider' | 'riverpod'
+  apiClient: 'dio',
+  useFreezed: true,
+  useJsonSerializable: true,
+  nullSafety: true,
+  l10nEnabled: true,
+  supportedLocales: ['en', 'ar', 'ku']
+});
+```
+
+#### flutter.generateWidget(spec)
+
+Generate a Flutter widget.
+
+```javascript
+const result = await flutter.generateWidget({
+  name: 'UserCard',
+  type: 'stateless',  // 'stateless' | 'stateful'
+  props: [
+    { name: 'user', type: 'User', required: true },
+    { name: 'onTap', type: 'VoidCallback' }
+  ],
+  imports: ['package:myapp/models/user.dart']
+});
+// Returns: { success, filePath, code, imports }
+```
+
+#### flutter.generateModel(spec)
+
+Generate a data model with Freezed.
+
+```javascript
+const result = await flutter.generateModel({
+  name: 'User',
+  fields: [
+    { name: 'id', type: 'String', required: true },
+    { name: 'email', type: 'String', required: true },
+    { name: 'name', type: 'String' },
+    { name: 'createdAt', type: 'DateTime', jsonKey: 'created_at' }
+  ],
+  useFreezed: true,
+  generateCopyWith: true,
+  generateToJson: true
+});
+```
+
+#### flutter.generateService(spec)
+
+Generate a Dio-based API service.
+
+```javascript
+const result = await flutter.generateService({
+  name: 'UserService',
+  baseUrl: '/api/users',
+  endpoints: [
+    { method: 'GET', path: '/', name: 'getUsers', returnType: 'List<User>' },
+    { method: 'GET', path: '/:id', name: 'getUser', returnType: 'User' },
+    { method: 'POST', path: '/', name: 'createUser', body: 'CreateUserRequest', returnType: 'User' }
+  ]
+});
+```
+
+#### flutter.generateBloc(spec)
+
+Generate a Bloc or Cubit.
+
+```javascript
+const result = await flutter.generateBloc({
+  name: 'Auth',
+  type: 'bloc',  // 'bloc' | 'cubit'
+  events: ['Login', 'Logout', 'CheckStatus'],
+  states: ['Initial', 'Loading', 'Authenticated', 'Unauthenticated', 'Error'],
+  methods: [
+    { event: 'Login', handler: '_onLogin' },
+    { event: 'Logout', handler: '_onLogout' }
+  ]
+});
+```
+
+#### flutter.generatePage(spec)
+
+Generate a page with Scaffold.
+
+```javascript
+const result = await flutter.generatePage({
+  name: 'HomePage',
+  hasAppBar: true,
+  appBarTitle: 'Home',
+  hasDrawer: true,
+  hasBottomNav: false,
+  hasFloatingButton: true,
+  bloc: 'HomeBloc'
+});
+```
+
+#### flutter.generateLocalization(spec)
+
+Generate ARB localization files.
+
+```javascript
+const result = await flutter.generateLocalization({
+  strings: {
+    appTitle: 'My App',
+    welcomeMessage: 'Welcome, {name}!',
+    itemCount: '{count, plural, =0{No items} =1{1 item} other{{count} items}}'
+  },
+  locales: ['en', 'ar', 'ku'],
+  outputDir: 'lib/l10n'
+});
+```
+
+---
+
+### BackendWriterAgent
+
+Generates Node.js/Express backend code with Mongoose ORM.
+
+#### getBackendWriterAgent()
+
+```javascript
+import { getBackendWriterAgent } from 'minions';
+const backend = getBackendWriterAgent();
+```
+
+#### backend.configure(config)
+
+Configure the agent.
+
+```javascript
+await backend.configure({
+  projectPath: './my-backend',
+  framework: 'express',
+  orm: 'mongoose',        // 'mongoose' | 'sequelize'
+  validator: 'joi',       // 'joi' | 'zod'
+  typescript: false,
+  useRepositoryPattern: true
+});
+```
+
+#### backend.generateRoute(spec)
+
+Generate Express routes.
+
+```javascript
+const result = await backend.generateRoute({
+  name: 'users',
+  basePath: '/api/users',
+  endpoints: [
+    { method: 'GET', path: '/', handler: 'list', middleware: ['auth'] },
+    { method: 'POST', path: '/', handler: 'create', middleware: ['auth', 'validate'] },
+    { method: 'GET', path: '/:id', handler: 'getById' },
+    { method: 'PUT', path: '/:id', handler: 'update' },
+    { method: 'DELETE', path: '/:id', handler: 'delete' }
+  ]
+});
+// Returns: { success, filePath, code }
+```
+
+#### backend.generateModel(spec)
+
+Generate a Mongoose model.
+
+```javascript
+const result = await backend.generateModel({
+  name: 'User',
+  orm: 'mongoose',
+  fields: [
+    { name: 'email', type: 'string', required: true, unique: true, index: true },
+    { name: 'password', type: 'string', required: true, select: false },
+    { name: 'name', type: 'string', required: true },
+    { name: 'role', type: 'string', enum: ['admin', 'user'], default: 'user' },
+    { name: 'profile', type: 'ref', ref: 'Profile' }
+  ],
+  timestamps: true,
+  methods: ['comparePassword', 'generateToken'],
+  statics: ['findByEmail'],
+  indexes: [{ fields: { email: 1 }, unique: true }]
+});
+```
+
+#### backend.generateService(spec)
+
+Generate a service layer.
+
+```javascript
+const result = await backend.generateService({
+  name: 'UserService',
+  type: 'crud',  // 'crud' | 'custom'
+  model: 'User',
+  methods: [
+    { name: 'findByEmail', params: ['email'], returns: 'User' },
+    { name: 'updatePassword', params: ['userId', 'newPassword'], returns: 'void' }
+  ],
+  useRepository: true,
+  useTransactions: true
+});
+```
+
+#### backend.generateMiddleware(spec)
+
+Generate middleware.
+
+```javascript
+const result = await backend.generateMiddleware({
+  name: 'auth',
+  type: 'auth',  // 'auth' | 'validation' | 'rateLimit' | 'errorHandler' | 'custom'
+  options: {
+    jwtSecret: 'process.env.JWT_SECRET',
+    excludePaths: ['/api/auth/login', '/api/auth/register']
+  }
+});
+```
+
+#### backend.generateValidator(spec)
+
+Generate Joi validation schemas.
+
+```javascript
+const result = await backend.generateValidator({
+  name: 'user',
+  library: 'joi',  // 'joi' | 'zod'
+  schemas: {
+    create: [
+      { field: 'email', type: 'string', rules: ['email', 'required'] },
+      { field: 'password', type: 'string', rules: ['min:8', 'required'] },
+      { field: 'name', type: 'string', rules: ['required'] }
+    ],
+    update: [
+      { field: 'email', type: 'string', rules: ['email'] },
+      { field: 'name', type: 'string' }
+    ]
+  }
+});
+```
+
+#### backend.generateController(spec)
+
+Generate a controller.
+
+```javascript
+const result = await backend.generateController({
+  name: 'UserController',
+  type: 'rest',  // 'rest' | 'custom'
+  service: 'UserService',
+  methods: [
+    { name: 'list', httpMethod: 'GET', path: '/' },
+    { name: 'create', httpMethod: 'POST', path: '/' },
+    { name: 'getById', httpMethod: 'GET', path: '/:id' },
+    { name: 'update', httpMethod: 'PUT', path: '/:id' },
+    { name: 'delete', httpMethod: 'DELETE', path: '/:id' }
+  ]
+});
+```
+
+---
+
+### FrontendWriterAgent
+
+Generates React/TypeScript frontend code with Context state management.
+
+#### getFrontendWriterAgent()
+
+```javascript
+import { getFrontendWriterAgent } from 'minions';
+const frontend = getFrontendWriterAgent();
+```
+
+#### frontend.configure(config)
+
+Configure the agent.
+
+```javascript
+await frontend.configure({
+  projectPath: './my-frontend',
+  framework: 'react',       // 'react' | 'nextjs'
+  stateManagement: 'context',  // 'context' | 'zustand' | 'redux'
+  apiClient: 'react-query', // 'react-query' | 'swr' | 'axios'
+  typescript: true,
+  cssFramework: 'tailwind', // 'tailwind' | 'styled-components' | 'css-modules'
+  formLibrary: 'react-hook-form'
+});
+```
+
+#### frontend.generateComponent(spec)
+
+Generate a React component.
+
+```javascript
+const result = await frontend.generateComponent({
+  name: 'UserProfile',
+  type: 'functional',
+  props: [
+    { name: 'userId', type: 'string', required: true },
+    { name: 'onUpdate', type: '(user: User) => void' },
+    { name: 'className', type: 'string' }
+  ],
+  hooks: ['useState', 'useEffect'],
+  cssFramework: 'tailwind',
+  withMemo: true
+});
+// Returns: { success, filePath, code, testCode }
+```
+
+#### frontend.generateHook(spec)
+
+Generate a custom hook.
+
+```javascript
+const result = await frontend.generateHook({
+  name: 'useUser',
+  type: 'query',  // 'state' | 'query' | 'mutation' | 'subscription' | 'custom'
+  endpoint: '/api/users/:id',
+  returnType: 'User',
+  params: [{ name: 'id', type: 'string' }],
+  options: {
+    staleTime: 5000,
+    cacheTime: 300000
+  }
+});
+```
+
+#### frontend.generateStore(spec)
+
+Generate state management store.
+
+```javascript
+const result = await frontend.generateStore({
+  name: 'auth',
+  type: 'context',  // 'context' | 'zustand' | 'redux'
+  state: [
+    { name: 'user', type: 'User | null', initial: 'null' },
+    { name: 'isAuthenticated', type: 'boolean', initial: 'false' },
+    { name: 'loading', type: 'boolean', initial: 'false' }
+  ],
+  actions: [
+    { name: 'login', params: ['credentials: LoginCredentials'], async: true },
+    { name: 'logout', async: true },
+    { name: 'setUser', params: ['user: User'] }
+  ]
+});
+```
+
+#### frontend.generateForm(spec)
+
+Generate a form component.
+
+```javascript
+const result = await frontend.generateForm({
+  name: 'LoginForm',
+  type: 'controlled',  // 'controlled' | 'uncontrolled'
+  fields: [
+    { name: 'email', type: 'email', label: 'Email', required: true, validation: 'email' },
+    { name: 'password', type: 'password', label: 'Password', required: true, validation: 'min:8' },
+    { name: 'rememberMe', type: 'checkbox', label: 'Remember me' }
+  ],
+  onSubmit: 'handleLogin',
+  useReactHookForm: true,
+  cssFramework: 'tailwind'
+});
+```
+
+#### frontend.generateApi(spec)
+
+Generate API integration hooks.
+
+```javascript
+const result = await frontend.generateApi({
+  name: 'users',
+  client: 'react-query',  // 'react-query' | 'swr' | 'axios'
+  baseUrl: '/api/users',
+  endpoints: [
+    { method: 'GET', path: '/', name: 'useUsers', returnType: 'User[]' },
+    { method: 'GET', path: '/:id', name: 'useUser', returnType: 'User' },
+    { method: 'POST', path: '/', name: 'useCreateUser', returnType: 'User' },
+    { method: 'PUT', path: '/:id', name: 'useUpdateUser', returnType: 'User' },
+    { method: 'DELETE', path: '/:id', name: 'useDeleteUser', returnType: 'void' }
+  ]
+});
+```
+
+#### frontend.generatePage(spec)
+
+Generate a page component.
+
+```javascript
+const result = await frontend.generatePage({
+  name: 'UsersPage',
+  type: 'list',  // 'list' | 'detail' | 'form' | 'dashboard' | 'custom'
+  framework: 'react',
+  layout: 'DashboardLayout',
+  dataSource: 'useUsers',
+  features: ['search', 'pagination', 'sorting'],
+  actions: ['create', 'edit', 'delete']
+});
 ```
 
 ---

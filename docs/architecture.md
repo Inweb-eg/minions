@@ -7,6 +7,7 @@ Deep dive into the Minions framework architecture.
 - [Design Principles](#design-principles)
 - [Component Architecture](#component-architecture)
 - [Specialized Agents Architecture](#specialized-agents-architecture)
+- [Code Writer Agents Architecture](#code-writer-agents-architecture)
 - [Data Flow](#data-flow)
 - [Algorithms](#algorithms)
 - [Error Handling](#error-handling)
@@ -578,6 +579,241 @@ The framework includes five pre-built specialized agents for common development 
 - Breaking change detection
 - Document versioning and conflict resolution
 - Incremental parsing with intelligent caching
+
+---
+
+## Code Writer Agents Architecture
+
+The framework includes three specialized code generation agents that extend the BaseWriterSkill class.
+
+### BaseWriterSkill
+
+Base class for all code generation skills, extending BaseSkill with additional capabilities:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      BaseWriterSkill                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Extends BaseSkill with:                                        │
+│  ┌─────────────────────┐  ┌─────────────────────────────────┐  │
+│  │  Template Engine    │  │    File Operations              │  │
+│  │                     │  │                                 │  │
+│  │  - loadTemplate()   │  │  - writeFile()                  │  │
+│  │  - renderTemplate() │  │  - readFile()                   │  │
+│  │  - interpolation    │  │  - ensureDir()                  │  │
+│  │                     │  │  - dryRun mode                  │  │
+│  └─────────────────────┘  └─────────────────────────────────┘  │
+│                                                                  │
+│  ┌─────────────────────┐  ┌─────────────────────────────────┐  │
+│  │  Code Formatting    │  │    Spec Validation              │  │
+│  │                     │  │                                 │  │
+│  │  - formatCode()     │  │  - validateSpec()               │  │
+│  │  - Dart, JS, TS     │  │  - Schema validation            │  │
+│  │  - JSON, YAML       │  │  - Required field checks        │  │
+│  └─────────────────────┘  └─────────────────────────────────┘  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### FlutterWriterAgent Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    FlutterWriterAgent                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Configuration:                                                  │
+│  - projectPath: Flutter project root                            │
+│  - stateManagement: 'bloc' | 'provider' | 'riverpod'           │
+│  - apiClient: 'dio'                                             │
+│  - useFreezed: true/false                                       │
+│  - l10nEnabled: true/false                                      │
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │                         Skills                               ││
+│  │                                                              ││
+│  │  ┌────────────────┐  ┌────────────────┐  ┌───────────────┐ ││
+│  │  │WidgetGenerator │  │ ModelGenerator │  │ServiceGenerator││
+│  │  │                │  │                │  │               │ ││
+│  │  │ - Stateless    │  │ - Freezed      │  │ - Dio-based   │ ││
+│  │  │ - Stateful     │  │ - JsonSerial.  │  │ - REST APIs   │ ││
+│  │  │ - Custom props │  │ - Nullable     │  │ - Error hand. │ ││
+│  │  └────────────────┘  └────────────────┘  └───────────────┘ ││
+│  │                                                              ││
+│  │  ┌────────────────┐  ┌────────────────┐  ┌───────────────┐ ││
+│  │  │  BlocGenerator │  │ PageGenerator  │  │LocalizationGen││
+│  │  │                │  │                │  │               │ ││
+│  │  │ - Bloc/Cubit   │  │ - Scaffold     │  │ - ARB files   │ ││
+│  │  │ - Events       │  │ - AppBar       │  │ - Plurals     │ ││
+│  │  │ - States       │  │ - Navigation   │  │ - Parameters  │ ││
+│  │  └────────────────┘  └────────────────┘  └───────────────┘ ││
+│  │                                                              ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                  │
+│  Output Directory Structure:                                     │
+│  lib/                                                           │
+│  ├── models/          # Generated models (Freezed)              │
+│  ├── services/        # API services (Dio)                      │
+│  ├── bloc/            # Bloc/Cubit state management             │
+│  ├── pages/           # Page widgets                            │
+│  ├── widgets/         # Reusable widgets                        │
+│  └── l10n/            # ARB localization files                  │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key Capabilities:**
+- Flutter widget generation (Stateless/Stateful)
+- Freezed data models with JSON serialization
+- Dio-based API service generation
+- Bloc/Cubit state management boilerplate
+- Page scaffolding with navigation
+- ARB localization file generation
+
+### BackendWriterAgent Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    BackendWriterAgent                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Configuration:                                                  │
+│  - projectPath: Backend project root                            │
+│  - framework: 'express'                                         │
+│  - orm: 'mongoose' | 'sequelize'                                │
+│  - validator: 'joi' | 'zod'                                     │
+│  - useRepositoryPattern: true/false                             │
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │                         Skills                               ││
+│  │                                                              ││
+│  │  ┌────────────────┐  ┌────────────────┐  ┌───────────────┐ ││
+│  │  │ RouteGenerator │  │ ModelGenerator │  │ServiceGenerator││
+│  │  │                │  │                │  │               │ ││
+│  │  │ - Express      │  │ - Mongoose     │  │ - CRUD ops    │ ││
+│  │  │ - REST/CRUD    │  │ - Sequelize    │  │ - Repository  │ ││
+│  │  │ - Middleware   │  │ - Schemas      │  │ - Transactions│ ││
+│  │  └────────────────┘  └────────────────┘  └───────────────┘ ││
+│  │                                                              ││
+│  │  ┌────────────────┐  ┌────────────────┐  ┌───────────────┐ ││
+│  │  │MiddlewareGen   │  │ValidatorGen    │  │ControllerGen  ││
+│  │  │                │  │                │  │               │ ││
+│  │  │ - Auth (JWT)   │  │ - Joi schemas  │  │ - REST        │ ││
+│  │  │ - Rate limit   │  │ - Zod schemas  │  │ - Error hand. │ ││
+│  │  │ - Error hand.  │  │ - Custom rules │  │ - Response    │ ││
+│  │  └────────────────┘  └────────────────┘  └───────────────┘ ││
+│  │                                                              ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                  │
+│  Output Directory Structure:                                     │
+│  src/                                                           │
+│  ├── routes/          # Express route files                     │
+│  ├── models/          # Mongoose/Sequelize models               │
+│  ├── services/        # Business logic layer                    │
+│  ├── middleware/      # Express middleware                      │
+│  ├── validators/      # Joi/Zod validation schemas              │
+│  └── controllers/     # Request handlers                        │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key Capabilities:**
+- Express route generation with middleware
+- Mongoose/Sequelize model generation
+- Service layer with repository pattern
+- JWT authentication middleware
+- Joi/Zod validation schemas
+- Controller generation with error handling
+
+### FrontendWriterAgent Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                   FrontendWriterAgent                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Configuration:                                                  │
+│  - projectPath: Frontend project root                           │
+│  - framework: 'react' | 'nextjs'                                │
+│  - stateManagement: 'context' | 'zustand' | 'redux'             │
+│  - apiClient: 'react-query' | 'swr' | 'axios'                   │
+│  - cssFramework: 'tailwind' | 'styled-components'               │
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │                         Skills                               ││
+│  │                                                              ││
+│  │  ┌────────────────┐  ┌────────────────┐  ┌───────────────┐ ││
+│  │  │ComponentGen    │  │  HookGenerator │  │ StoreGenerator││
+│  │  │                │  │                │  │               │ ││
+│  │  │ - Functional   │  │ - useState     │  │ - Context     │ ││
+│  │  │ - TypeScript   │  │ - useQuery     │  │ - Zustand     │ ││
+│  │  │ - Props/Memo   │  │ - useMutation  │  │ - Redux       │ ││
+│  │  └────────────────┘  └────────────────┘  └───────────────┘ ││
+│  │                                                              ││
+│  │  ┌────────────────┐  ┌────────────────┐  ┌───────────────┐ ││
+│  │  │ FormGenerator  │  │  ApiGenerator  │  │ PageGenerator ││
+│  │  │                │  │                │  │               │ ││
+│  │  │ - React Hook   │  │ - React Query  │  │ - List/Detail │ ││
+│  │  │   Form         │  │ - SWR          │  │ - Dashboard   │ ││
+│  │  │ - Validation   │  │ - Type-safe    │  │ - Layouts     │ ││
+│  │  └────────────────┘  └────────────────┘  └───────────────┘ ││
+│  │                                                              ││
+│  └─────────────────────────────────────────────────────────────┘│
+│                                                                  │
+│  Output Directory Structure:                                     │
+│  src/                                                           │
+│  ├── components/      # React components                        │
+│  ├── hooks/           # Custom hooks                            │
+│  ├── stores/          # State management                        │
+│  │   └── contexts/    # React Context providers                 │
+│  ├── forms/           # Form components                         │
+│  ├── api/             # API integration hooks                   │
+│  └── pages/           # Page components                         │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key Capabilities:**
+- React functional component generation
+- TypeScript interfaces and type safety
+- Custom hook generation (state, query, mutation)
+- Context/Zustand/Redux store generation
+- React Hook Form integration
+- React Query/SWR API hooks
+- Page components with layouts
+
+### Code Generation Data Flow
+
+```
+1. Agent Configuration
+   ↓
+   flutter.configure({ projectPath: './app', stateManagement: 'bloc' })
+
+2. Generation Request
+   ↓
+   flutter.generateWidget({ name: 'UserCard', type: 'stateless', ... })
+
+3. Skill Invocation
+   ↓
+   WidgetGenerator.generate(spec)
+   ├─→ validateSpec(spec)        # Validate input
+   ├─→ loadTemplate('stateless') # Load appropriate template
+   ├─→ renderTemplate(data)      # Interpolate values
+   └─→ formatCode(code, 'dart')  # Format output
+
+4. File Output
+   ↓
+   writeFile(filePath, code, { dryRun: false })
+
+5. Event Publishing
+   ↓
+   eventBus.publish(EventTypes.FLUTTER_WIDGET_GENERATED, {
+     agent: 'flutter-writer-agent',
+     filePath,
+     spec
+   })
+```
 
 ---
 

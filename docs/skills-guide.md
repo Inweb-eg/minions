@@ -7,8 +7,10 @@ Guide for using and creating skills in the Minions framework.
 - [What are Skills?](#what-are-skills)
 - [Skills vs Specialized Agents](#skills-vs-specialized-agents)
 - [Built-in Skills](#built-in-skills)
+- [Writer Skills](#writer-skills)
 - [Using Skills](#using-skills)
 - [Creating Custom Skills](#creating-custom-skills)
+- [Creating Writer Skills](#creating-writer-skills)
 - [Skill Best Practices](#skill-best-practices)
 
 ---
@@ -283,6 +285,170 @@ console.log('Vulnerabilities:', deps.vulnerabilities.length);
 const updates = await analyzer.checkUpdates();
 updates.forEach(pkg => {
   console.log(`${pkg.name}: ${pkg.current} → ${pkg.latest}`);
+});
+```
+
+---
+
+## Writer Skills
+
+Writer skills are specialized skills for code generation. They extend `BaseWriterSkill` which provides additional capabilities for template management, file operations, and code formatting.
+
+### BaseWriterSkill
+
+The foundation class for all code generation skills:
+
+```javascript
+import { BaseWriterSkill, LANGUAGE, GENERATION_RESULT } from 'minions';
+
+// Available languages
+LANGUAGE.JAVASCRIPT
+LANGUAGE.TYPESCRIPT
+LANGUAGE.DART
+LANGUAGE.JSON
+LANGUAGE.YAML
+
+// Generation results
+GENERATION_RESULT.SUCCESS
+GENERATION_RESULT.SKIPPED
+GENERATION_RESULT.ERROR
+```
+
+### Flutter Writer Skills
+
+| Skill | Description |
+|-------|-------------|
+| **WidgetGenerator** | Generate Stateless/Stateful Flutter widgets |
+| **ModelGenerator** | Generate Freezed/JSON serializable data models |
+| **ServiceGenerator** | Generate Dio-based API services |
+| **BlocGenerator** | Generate Bloc/Cubit state management |
+| **PageGenerator** | Generate pages with Scaffold |
+| **LocalizationGenerator** | Generate ARB localization files |
+
+```javascript
+import {
+  getWidgetGenerator,
+  getFlutterModelGenerator,
+  getFlutterServiceGenerator,
+  getBlocGenerator,
+  getFlutterPageGenerator,
+  getLocalizationGenerator
+} from 'minions';
+
+// Generate a Flutter widget
+const widgetGen = getWidgetGenerator();
+const widget = await widgetGen.generate({
+  name: 'UserCard',
+  type: 'stateless',
+  props: [{ name: 'user', type: 'User', required: true }]
+});
+
+// Generate a Bloc
+const blocGen = getBlocGenerator();
+const bloc = await blocGen.generate({
+  name: 'Auth',
+  type: 'bloc',
+  events: ['Login', 'Logout'],
+  states: ['Initial', 'Loading', 'Authenticated', 'Error']
+});
+```
+
+### Backend Writer Skills
+
+| Skill | Description |
+|-------|-------------|
+| **RouteGenerator** | Generate Express routes with middleware |
+| **ModelGenerator** | Generate Mongoose/Sequelize models |
+| **ServiceGenerator** | Generate service layer with repository pattern |
+| **MiddlewareGenerator** | Generate auth, validation, rate limiting middleware |
+| **ValidatorGenerator** | Generate Joi/Zod validation schemas |
+| **ControllerGenerator** | Generate REST controllers |
+
+```javascript
+import {
+  getRouteGenerator,
+  getBackendModelGenerator,
+  getBackendServiceGenerator,
+  getMiddlewareGenerator,
+  getValidatorGenerator,
+  getControllerGenerator
+} from 'minions';
+
+// Generate an Express route
+const routeGen = getRouteGenerator();
+const route = await routeGen.generate({
+  name: 'users',
+  basePath: '/api/users',
+  endpoints: [
+    { method: 'GET', path: '/', handler: 'list' },
+    { method: 'POST', path: '/', handler: 'create' }
+  ]
+});
+
+// Generate a Mongoose model
+const modelGen = getBackendModelGenerator();
+const model = await modelGen.generate({
+  name: 'User',
+  orm: 'mongoose',
+  fields: [
+    { name: 'email', type: 'string', required: true, unique: true },
+    { name: 'name', type: 'string', required: true }
+  ]
+});
+```
+
+### Frontend Writer Skills
+
+| Skill | Description |
+|-------|-------------|
+| **ComponentGenerator** | Generate React functional components |
+| **HookGenerator** | Generate custom hooks (state, query, mutation) |
+| **StoreGenerator** | Generate Context/Zustand/Redux stores |
+| **FormGenerator** | Generate form components with React Hook Form |
+| **ApiGenerator** | Generate React Query/SWR API hooks |
+| **PageGenerator** | Generate page components with layouts |
+
+```javascript
+import {
+  getComponentGenerator,
+  getHookGenerator,
+  getStoreGenerator,
+  getFormGenerator,
+  getApiGenerator,
+  getFrontendPageGenerator
+} from 'minions';
+
+// Generate a React component
+const componentGen = getComponentGenerator();
+const component = await componentGen.generate({
+  name: 'UserProfile',
+  type: 'functional',
+  props: [{ name: 'userId', type: 'string', required: true }],
+  hooks: ['useState', 'useEffect']
+});
+
+// Generate a custom hook
+const hookGen = getHookGenerator();
+const hook = await hookGen.generate({
+  name: 'useUser',
+  type: 'query',
+  endpoint: '/api/users/:id',
+  returnType: 'User'
+});
+
+// Generate a Context store
+const storeGen = getStoreGenerator();
+const store = await storeGen.generate({
+  name: 'auth',
+  type: 'context',
+  state: [
+    { name: 'user', type: 'User | null', initial: 'null' },
+    { name: 'isAuthenticated', type: 'boolean', initial: 'false' }
+  ],
+  actions: [
+    { name: 'login', params: ['credentials'], async: true },
+    { name: 'logout', async: true }
+  ]
 });
 ```
 
@@ -609,6 +775,247 @@ class LintingSkill extends BaseSkill {
     }
   }
 }
+```
+
+---
+
+## Creating Writer Skills
+
+Writer skills extend `BaseWriterSkill` for code generation with template support.
+
+### Basic Writer Skill
+
+```javascript
+import { BaseWriterSkill, LANGUAGE, GENERATION_RESULT } from 'minions';
+
+class CustomGenerator extends BaseWriterSkill {
+  constructor(options = {}) {
+    super('CustomGenerator', options);
+
+    // Load templates
+    this.loadTemplate('default', `
+// Generated by CustomGenerator
+// {{timestamp}}
+
+{{content}}
+`);
+  }
+
+  async generate(spec) {
+    // Validate spec
+    const validation = this.validateSpec(spec, {
+      required: ['name', 'content']
+    });
+
+    if (!validation.valid) {
+      return {
+        success: false,
+        result: GENERATION_RESULT.ERROR,
+        errors: validation.errors
+      };
+    }
+
+    // Render template
+    const code = this.renderTemplate('default', {
+      timestamp: new Date().toISOString(),
+      content: spec.content
+    });
+
+    // Format code
+    const formatted = this.formatCode(code, LANGUAGE.JAVASCRIPT);
+
+    // Write file (respects dryRun option)
+    const filePath = `${this.outputPath}/${spec.name}.js`;
+    await this.writeFile(filePath, formatted);
+
+    return {
+      success: true,
+      result: GENERATION_RESULT.SUCCESS,
+      filePath,
+      code: formatted
+    };
+  }
+}
+
+// Singleton factory
+let instance = null;
+export function getCustomGenerator(options = {}) {
+  if (!instance) {
+    instance = new CustomGenerator(options);
+  }
+  return instance;
+}
+```
+
+### Writer Skill with Multiple Templates
+
+```javascript
+import { BaseWriterSkill, LANGUAGE, GENERATION_RESULT } from 'minions';
+
+class ComponentGenerator extends BaseWriterSkill {
+  constructor(options = {}) {
+    super('ComponentGenerator', options);
+
+    // Load multiple templates
+    this.loadTemplate('functional', `
+import React from 'react';
+{{imports}}
+
+{{propsInterface}}
+
+export const {{name}}: React.FC<{{name}}Props> = ({{destructuredProps}}) => {
+  {{hooks}}
+
+  return (
+    {{jsx}}
+  );
+};
+`);
+
+    this.loadTemplate('memo', `
+import React, { memo } from 'react';
+{{imports}}
+
+{{propsInterface}}
+
+export const {{name}} = memo<{{name}}Props>(({{destructuredProps}}) => {
+  {{hooks}}
+
+  return (
+    {{jsx}}
+  );
+});
+`);
+  }
+
+  async generate(spec) {
+    const validation = this.validateSpec(spec, {
+      required: ['name'],
+      defaults: {
+        type: 'functional',
+        props: [],
+        hooks: [],
+        withMemo: false
+      }
+    });
+
+    if (!validation.valid) {
+      return { success: false, errors: validation.errors };
+    }
+
+    // Select template based on options
+    const templateName = spec.withMemo ? 'memo' : 'functional';
+
+    // Prepare template data
+    const data = {
+      name: spec.name,
+      imports: this.generateImports(spec),
+      propsInterface: this.generatePropsInterface(spec),
+      destructuredProps: this.generateDestructuredProps(spec),
+      hooks: this.generateHooks(spec),
+      jsx: spec.jsx || '<div>TODO</div>'
+    };
+
+    // Render and format
+    const code = this.renderTemplate(templateName, data);
+    const formatted = this.formatCode(code, LANGUAGE.TYPESCRIPT);
+
+    // Write file
+    const filePath = `${this.outputPath}/components/${spec.name}.tsx`;
+    await this.writeFile(filePath, formatted);
+
+    return {
+      success: true,
+      result: GENERATION_RESULT.SUCCESS,
+      filePath,
+      code: formatted
+    };
+  }
+
+  generateImports(spec) {
+    // Custom import generation logic
+    return spec.imports?.join('\\n') || '';
+  }
+
+  generatePropsInterface(spec) {
+    if (!spec.props?.length) {
+      return `interface ${spec.name}Props {}`;
+    }
+
+    const fields = spec.props.map(p =>
+      `  ${p.name}${p.required ? '' : '?'}: ${p.type};`
+    ).join('\\n');
+
+    return `interface ${spec.name}Props {\\n${fields}\\n}`;
+  }
+
+  generateDestructuredProps(spec) {
+    if (!spec.props?.length) return '{}';
+    return `{ ${spec.props.map(p => p.name).join(', ')} }`;
+  }
+
+  generateHooks(spec) {
+    return spec.hooks?.map(h => `  // ${h}`).join('\\n') || '';
+  }
+}
+```
+
+### Writer Skill with Event Integration
+
+```javascript
+import { BaseWriterSkill, EventTypes, GENERATION_RESULT } from 'minions';
+
+class ModelGenerator extends BaseWriterSkill {
+  constructor(options = {}) {
+    super('ModelGenerator', options);
+  }
+
+  subscribeToEvents() {
+    // React to architecture decisions
+    this.subscribe(EventTypes.ARCHITECTURE_DECISION_MADE, this.handleArchitectureDecision);
+  }
+
+  async handleArchitectureDecision(data) {
+    if (data.decision.type === 'model-definition') {
+      await this.generate(data.decision.spec);
+    }
+  }
+
+  async generate(spec) {
+    // Generation logic...
+    const result = await this.doGenerate(spec);
+
+    // Publish event on success
+    if (result.success) {
+      this.publish(EventTypes.BACKEND_MODEL_GENERATED, {
+        model: spec.name,
+        filePath: result.filePath,
+        fields: spec.fields
+      });
+    }
+
+    return result;
+  }
+}
+```
+
+### Dry Run Mode
+
+All writer skills support dry run mode for previewing changes:
+
+```javascript
+const generator = getComponentGenerator({
+  outputPath: './src',
+  dryRun: true  // Don't write files
+});
+
+const result = await generator.generate({
+  name: 'UserCard',
+  props: [{ name: 'user', type: 'User' }]
+});
+
+console.log('Would write to:', result.filePath);
+console.log('Generated code:\\n', result.code);
 ```
 
 ---
