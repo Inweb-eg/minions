@@ -28,6 +28,17 @@ Complete API documentation for the Minions framework.
 - [Skills](#skills)
 - [Analyzers](#analyzers)
 - [ASTParser](#astparser)
+- [Phase 0: Foundation Enhancements](#phase-0-foundation-enhancements)
+  - [MemoryStore](#memorystore)
+  - [DecisionLogger](#decisionlogger)
+  - [EnhancedEventBus](#enhancedeventbus)
+  - [StateMachine](#statemachine)
+- [Phase 1: Vision Agent](#phase-1-vision-agent)
+- [Phase 2: Architect Agent](#phase-2-architect-agent)
+- [Phase 3: Planner Agent](#phase-3-planner-agent)
+- [Writer Agents Registry](#writer-agents-registry)
+- [CLI Reference](#cli-reference)
+- [initializeMinions Options (Complete)](#initializeminions-options-complete)
 
 ---
 
@@ -2205,4 +2216,853 @@ EventTypes.GENERATE_TESTS
 
 // Skill Lifecycle
 EventTypes.SKILL_READY
+
+// Vision Agent Events
+EventTypes.vision:parse:readme
+EventTypes.vision:requirements:ready
+EventTypes.vision:feature:decomposed
+
+// Architect Agent Events
+EventTypes.architect:blueprint:created
+EventTypes.architect:contract:defined
+EventTypes.architect:drift:detected
+
+// Planner Agent Events
+EventTypes.planner:plan:created
+EventTypes.planner:execution:started
+EventTypes.planner:progress:updated
+```
+
+---
+
+## Phase 0: Foundation Enhancements
+
+### MemoryStore
+
+Persistent key-value store with SQLite backend for agent memory persistence.
+
+#### getMemoryStore(options)
+
+```javascript
+import { getMemoryStore, MemoryNamespace } from 'minions';
+
+const memoryStore = getMemoryStore({
+  dbPath: './data/minions-memory.db',  // Database path
+  inMemory: false                       // Use in-memory fallback
+});
+
+await memoryStore.initialize();
+```
+
+#### MemoryNamespace Constants
+
+```javascript
+import { MemoryNamespace } from 'minions';
+
+MemoryNamespace.PROJECT_STATE      // Project state data
+MemoryNamespace.AGENT_STATE        // Agent-specific state
+MemoryNamespace.DECISIONS          // Decision history
+MemoryNamespace.KNOWLEDGE_BASE     // Learned patterns
+MemoryNamespace.PATTERNS           // Code patterns
+MemoryNamespace.EXECUTION_HISTORY  // Execution logs
+MemoryNamespace.CONFIG             // Configuration
+```
+
+#### memoryStore.set(namespace, key, value, options)
+
+Store a value with optional TTL and metadata.
+
+```javascript
+await memoryStore.set(
+  MemoryNamespace.AGENT_STATE,
+  'my-agent:last-run',
+  { timestamp: Date.now(), success: true },
+  { ttl: 3600000, metadata: { source: 'my-agent' } }  // 1 hour TTL
+);
+```
+
+#### memoryStore.get(namespace, key)
+
+Retrieve a value.
+
+```javascript
+const value = await memoryStore.get(
+  MemoryNamespace.AGENT_STATE,
+  'my-agent:last-run'
+);
+```
+
+#### memoryStore.getAll(namespace)
+
+Get all values in a namespace.
+
+```javascript
+const allState = await memoryStore.getAll(MemoryNamespace.AGENT_STATE);
+```
+
+#### memoryStore.delete(namespace, key)
+
+Delete a value.
+
+```javascript
+await memoryStore.delete(MemoryNamespace.AGENT_STATE, 'my-agent:last-run');
+```
+
+---
+
+### DecisionLogger
+
+Captures agent decisions with context and reasoning for learning and debugging.
+
+#### getDecisionLogger()
+
+```javascript
+import { getDecisionLogger, DecisionType, DecisionOutcome } from 'minions';
+
+const decisionLogger = getDecisionLogger();
+await decisionLogger.initialize();
+```
+
+#### DecisionType Constants
+
+```javascript
+DecisionType.ARCHITECTURAL     // Architecture decisions
+DecisionType.IMPLEMENTATION    // Implementation choices
+DecisionType.FIX               // Bug fix strategies
+DecisionType.REFACTOR          // Refactoring decisions
+DecisionType.TEST              // Testing strategies
+DecisionType.DEPLOYMENT        // Deployment choices
+```
+
+#### DecisionOutcome Constants
+
+```javascript
+DecisionOutcome.SUCCESS        // Decision led to success
+DecisionOutcome.FAILURE        // Decision led to failure
+DecisionOutcome.PARTIAL        // Partial success
+DecisionOutcome.PENDING        // Awaiting outcome
+DecisionOutcome.SUPERSEDED     // Replaced by another decision
+```
+
+#### decisionLogger.log(decision)
+
+Log a decision.
+
+```javascript
+const decisionId = await decisionLogger.log({
+  agent: 'architect-agent',
+  type: DecisionType.ARCHITECTURAL,
+  context: { feature: 'authentication', requirements: [...] },
+  decision: 'Use JWT with refresh tokens',
+  reasoning: 'Stateless auth required for horizontal scaling',
+  alternatives: ['Session-based auth', 'OAuth only'],
+  confidence: 0.85
+});
+```
+
+#### decisionLogger.updateOutcome(decisionId, outcome, details)
+
+Update the outcome of a decision.
+
+```javascript
+await decisionLogger.updateOutcome(decisionId, DecisionOutcome.SUCCESS, {
+  implementedBy: 'backend-writer-agent',
+  verifiedBy: 'tester-agent'
+});
+```
+
+#### decisionLogger.query(filters)
+
+Query decision history.
+
+```javascript
+const decisions = await decisionLogger.query({
+  agent: 'architect-agent',
+  type: DecisionType.ARCHITECTURAL,
+  outcome: DecisionOutcome.SUCCESS,
+  since: Date.now() - 86400000  // Last 24 hours
+});
+```
+
+#### decisionLogger.getRelatedDecisions(decisionId)
+
+Get decisions related to a parent decision.
+
+```javascript
+const related = await decisionLogger.getRelatedDecisions(parentDecisionId);
+```
+
+---
+
+### EnhancedEventBus
+
+Extended EventBus with priority queuing, request-response patterns, and persistence.
+
+#### getEnhancedEventBus(options)
+
+```javascript
+import { getEnhancedEventBus, MessagePriority, BroadcastChannel } from 'minions';
+
+const enhancedBus = getEnhancedEventBus({
+  enablePersistence: true,
+  enablePriorityQueue: true,
+  maxQueueSize: 10000
+});
+
+await enhancedBus.initialize();
+```
+
+#### MessagePriority Constants
+
+```javascript
+MessagePriority.CRITICAL   // Immediate processing
+MessagePriority.HIGH       // High priority
+MessagePriority.NORMAL     // Normal priority (default)
+MessagePriority.LOW        // Low priority
+MessagePriority.BACKGROUND // Background processing
+```
+
+#### BroadcastChannel Constants
+
+```javascript
+BroadcastChannel.SYSTEM      // System-wide broadcasts
+BroadcastChannel.AGENTS      // Agent-to-agent communication
+BroadcastChannel.MONITORING  // Monitoring events
+BroadcastChannel.DEBUG       // Debug events
+```
+
+#### enhancedBus.publishWithPriority(eventType, data, priority)
+
+Publish an event with priority.
+
+```javascript
+await enhancedBus.publishWithPriority(
+  EventTypes.AGENT_FAILED,
+  { agent: 'my-agent', error: 'Critical failure' },
+  MessagePriority.CRITICAL
+);
+```
+
+#### enhancedBus.request(eventType, data, timeout)
+
+Request-response pattern.
+
+```javascript
+const response = await enhancedBus.request(
+  'vision:parse:readme',
+  { path: './README.md' },
+  30000  // 30 second timeout
+);
+```
+
+#### enhancedBus.broadcast(channel, data)
+
+Broadcast to all subscribers on a channel.
+
+```javascript
+await enhancedBus.broadcast(BroadcastChannel.SYSTEM, {
+  type: 'shutdown',
+  reason: 'Maintenance'
+});
+```
+
+---
+
+### StateMachine
+
+Reusable state machine framework for predictable agent behavior.
+
+#### createAgentStateMachine(config)
+
+```javascript
+import { createAgentStateMachine, AgentState, TransitionResult } from 'minions';
+
+const stateMachine = createAgentStateMachine({
+  name: 'my-agent',
+  initialState: AgentState.IDLE,
+  persist: true,  // Persist state across restarts
+  states: {
+    [AgentState.IDLE]: { onEnter: async () => { /* ... */ } },
+    [AgentState.EXECUTING]: { onEnter: async () => { /* ... */ } }
+  },
+  transitions: {
+    [AgentState.IDLE]: [AgentState.PLANNING, AgentState.EXECUTING],
+    [AgentState.PLANNING]: [AgentState.EXECUTING, AgentState.ERROR],
+    [AgentState.EXECUTING]: [AgentState.COMPLETED, AgentState.ERROR]
+  }
+});
+
+await stateMachine.initialize();
+```
+
+#### AgentState Constants
+
+```javascript
+AgentState.IDLE        // Waiting for work
+AgentState.PLANNING    // Planning execution
+AgentState.EXECUTING   // Actively working
+AgentState.WAITING     // Waiting for dependency
+AgentState.BLOCKED     // Blocked by issue
+AgentState.ERROR       // Error state
+AgentState.COMPLETED   // Work completed
+AgentState.RECOVERING  // Recovering from error
+```
+
+#### TransitionResult Constants
+
+```javascript
+TransitionResult.SUCCESS            // Transition successful
+TransitionResult.DENIED             // Transition denied
+TransitionResult.GUARD_FAILED       // Guard condition failed
+TransitionResult.INVALID_TRANSITION // Invalid state transition
+```
+
+#### stateMachine.transition(newState, context)
+
+Transition to a new state.
+
+```javascript
+const result = await stateMachine.transition(AgentState.EXECUTING, {
+  taskId: 'task-123',
+  triggeredBy: 'orchestrator'
+});
+
+if (result.status === TransitionResult.SUCCESS) {
+  console.log('Transitioned to executing');
+}
+```
+
+#### stateMachine.getState()
+
+Get current state.
+
+```javascript
+const currentState = stateMachine.getState();
+// { state: 'executing', context: {...}, enteredAt: timestamp }
+```
+
+#### stateMachine.onTransition(handler)
+
+Register transition handler.
+
+```javascript
+stateMachine.onTransition((from, to, context) => {
+  console.log(`State changed: ${from} → ${to}`);
+});
+```
+
+#### stateMachine.getHistory()
+
+Get state transition history.
+
+```javascript
+const history = stateMachine.getHistory();
+// [{ from, to, timestamp, context }, ...]
+```
+
+---
+
+## Phase 1: Vision Agent
+
+Product owner agent that understands project goals and translates them into requirements.
+
+### getVisionAgent(options)
+
+```javascript
+import { getVisionAgent, VisionEvents } from 'minions';
+
+const visionAgent = getVisionAgent({
+  projectRoot: process.cwd(),
+  readmePath: 'README.md',
+  stateDir: '.vision',
+  autoDetectImplicit: true,
+  complexityThresholds: { simple: 3, medium: 8, complex: 13 }
+});
+
+await visionAgent.initialize(eventBus);
+```
+
+### VisionEvents
+
+```javascript
+// Incoming events (requests)
+VisionEvents.PARSE_README           // Parse README file
+VisionEvents.DECOMPOSE_FEATURE      // Decompose feature to tasks
+VisionEvents.GET_PRODUCT_STATE      // Get current product state
+VisionEvents.GENERATE_ACCEPTANCE    // Generate acceptance criteria
+
+// Outgoing events (responses)
+VisionEvents.README_PARSED          // README parsing complete
+VisionEvents.REQUIREMENTS_READY     // Requirements extracted
+VisionEvents.FEATURE_DECOMPOSED     // Feature decomposition complete
+VisionEvents.PRODUCT_STATE_UPDATED  // Product state changed
+VisionEvents.ACCEPTANCE_GENERATED   // Acceptance criteria ready
+```
+
+### visionAgent.parseReadme(path)
+
+Parse a README file to extract requirements.
+
+```javascript
+const requirements = await visionAgent.parseReadme('./README.md');
+// {
+//   features: [...],
+//   architecture: {...},
+//   techStack: [...],
+//   implicitRequirements: [...]
+// }
+```
+
+### visionAgent.decomposeFeature(feature)
+
+Decompose a feature into Epic → Story → Task hierarchy.
+
+```javascript
+const decomposition = await visionAgent.decomposeFeature({
+  name: 'User Authentication',
+  description: 'Allow users to register and login'
+});
+// {
+//   epic: { id, name, stories: [...] },
+//   stories: [{ id, name, tasks: [...] }],
+//   tasks: [{ id, name, complexity, dependencies }]
+// }
+```
+
+### visionAgent.getProductState()
+
+Get current product state (planned vs implemented).
+
+```javascript
+const state = await visionAgent.getProductState();
+// {
+//   features: { planned: 10, implemented: 6, inProgress: 2 },
+//   coverage: 0.6,
+//   nextPriorities: [...]
+// }
+```
+
+### visionAgent.generateAcceptance(feature)
+
+Generate acceptance criteria for a feature.
+
+```javascript
+const criteria = await visionAgent.generateAcceptance(feature);
+// {
+//   given: 'User is on login page',
+//   when: 'User enters valid credentials',
+//   then: 'User is redirected to dashboard',
+//   scenarios: [...]
+// }
+```
+
+---
+
+## Phase 2: Architect Agent
+
+Technical authority agent that makes architectural decisions and ensures code consistency.
+
+### getArchitectAgent(options)
+
+```javascript
+import { getArchitectAgent, ArchitectEvents } from 'minions';
+
+const architectAgent = getArchitectAgent({
+  projectRoot: process.cwd(),
+  architectureDir: 'architecture',
+  contractsDir: 'contracts',
+  decisionsDir: 'decisions',
+  enableStrictMode: true,
+  maxDriftThreshold: 0.15  // 15% drift allowed
+});
+
+await architectAgent.initialize(eventBus);
+```
+
+### ArchitectEvents
+
+```javascript
+// Incoming events
+ArchitectEvents.REQUIREMENTS_READY   // From Vision Agent
+ArchitectEvents.CODE_GENERATED       // Code to validate
+ArchitectEvents.ARCHITECTURE_REQUEST // Architecture request
+ArchitectEvents.VALIDATE_CODE        // Validate code against contracts
+
+// Outgoing events
+ArchitectEvents.BLUEPRINT_CREATED    // System blueprint ready
+ArchitectEvents.CONTRACT_DEFINED     // API contract defined
+ArchitectEvents.CONTRACT_VIOLATION   // Contract violation detected
+ArchitectEvents.DRIFT_DETECTED       // Architecture drift detected
+ArchitectEvents.TECH_STACK_SELECTED  // Tech stack decision made
+ArchitectEvents.VALIDATION_PASSED    // Code validation passed
+ArchitectEvents.VALIDATION_FAILED    // Code validation failed
+```
+
+### architectAgent.generateBlueprint(requirements)
+
+Generate system blueprint from requirements.
+
+```javascript
+const blueprint = await architectAgent.generateBlueprint(requirements);
+// {
+//   layers: ['presentation', 'business', 'data'],
+//   components: [...],
+//   patterns: ['repository', 'service', 'controller'],
+//   dataFlow: {...},
+//   integrations: [...]
+// }
+```
+
+### architectAgent.defineContract(apiSpec)
+
+Define an API contract.
+
+```javascript
+const contract = await architectAgent.defineContract({
+  name: 'UserAPI',
+  basePath: '/api/users',
+  endpoints: [
+    { method: 'GET', path: '/', response: { type: 'array', items: 'User' } },
+    { method: 'POST', path: '/', body: 'CreateUserRequest', response: 'User' }
+  ]
+});
+```
+
+### architectAgent.validateCode(code, contracts)
+
+Validate code against defined contracts.
+
+```javascript
+const validation = await architectAgent.validateCode(generatedCode, contracts);
+// {
+//   valid: boolean,
+//   violations: [...],
+//   suggestions: [...]
+// }
+```
+
+### architectAgent.detectDrift()
+
+Detect architectural drift in codebase.
+
+```javascript
+const driftReport = await architectAgent.detectDrift();
+// {
+//   driftPercentage: 0.08,
+//   violations: [...],
+//   recommendations: [...]
+// }
+```
+
+### architectAgent.selectTechStack(requirements)
+
+Select appropriate technology stack.
+
+```javascript
+const techStack = await architectAgent.selectTechStack(requirements);
+// {
+//   frontend: { framework: 'react', stateManagement: 'zustand' },
+//   backend: { framework: 'express', orm: 'mongoose' },
+//   database: { primary: 'mongodb', cache: 'redis' },
+//   reasoning: {...}
+// }
+```
+
+---
+
+## Phase 3: Planner Agent
+
+Execution engine that converts plans into action and coordinates agent work.
+
+### getPlannerAgent(options)
+
+```javascript
+import { getPlannerAgent, PlannerEvents, ExecutionStatus } from 'minions';
+
+const plannerAgent = getPlannerAgent({
+  projectRoot: process.cwd(),
+  stateDir: '.planner',
+  maxConcurrentTasks: 3,
+  maxRetries: 3,
+  taskTimeout: 300000,         // 5 minutes
+  iterationTimeout: 1800000,   // 30 minutes
+  checkpointInterval: 60000,   // 1 minute
+  enableAutoRetry: true
+});
+
+await plannerAgent.initialize(eventBus);
+```
+
+### PlannerEvents
+
+```javascript
+// Incoming events (requests)
+PlannerEvents.CREATE_PLAN        // Create execution plan
+PlannerEvents.EXECUTE_PLAN       // Start execution
+PlannerEvents.PAUSE_EXECUTION    // Pause execution
+PlannerEvents.RESUME_EXECUTION   // Resume execution
+PlannerEvents.CANCEL_EXECUTION   // Cancel execution
+PlannerEvents.GET_STATUS         // Get current status
+
+// Outgoing events
+PlannerEvents.PLAN_CREATED       // Plan ready
+PlannerEvents.EXECUTION_STARTED  // Execution began
+PlannerEvents.TASK_ASSIGNED      // Task assigned to agent
+PlannerEvents.TASK_COMPLETED     // Task completed
+PlannerEvents.PROGRESS_UPDATED   // Progress update
+PlannerEvents.BLOCKER_DETECTED   // Blocker found
+PlannerEvents.ITERATION_STARTED  // Build-Test-Fix cycle started
+PlannerEvents.ESCALATION_REQUIRED // Human intervention needed
+```
+
+### ExecutionStatus Constants
+
+```javascript
+ExecutionStatus.PENDING     // Not started
+ExecutionStatus.RUNNING     // In progress
+ExecutionStatus.PAUSED      // Paused
+ExecutionStatus.COMPLETED   // Successfully completed
+ExecutionStatus.FAILED      // Failed
+ExecutionStatus.CANCELLED   // Cancelled by user
+```
+
+### plannerAgent.createPlan(tasks)
+
+Create an execution plan from tasks.
+
+```javascript
+const plan = await plannerAgent.createPlan(tasks);
+// {
+//   id: 'plan-123',
+//   phases: [
+//     { name: 'setup', tasks: [...], parallel: true },
+//     { name: 'implementation', tasks: [...], parallel: false }
+//   ],
+//   estimatedDuration: 3600000,
+//   dependencies: {...}
+// }
+```
+
+### plannerAgent.executePlan(planId)
+
+Execute a plan.
+
+```javascript
+const execution = await plannerAgent.executePlan(plan.id);
+// {
+//   executionId: 'exec-456',
+//   status: ExecutionStatus.RUNNING,
+//   startedAt: timestamp
+// }
+```
+
+### plannerAgent.getProgress()
+
+Get current execution progress.
+
+```javascript
+const progress = await plannerAgent.getProgress();
+// {
+//   completedTasks: 5,
+//   totalTasks: 10,
+//   percentage: 50,
+//   currentPhase: 'implementation',
+//   estimatedTimeRemaining: 1800000,
+//   blockers: []
+// }
+```
+
+### plannerAgent.pauseExecution()
+
+Pause current execution.
+
+```javascript
+await plannerAgent.pauseExecution();
+```
+
+### plannerAgent.resumeExecution()
+
+Resume paused execution.
+
+```javascript
+await plannerAgent.resumeExecution();
+```
+
+---
+
+## Writer Agents Registry
+
+Central registry for coordinating code writer agents with the orchestrator.
+
+### registerWriterAgents(orchestrator)
+
+Register all writer agents with the orchestrator.
+
+```javascript
+import { registerWriterAgents, getOrchestrator } from 'minions';
+
+const orchestrator = getOrchestrator();
+await registerWriterAgents(orchestrator);
+```
+
+### initializeWriterAgents(options)
+
+Initialize all writer agents with configuration.
+
+```javascript
+import { initializeWriterAgents } from 'minions';
+
+await initializeWriterAgents({
+  flutterConfig: {
+    projectPath: './my-flutter-app',
+    stateManagement: 'bloc'
+  },
+  backendConfig: {
+    projectPath: './my-backend',
+    orm: 'mongoose'
+  },
+  frontendConfig: {
+    projectPath: './my-frontend',
+    stateManagement: 'context'
+  }
+});
+```
+
+### requestCodeGeneration(type, spec)
+
+Request code generation from a writer agent.
+
+```javascript
+import { requestCodeGeneration, WriterAgentType } from 'minions';
+
+const result = await requestCodeGeneration(
+  WriterAgentType.FLUTTER,
+  {
+    type: 'widget',
+    spec: { name: 'UserCard', type: 'stateless' }
+  }
+);
+```
+
+### WriterAgentType Constants
+
+```javascript
+WriterAgentType.FLUTTER   // Flutter/Dart code
+WriterAgentType.BACKEND   // Node.js/Express code
+WriterAgentType.FRONTEND  // React/TypeScript code
+```
+
+---
+
+## CLI Reference
+
+Command-line interface for code generation.
+
+### Installation
+
+The CLI is available after installing Minions:
+
+```bash
+npm run install:all
+```
+
+### generate command
+
+Generate code using writer agents.
+
+```bash
+# Generate a Flutter widget
+node cli/index.js generate flutter widget --name UserCard --type stateless
+
+# Generate a backend model
+node cli/index.js generate backend model --name User --orm mongoose
+
+# Generate a React component
+node cli/index.js generate frontend component --name UserProfile --props "userId:string"
+```
+
+### Options
+
+```bash
+--config, -c    Path to configuration file
+--output, -o    Output directory
+--dry-run       Preview without writing files
+--verbose, -v   Verbose output
+```
+
+---
+
+## initializeMinions Options (Complete)
+
+```javascript
+await initializeMinions({
+  // Core options
+  enableMetrics: true,           // Enable MetricsCollector (default: true)
+  enableHealth: true,            // Enable HealthMonitor (default: true)
+  enableAlerting: true,          // Enable AlertingSystem (default: true)
+  maxConcurrency: 5,             // Max parallel agents (default: 5)
+
+  // Phase 0 options
+  enableMemoryStore: true,       // Enable MemoryStore (default: true)
+  enableDecisionLogger: true,    // Enable DecisionLogger (default: true)
+  enableEnhancedEventBus: false, // Enable EnhancedEventBus (default: false)
+  memoryStoreOptions: {
+    dbPath: './data/minions-memory.db',
+    inMemory: false
+  },
+  enhancedEventBusOptions: {
+    enablePersistence: true,
+    maxQueueSize: 10000
+  },
+
+  // Phase 1-3 agents
+  enableVisionAgent: false,      // Enable Vision Agent (default: false)
+  enableArchitectAgent: false,   // Enable Architect Agent (default: false)
+  enablePlannerAgent: false,     // Enable Planner Agent (default: false)
+  projectRoot: process.cwd(),    // Project root path
+
+  visionAgentOptions: {
+    readmePath: 'README.md',
+    stateDir: '.vision'
+  },
+  architectAgentOptions: {
+    architectureDir: 'architecture',
+    enableStrictMode: true
+  },
+  plannerAgentOptions: {
+    maxConcurrentTasks: 3,
+    enableAutoRetry: true
+  },
+
+  // Code Writer Agents
+  enableWriterAgents: false,     // Enable writer agents (default: false)
+  writerAgentOptions: {
+    flutterConfig: { projectPath: './flutter-app', stateManagement: 'bloc' },
+    backendConfig: { projectPath: './backend', orm: 'mongoose' },
+    frontendConfig: { projectPath: './frontend', stateManagement: 'context' }
+  }
+});
+```
+
+**Returns:**
+```javascript
+{
+  eventBus: AgentEventBus,
+  orchestrator: Orchestrator,
+  metricsCollector: MetricsCollector | null,
+  healthMonitor: HealthMonitor | null,
+  alertingSystem: AlertingSystem | null,
+  rollbackManager: RollbackManager,
+  autonomousLoopManager: AutonomousLoopManager,
+  // Phase 0
+  memoryStore: MemoryStore | null,
+  decisionLogger: DecisionLogger | null,
+  enhancedEventBus: EnhancedEventBus | null,
+  // Phase 1-3
+  visionAgent: VisionAgent | null,
+  architectAgent: ArchitectAgent | null,
+  plannerAgent: PlannerAgent | null,
+  // Writer Agents
+  writerAgentsInitialized: boolean
+}
 ```

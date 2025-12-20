@@ -6,6 +6,10 @@ Deep dive into the Minions framework architecture.
 
 - [Design Principles](#design-principles)
 - [Component Architecture](#component-architecture)
+- [Phase 0: Foundation Enhancements](#phase-0-foundation-enhancements)
+- [Phase 1: Vision Agent](#phase-1-vision-agent)
+- [Phase 2: Architect Agent](#phase-2-architect-agent)
+- [Phase 3: Planner Agent](#phase-3-planner-agent)
 - [Specialized Agents Architecture](#specialized-agents-architecture)
 - [Code Writer Agents Architecture](#code-writer-agents-architecture)
 - [Data Flow](#data-flow)
@@ -375,6 +379,394 @@ Remaining? → Iterate (up to maxIterations)
     cooldown: 10000       // 10 seconds
   }
 }
+```
+
+---
+
+## Phase 0: Foundation Enhancements
+
+Phase 0 adds persistence, advanced event handling, and state management to the foundation layer.
+
+### Enhanced Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      Application Layer (Your Custom Agents)                  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                  Strategic Planning Layer (Phase 1-3)                        │
+│  ┌──────────────┐  ┌──────────────────┐  ┌──────────────────────────────┐  │
+│  │    Vision    │  │     Architect    │  │           Planner            │  │
+│  │    Agent     │→→│      Agent       │→→│            Agent             │  │
+│  │ (Product)    │  │   (Technical)    │  │        (Execution)           │  │
+│  └──────────────┘  └──────────────────┘  └──────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                        Specialized Agents Layer                              │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐ ┌──────────────┐  │
+│  │  Tester  │ │  Docker  │ │  GitHub  │ │   Codebase   │ │   Document   │  │
+│  │  Agent   │ │  Agent   │ │  Agent   │ │   Analyzer   │ │    Agent     │  │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────────┘ └──────────────┘  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                       Orchestration & Management                             │
+│         (Orchestrator, AutonomousLoopManager, AgentPool, DependencyGraph)   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                           Skills & Analyzers                                 │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐ ┌──────────────┐  │
+│  │AutoFixer │ │  Code    │ │ Security │ │    Test      │ │  Dependency  │  │
+│  │          │ │ Reviewer │ │ Scanner  │ │  Generator   │ │   Analyzer   │  │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────────┘ └──────────────┘  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                 Foundation + Phase 0 Enhancements                            │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐ ┌──────────────┐  │
+│  │ EventBus │ │ Metrics  │ │  Health  │ │   Alerting   │ │   Rollback   │  │
+│  │ (80+ ev) │ │Collector │ │ Monitor  │ │    System    │ │   Manager    │  │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────────┘ └──────────────┘  │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────┐                   │
+│  │ Memory   │ │ Decision │ │ Enhanced │ │    State     │   ← Phase 0      │
+│  │  Store   │ │  Logger  │ │ EventBus │ │   Machine    │                   │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────────┘                   │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### MemoryStore Architecture
+
+Persistent key-value storage with SQLite backend.
+
+```
+┌─────────────────────────────────────────┐
+│             MemoryStore                  │
+├─────────────────────────────────────────┤
+│ - db: better-sqlite3                    │
+│ - dbPath: string                        │
+│ - inMemoryFallback: Map                 │
+├─────────────────────────────────────────┤
+│ + initialize()                          │
+│ + set(namespace, key, value, options)   │
+│ + get(namespace, key)                   │
+│ + getAll(namespace)                     │
+│ + delete(namespace, key)                │
+│ + clear(namespace)                      │
+│ + query(namespace, filter)              │
+└─────────────────────────────────────────┘
+
+Namespaces:
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│  PROJECT_STATE  │ │   AGENT_STATE   │ │    DECISIONS    │
+└─────────────────┘ └─────────────────┘ └─────────────────┘
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│ KNOWLEDGE_BASE  │ │    PATTERNS     │ │EXECUTION_HISTORY│
+└─────────────────┘ └─────────────────┘ └─────────────────┘
+```
+
+### DecisionLogger Architecture
+
+Captures agent decisions for learning and debugging.
+
+```
+┌─────────────────────────────────────────┐
+│           DecisionLogger                 │
+├─────────────────────────────────────────┤
+│ - memoryStore: MemoryStore              │
+│ - decisions: Map<id, Decision>          │
+├─────────────────────────────────────────┤
+│ + log(decision)                         │
+│ + updateOutcome(id, outcome, details)   │
+│ + query(filters)                        │
+│ + getRelatedDecisions(id)               │
+│ + getStatistics()                       │
+└─────────────────────────────────────────┘
+
+Decision Structure:
+{
+  id, agent, type, context, decision,
+  reasoning, alternatives, confidence,
+  outcome, timestamp, parentId
+}
+```
+
+### EnhancedEventBus Architecture
+
+Extended EventBus with priority queuing and request-response patterns.
+
+```
+┌─────────────────────────────────────────┐
+│          EnhancedEventBus                │
+├─────────────────────────────────────────┤
+│ Extends AgentEventBus with:             │
+│ - priorityQueue: PriorityQueue          │
+│ - requestHandlers: Map                  │
+│ - persistence: MemoryStore              │
+├─────────────────────────────────────────┤
+│ + publishWithPriority(type, data, pri)  │
+│ + request(type, data, timeout)          │
+│ + respond(requestId, data)              │
+│ + broadcast(channel, data)              │
+│ + subscribeToChannel(channel, handler)  │
+└─────────────────────────────────────────┘
+
+Priority Levels:
+CRITICAL → HIGH → NORMAL → LOW → BACKGROUND
+```
+
+### StateMachine Architecture
+
+Predictable state management for agents.
+
+```
+┌─────────────────────────────────────────┐
+│           StateMachine                   │
+├─────────────────────────────────────────┤
+│ - currentState: string                  │
+│ - previousState: string                 │
+│ - context: object                       │
+│ - history: Transition[]                 │
+│ - transitions: Map<from, to[]>          │
+│ - guards: Map<transition, GuardFn>      │
+├─────────────────────────────────────────┤
+│ + transition(newState, context)         │
+│ + canTransition(newState)               │
+│ + onEnter(state, handler)               │
+│ + onExit(state, handler)                │
+│ + onTransition(handler)                 │
+│ + getHistory()                          │
+│ + persist() / restore()                 │
+└─────────────────────────────────────────┘
+
+Standard States:
+IDLE → PLANNING → EXECUTING → COMPLETED
+                ↓
+            WAITING/BLOCKED/ERROR → RECOVERING
+```
+
+---
+
+## Phase 1: Vision Agent
+
+Product owner agent that understands project goals.
+
+### Vision Agent Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        VisionAgent                               │
+├─────────────────────────────────────────────────────────────────┤
+│  State: IDLE → PARSING → DECOMPOSING → ANALYZING → GENERATING   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐                       │
+│  │   ReadmeParser  │  │FeatureDecomposer│                       │
+│  │                 │  │                 │                       │
+│  │ - Parse README  │  │ - Epic → Story  │                       │
+│  │ - Extract feats │  │ - Story → Task  │                       │
+│  │ - Detect arch   │  │ - Complexity    │                       │
+│  │ - Find implicit │  │ - Dependencies  │                       │
+│  └─────────────────┘  └─────────────────┘                       │
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐                       │
+│  │ProductStateManager│ │AcceptanceGen   │                       │
+│  │                 │  │                 │                       │
+│  │ - Track planned │  │ - Given/When/   │                       │
+│  │ - Track done    │  │   Then format   │                       │
+│  │ - Progress %    │  │ - Scenarios     │                       │
+│  │ - Priorities    │  │ - Test cases    │                       │
+│  └─────────────────┘  └─────────────────┘                       │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Vision Agent Data Flow
+
+```
+README.md
+    ↓ ReadmeParser.parse()
+Requirements {
+  features: Feature[],
+  architecture: ArchInfo,
+  techStack: string[],
+  implicitRequirements: Requirement[]
+}
+    ↓ FeatureDecomposer.decompose()
+Decomposition {
+  epic: Epic,
+  stories: Story[],
+  tasks: Task[]
+}
+    ↓ ProductStateManager.track()
+ProductState {
+  planned: n,
+  implemented: m,
+  inProgress: k,
+  coverage: m/n
+}
+    ↓ AcceptanceGenerator.generate()
+AcceptanceCriteria {
+  given, when, then,
+  scenarios: Scenario[]
+}
+    ↓
+Emit: REQUIREMENTS_READY event
+```
+
+---
+
+## Phase 2: Architect Agent
+
+Technical authority for architectural decisions.
+
+### Architect Agent Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      ArchitectAgent                              │
+├─────────────────────────────────────────────────────────────────┤
+│  State: IDLE → ANALYZING → DESIGNING → VALIDATING → ENFORCING   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────────┐  ┌──────────────────┐                     │
+│  │BlueprintGenerator│  │ApiContractManager│                     │
+│  │                  │  │                  │                     │
+│  │ - System layers  │  │ - OpenAPI specs  │                     │
+│  │ - Components     │  │ - Endpoints      │                     │
+│  │ - Data flow      │  │ - Validation     │                     │
+│  │ - Patterns       │  │ - Versioning     │                     │
+│  └──────────────────┘  └──────────────────┘                     │
+│                                                                  │
+│  ┌──────────────────┐  ┌──────────────────┐                     │
+│  │   TechSelector   │  │  DriftDetector   │                     │
+│  │                  │  │                  │                     │
+│  │ - Stack choices  │  │ - Pattern drift  │                     │
+│  │ - Trade-offs     │  │ - Contract viola │                     │
+│  │ - Reasoning      │  │ - Recommends     │                     │
+│  └──────────────────┘  └──────────────────┘                     │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Architecture Decision Flow
+
+```
+REQUIREMENTS_READY event (from Vision Agent)
+    ↓
+ArchitectAgent.onRequirementsReady()
+    ↓
+TechSelector.selectStack(requirements)
+    → { frontend, backend, database, reasoning }
+    ↓
+BlueprintGenerator.generate(requirements, techStack)
+    → { layers, components, patterns, dataFlow }
+    ↓
+ApiContractManager.defineContracts(blueprint)
+    → OpenAPI specs saved to contracts/
+    ↓
+Emit: BLUEPRINT_CREATED, TECH_STACK_SELECTED events
+    ↓
+DriftDetector monitors for violations
+    → Emit: DRIFT_DETECTED when found
+```
+
+---
+
+## Phase 3: Planner Agent
+
+Execution engine that coordinates agent work.
+
+### Planner Agent Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                       PlannerAgent                               │
+├─────────────────────────────────────────────────────────────────┤
+│  State: IDLE → PLANNING → EXECUTING → COORDINATING → ITERATING  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────────┐  ┌──────────────────┐                     │
+│  │ ExecutionPlanner │  │ AgentCoordinator │                     │
+│  │                  │  │                  │                     │
+│  │ - Topological    │  │ - Task assign    │                     │
+│  │   sort           │  │ - Status track   │                     │
+│  │ - Parallel       │  │ - Retry logic    │                     │
+│  │   groups         │  │ - Escalation     │                     │
+│  └──────────────────┘  └──────────────────┘                     │
+│                                                                  │
+│  ┌──────────────────┐  ┌──────────────────┐                     │
+│  │ ProgressTracker  │  │IterationManager │                     │
+│  │                  │  │                  │                     │
+│  │ - Completion %   │  │ - Build phase   │                     │
+│  │ - Velocity       │  │ - Test phase    │                     │
+│  │ - ETA calc       │  │ - Fix phase     │                     │
+│  │ - Blockers       │  │ - Max iterations│                     │
+│  └──────────────────┘  └──────────────────┘                     │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Execution Flow
+
+```
+Vision Tasks + Architect Blueprint
+    ↓
+ExecutionPlanner.createPlan(tasks)
+    → {
+        phases: [
+          { name: 'setup', tasks: [...], parallel: true },
+          { name: 'implement', tasks: [...], parallel: false }
+        ],
+        dependencies,
+        estimatedDuration
+      }
+    ↓
+AgentCoordinator.execute(plan)
+    ↓
+For each phase:
+    ├─→ Assign tasks to available agents
+    ├─→ ProgressTracker.update()
+    ├─→ Handle failures → retry/escalate
+    └─→ Emit PROGRESS_UPDATED
+    ↓
+IterationManager.runCycle()
+    ├─→ BUILD: Generate/update code
+    ├─→ TEST: Run tests
+    ├─→ FIX: If tests fail, iterate
+    └─→ Repeat until pass or max iterations
+    ↓
+Emit: EXECUTION_COMPLETED or ESCALATION_REQUIRED
+```
+
+### Agent Coordination Strategies
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  Assignment Strategies                           │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ROUND_ROBIN: Distribute tasks evenly                           │
+│    Task 1 → Agent A                                              │
+│    Task 2 → Agent B                                              │
+│    Task 3 → Agent A                                              │
+│                                                                  │
+│  CAPABILITY_BASED: Match task type to agent specialty           │
+│    Frontend task → Frontend Writer Agent                        │
+│    Backend task → Backend Writer Agent                          │
+│    Test task → Tester Agent                                      │
+│                                                                  │
+│  LOAD_BALANCED: Assign based on current agent load              │
+│    Agent A (2 tasks) vs Agent B (0 tasks) → Assign to B         │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Phase Dependencies
+
+```
+Phase 0 (Foundation)
+    ↓ Provides persistence & state
+Phase 1 (Vision Agent)
+    ↓ Provides requirements & tasks
+Phase 2 (Architect Agent)
+    ↓ Provides blueprint & contracts
+Phase 3 (Planner Agent)
+    ↓ Coordinates execution
+Specialized & Writer Agents
+    ↓ Execute actual work
 ```
 
 ---

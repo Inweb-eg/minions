@@ -11,6 +11,10 @@ A step-by-step guide to get up and running with the Minions framework.
 - [Running the Orchestrator](#running-the-orchestrator)
 - [Working with Events](#working-with-events)
 - [Monitoring and Health](#monitoring-and-health)
+- [Phase 0: Persistence and State](#phase-0-persistence-and-state)
+- [Phase 1-3: Strategic Planning Agents](#phase-1-3-strategic-planning-agents)
+- [Code Writer Agents](#code-writer-agents)
+- [CLI Usage](#cli-usage)
 - [Next Steps](#next-steps)
 
 ---
@@ -453,6 +457,366 @@ alerting.registerHandler('email', async (alert) => {
 
 ---
 
+## Phase 0: Persistence and State
+
+Phase 0 adds persistence, decision logging, and state management capabilities.
+
+### Enable Phase 0 Components
+
+```javascript
+import { initializeMinions } from './minions/index.js';
+
+const {
+  memoryStore,
+  decisionLogger,
+  enhancedEventBus
+} = await initializeMinions({
+  enableMemoryStore: true,       // Persistent storage
+  enableDecisionLogger: true,    // Decision tracking
+  enableEnhancedEventBus: true   // Priority events
+});
+```
+
+### Using MemoryStore
+
+Store and retrieve data across sessions:
+
+```javascript
+import { getMemoryStore, MemoryNamespace } from './minions/index.js';
+
+const memoryStore = getMemoryStore();
+await memoryStore.initialize();
+
+// Store project configuration
+await memoryStore.set(
+  MemoryNamespace.CONFIG,
+  'api-settings',
+  { baseUrl: 'https://api.example.com', timeout: 5000 }
+);
+
+// Retrieve later
+const config = await memoryStore.get(MemoryNamespace.CONFIG, 'api-settings');
+
+// Store with TTL (auto-expires after 1 hour)
+await memoryStore.set(
+  MemoryNamespace.AGENT_STATE,
+  'cache-data',
+  { data: 'temporary' },
+  { ttl: 3600000 }
+);
+```
+
+### Logging Decisions
+
+Track agent decisions for learning and debugging:
+
+```javascript
+import { getDecisionLogger, DecisionType, DecisionOutcome } from './minions/index.js';
+
+const decisionLogger = getDecisionLogger();
+await decisionLogger.initialize();
+
+// Log a decision
+const decisionId = await decisionLogger.log({
+  agent: 'architect-agent',
+  type: DecisionType.ARCHITECTURAL,
+  decision: 'Use MongoDB for user data',
+  reasoning: 'Schema flexibility needed for user profiles',
+  confidence: 0.9
+});
+
+// Update outcome later
+await decisionLogger.updateOutcome(decisionId, DecisionOutcome.SUCCESS);
+
+// Query past decisions
+const pastDecisions = await decisionLogger.query({
+  type: DecisionType.ARCHITECTURAL,
+  outcome: DecisionOutcome.SUCCESS
+});
+```
+
+### Using State Machines
+
+Manage agent state predictably:
+
+```javascript
+import { createAgentStateMachine, AgentState } from './minions/index.js';
+
+const stateMachine = createAgentStateMachine({
+  name: 'my-agent',
+  initialState: AgentState.IDLE,
+  persist: true  // Persists across restarts
+});
+
+await stateMachine.initialize();
+
+// Transition states
+await stateMachine.transition(AgentState.PLANNING, { task: 'process-data' });
+await stateMachine.transition(AgentState.EXECUTING);
+await stateMachine.transition(AgentState.COMPLETED);
+
+// Check current state
+const current = stateMachine.getState();
+console.log(`Current state: ${current.state}`);
+
+// View history
+const history = stateMachine.getHistory();
+```
+
+---
+
+## Phase 1-3: Strategic Planning Agents
+
+Enable the strategic planning layer for end-to-end autonomous development.
+
+### Enable Strategic Agents
+
+```javascript
+import { initializeMinions } from './minions/index.js';
+
+const {
+  visionAgent,
+  architectAgent,
+  plannerAgent
+} = await initializeMinions({
+  enableVisionAgent: true,      // Product owner
+  enableArchitectAgent: true,   // Technical authority
+  enablePlannerAgent: true,     // Execution engine
+  projectRoot: process.cwd()
+});
+```
+
+### Vision Agent: Parse Requirements
+
+```javascript
+// Parse README to extract features
+const requirements = await visionAgent.parseReadme('./README.md');
+console.log('Features found:', requirements.features.length);
+
+// Decompose a feature into tasks
+const decomposition = await visionAgent.decomposeFeature({
+  name: 'User Authentication',
+  description: 'Allow users to register and login'
+});
+console.log('Tasks created:', decomposition.tasks.length);
+
+// Track product state
+const state = await visionAgent.getProductState();
+console.log(`Progress: ${state.coverage * 100}%`);
+```
+
+### Architect Agent: Design System
+
+```javascript
+// Generate system blueprint
+const blueprint = await architectAgent.generateBlueprint(requirements);
+console.log('Layers:', blueprint.layers);
+console.log('Patterns:', blueprint.patterns);
+
+// Define API contracts
+await architectAgent.defineContract({
+  name: 'UserAPI',
+  basePath: '/api/users',
+  endpoints: [
+    { method: 'GET', path: '/', response: 'User[]' },
+    { method: 'POST', path: '/', body: 'CreateUser', response: 'User' }
+  ]
+});
+
+// Check for drift
+const drift = await architectAgent.detectDrift();
+if (drift.driftPercentage > 0.1) {
+  console.log('Warning: Architecture drift detected!');
+}
+```
+
+### Planner Agent: Execute Plan
+
+```javascript
+// Create execution plan
+const plan = await plannerAgent.createPlan(decomposition.tasks);
+console.log('Phases:', plan.phases.length);
+
+// Execute the plan
+await plannerAgent.executePlan(plan.id);
+
+// Monitor progress
+const progress = await plannerAgent.getProgress();
+console.log(`Progress: ${progress.percentage}%`);
+console.log(`ETA: ${progress.estimatedTimeRemaining}ms`);
+
+// Pause/resume as needed
+await plannerAgent.pauseExecution();
+await plannerAgent.resumeExecution();
+```
+
+---
+
+## Code Writer Agents
+
+Generate code for Flutter, backend, and frontend platforms.
+
+### Initialize Writer Agents
+
+```javascript
+import { initializeMinions } from './minions/index.js';
+
+await initializeMinions({
+  enableWriterAgents: true,
+  writerAgentOptions: {
+    flutterConfig: {
+      projectPath: './flutter-app',
+      stateManagement: 'bloc'
+    },
+    backendConfig: {
+      projectPath: './backend',
+      orm: 'mongoose',
+      validator: 'joi'
+    },
+    frontendConfig: {
+      projectPath: './frontend',
+      stateManagement: 'context',
+      cssFramework: 'tailwind'
+    }
+  }
+});
+```
+
+### Generate Flutter Code
+
+```javascript
+import { getFlutterWriterAgent } from './minions/index.js';
+
+const flutter = getFlutterWriterAgent();
+await flutter.initialize();
+
+// Generate a widget
+const widget = await flutter.generateWidget({
+  name: 'UserCard',
+  type: 'stateless',
+  props: [
+    { name: 'user', type: 'User', required: true },
+    { name: 'onTap', type: 'VoidCallback' }
+  ]
+});
+
+// Generate a Bloc
+const bloc = await flutter.generateBloc({
+  name: 'Auth',
+  events: ['Login', 'Logout'],
+  states: ['Initial', 'Loading', 'Authenticated', 'Error']
+});
+```
+
+### Generate Backend Code
+
+```javascript
+import { getBackendWriterAgent } from './minions/index.js';
+
+const backend = getBackendWriterAgent();
+await backend.initialize();
+
+// Generate a model
+const model = await backend.generateModel({
+  name: 'User',
+  orm: 'mongoose',
+  fields: [
+    { name: 'email', type: 'string', required: true, unique: true },
+    { name: 'name', type: 'string', required: true }
+  ]
+});
+
+// Generate a route
+const route = await backend.generateRoute({
+  name: 'users',
+  basePath: '/api/users',
+  endpoints: [
+    { method: 'GET', path: '/', handler: 'list' },
+    { method: 'POST', path: '/', handler: 'create' }
+  ]
+});
+```
+
+### Generate Frontend Code
+
+```javascript
+import { getFrontendWriterAgent } from './minions/index.js';
+
+const frontend = getFrontendWriterAgent();
+await frontend.initialize();
+
+// Generate a component
+const component = await frontend.generateComponent({
+  name: 'UserProfile',
+  type: 'functional',
+  props: [{ name: 'userId', type: 'string', required: true }]
+});
+
+// Generate a custom hook
+const hook = await frontend.generateHook({
+  name: 'useUser',
+  type: 'query',
+  endpoint: '/api/users/:id'
+});
+```
+
+---
+
+## CLI Usage
+
+Use the command-line interface for code generation.
+
+### Generate Code from CLI
+
+```bash
+# Generate a Flutter widget
+node cli/index.js generate flutter widget --name UserCard --type stateless
+
+# Generate a backend model
+node cli/index.js generate backend model --name User --orm mongoose
+
+# Generate a React component
+node cli/index.js generate frontend component --name UserProfile
+```
+
+### CLI Options
+
+```bash
+--config, -c    Path to configuration file
+--output, -o    Output directory
+--dry-run       Preview without writing files
+--verbose, -v   Verbose output
+```
+
+### Using Configuration File
+
+Create `minions.config.json`:
+
+```json
+{
+  "flutter": {
+    "projectPath": "./flutter-app",
+    "stateManagement": "bloc"
+  },
+  "backend": {
+    "projectPath": "./backend",
+    "orm": "mongoose"
+  },
+  "frontend": {
+    "projectPath": "./frontend",
+    "stateManagement": "context"
+  }
+}
+```
+
+Then run:
+
+```bash
+node cli/index.js generate flutter widget --name MyWidget --config minions.config.json
+```
+
+---
+
 ## Next Steps
 
 ### 1. Create Custom Agents
@@ -557,14 +921,19 @@ loopManager.registerAgent('frontend-agent', frontendAgentInstance);
 // Loop activates automatically on TESTS_FAILED events
 ```
 
-### 5. Read the Full Documentation
+### 5. Customize Code Templates
+
+Modify templates in `templates/` to match your coding conventions. See the [Templates Guide](../templates/README.md).
+
+### 6. Read the Full Documentation
 
 - [API Reference](./api-reference.md) - Complete API documentation
 - [Architecture Guide](./architecture.md) - Deep dive into internals
 - [Creating Agents](./creating-agents.md) - Agent development patterns
 - [Skills Guide](./skills-guide.md) - Using and creating skills
+- [Templates Guide](../templates/README.md) - Customize code generation templates
 
-### 6. Run the Examples
+### 7. Run the Examples
 
 ```bash
 # Basic usage
