@@ -1,0 +1,558 @@
+{
+  "name": "PaymentProcessing",
+  "displayName": "Payment Processing",
+  "description": "API contract for Payment Processing context",
+  "version": "1.0.0",
+  "owner": "Backend-Agent",
+  "baseUrl": "/api/v1/payment-processing",
+  "endpoints": [
+    {
+      "path": "/api/v1/payment-processing/payments",
+      "method": "GET",
+      "summary": "List Payments",
+      "description": "Get paginated list of payments",
+      "operationId": "listPayments",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of payments",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/payment-processing/payments",
+      "method": "POST",
+      "summary": "Create Payment",
+      "description": "Create a new payment",
+      "operationId": "createPayment",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/PaymentCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "Payment created",
+          "schema": {
+            "$ref": "#/components/schemas/Payment"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/payment-processing/payments/{id}",
+      "method": "GET",
+      "summary": "Get Payment",
+      "description": "Get a single payment by ID",
+      "operationId": "getPayment",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Payment details",
+          "schema": {
+            "$ref": "#/components/schemas/Payment"
+          }
+        },
+        "404": {
+          "description": "Payment not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/payment-processing/payments/{id}",
+      "method": "PUT",
+      "summary": "Update Payment",
+      "description": "Update an existing payment",
+      "operationId": "updatePayment",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/PaymentUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Payment updated",
+          "schema": {
+            "$ref": "#/components/schemas/Payment"
+          }
+        },
+        "404": {
+          "description": "Payment not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/payment-processing/payments/{id}",
+      "method": "DELETE",
+      "summary": "Delete Payment",
+      "description": "Delete a payment",
+      "operationId": "deletePayment",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Payment deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "Payment not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/payment-processing/transactions",
+      "method": "GET",
+      "summary": "List Transactions",
+      "description": "Get paginated list of transactions",
+      "operationId": "listTransactions",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of transactions",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/payment-processing/transactions",
+      "method": "POST",
+      "summary": "Create Transaction",
+      "description": "Create a new transaction",
+      "operationId": "createTransaction",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/TransactionCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "Transaction created",
+          "schema": {
+            "$ref": "#/components/schemas/Transaction"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/payment-processing/transactions/{id}",
+      "method": "GET",
+      "summary": "Get Transaction",
+      "description": "Get a single transaction by ID",
+      "operationId": "getTransaction",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Transaction details",
+          "schema": {
+            "$ref": "#/components/schemas/Transaction"
+          }
+        },
+        "404": {
+          "description": "Transaction not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/payment-processing/transactions/{id}",
+      "method": "PUT",
+      "summary": "Update Transaction",
+      "description": "Update an existing transaction",
+      "operationId": "updateTransaction",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/TransactionUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Transaction updated",
+          "schema": {
+            "$ref": "#/components/schemas/Transaction"
+          }
+        },
+        "404": {
+          "description": "Transaction not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/payment-processing/transactions/{id}",
+      "method": "DELETE",
+      "summary": "Delete Transaction",
+      "description": "Delete a transaction",
+      "operationId": "deleteTransaction",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Transaction deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "Transaction not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/payment-processing/refunds",
+      "method": "GET",
+      "summary": "List Refunds",
+      "description": "Get paginated list of refunds",
+      "operationId": "listRefunds",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of refunds",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/payment-processing/refunds",
+      "method": "POST",
+      "summary": "Create Refund",
+      "description": "Create a new refund",
+      "operationId": "createRefund",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/RefundCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "Refund created",
+          "schema": {
+            "$ref": "#/components/schemas/Refund"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/payment-processing/refunds/{id}",
+      "method": "GET",
+      "summary": "Get Refund",
+      "description": "Get a single refund by ID",
+      "operationId": "getRefund",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Refund details",
+          "schema": {
+            "$ref": "#/components/schemas/Refund"
+          }
+        },
+        "404": {
+          "description": "Refund not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/payment-processing/refunds/{id}",
+      "method": "PUT",
+      "summary": "Update Refund",
+      "description": "Update an existing refund",
+      "operationId": "updateRefund",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/RefundUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Refund updated",
+          "schema": {
+            "$ref": "#/components/schemas/Refund"
+          }
+        },
+        "404": {
+          "description": "Refund not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/payment-processing/refunds/{id}",
+      "method": "DELETE",
+      "summary": "Delete Refund",
+      "description": "Delete a refund",
+      "operationId": "deleteRefund",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Refund deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "Refund not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    }
+  ],
+  "schemas": {
+    "Payment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "PaymentCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "PaymentUpdate": {
+      "type": "object",
+      "properties": {}
+    },
+    "Transaction": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "TransactionCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "TransactionUpdate": {
+      "type": "object",
+      "properties": {}
+    },
+    "Refund": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "RefundCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "RefundUpdate": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  "events": [
+    {
+      "name": "PaymentService:updated",
+      "payload": {
+        "entityId": "string",
+        "changes": "object"
+      }
+    }
+  ]
+}

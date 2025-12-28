@@ -1,0 +1,149 @@
+{
+  "name": "Shared",
+  "displayName": "Shared APIs",
+  "description": "Shared API contracts used across all contexts",
+  "version": "1.0.0",
+  "baseUrl": "/api/v1",
+  "endpoints": [
+    {
+      "path": "/health",
+      "method": "GET",
+      "summary": "Health Check",
+      "description": "Check API health status",
+      "operationId": "healthCheck",
+      "auth": false,
+      "request": {},
+      "response": {
+        "200": {
+          "description": "API is healthy",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "healthy",
+                  "degraded",
+                  "unhealthy"
+                ]
+              },
+              "timestamp": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "version": {
+                "type": "string"
+              },
+              "services": {
+                "type": "object",
+                "properties": {
+                  "database": {
+                    "type": "string"
+                  },
+                  "redis": {
+                    "type": "string"
+                  },
+                  "external": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "path": "/version",
+      "method": "GET",
+      "summary": "API Version",
+      "description": "Get current API version information",
+      "operationId": "getVersion",
+      "auth": false,
+      "request": {},
+      "response": {
+        "200": {
+          "description": "Version information",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string"
+              },
+              "build": {
+                "type": "string"
+              },
+              "environment": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "schemas": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "object"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "PaginatedResponse": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {}
+        },
+        "pagination": {
+          "type": "object",
+          "properties": {
+            "page": {
+              "type": "integer"
+            },
+            "limit": {
+              "type": "integer"
+            },
+            "total": {
+              "type": "integer"
+            },
+            "totalPages": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "SuccessResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

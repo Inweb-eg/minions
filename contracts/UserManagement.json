@@ -1,0 +1,565 @@
+{
+  "name": "UserManagement",
+  "displayName": "User Management",
+  "description": "API contract for User Management context",
+  "version": "1.0.0",
+  "owner": "Backend-Agent",
+  "baseUrl": "/api/v1/user-management",
+  "endpoints": [
+    {
+      "path": "/api/v1/user-management/users",
+      "method": "GET",
+      "summary": "List Users",
+      "description": "Get paginated list of users",
+      "operationId": "listUsers",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of users",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/user-management/users",
+      "method": "POST",
+      "summary": "Create User",
+      "description": "Create a new user",
+      "operationId": "createUser",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/UserCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "User created",
+          "schema": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/user-management/users/{id}",
+      "method": "GET",
+      "summary": "Get User",
+      "description": "Get a single user by ID",
+      "operationId": "getUser",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "User details",
+          "schema": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "404": {
+          "description": "User not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/user-management/users/{id}",
+      "method": "PUT",
+      "summary": "Update User",
+      "description": "Update an existing user",
+      "operationId": "updateUser",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/UserUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "User updated",
+          "schema": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "404": {
+          "description": "User not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/user-management/users/{id}",
+      "method": "DELETE",
+      "summary": "Delete User",
+      "description": "Delete a user",
+      "operationId": "deleteUser",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "User deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "User not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/user-management/profiles",
+      "method": "GET",
+      "summary": "List Profiles",
+      "description": "Get paginated list of profiles",
+      "operationId": "listProfiles",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of profiles",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/user-management/profiles",
+      "method": "POST",
+      "summary": "Create Profile",
+      "description": "Create a new profile",
+      "operationId": "createProfile",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/ProfileCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "Profile created",
+          "schema": {
+            "$ref": "#/components/schemas/Profile"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/user-management/profiles/{id}",
+      "method": "GET",
+      "summary": "Get Profile",
+      "description": "Get a single profile by ID",
+      "operationId": "getProfile",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Profile details",
+          "schema": {
+            "$ref": "#/components/schemas/Profile"
+          }
+        },
+        "404": {
+          "description": "Profile not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/user-management/profiles/{id}",
+      "method": "PUT",
+      "summary": "Update Profile",
+      "description": "Update an existing profile",
+      "operationId": "updateProfile",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/ProfileUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Profile updated",
+          "schema": {
+            "$ref": "#/components/schemas/Profile"
+          }
+        },
+        "404": {
+          "description": "Profile not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/user-management/profiles/{id}",
+      "method": "DELETE",
+      "summary": "Delete Profile",
+      "description": "Delete a profile",
+      "operationId": "deleteProfile",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Profile deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "Profile not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/user-management/authentications",
+      "method": "GET",
+      "summary": "List Authentications",
+      "description": "Get paginated list of authentications",
+      "operationId": "listAuthentications",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of authentications",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/user-management/authentications",
+      "method": "POST",
+      "summary": "Create Authentication",
+      "description": "Create a new authentication",
+      "operationId": "createAuthentication",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/AuthenticationCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "Authentication created",
+          "schema": {
+            "$ref": "#/components/schemas/Authentication"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/user-management/authentications/{id}",
+      "method": "GET",
+      "summary": "Get Authentication",
+      "description": "Get a single authentication by ID",
+      "operationId": "getAuthentication",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Authentication details",
+          "schema": {
+            "$ref": "#/components/schemas/Authentication"
+          }
+        },
+        "404": {
+          "description": "Authentication not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/user-management/authentications/{id}",
+      "method": "PUT",
+      "summary": "Update Authentication",
+      "description": "Update an existing authentication",
+      "operationId": "updateAuthentication",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/AuthenticationUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Authentication updated",
+          "schema": {
+            "$ref": "#/components/schemas/Authentication"
+          }
+        },
+        "404": {
+          "description": "Authentication not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/user-management/authentications/{id}",
+      "method": "DELETE",
+      "summary": "Delete Authentication",
+      "description": "Delete a authentication",
+      "operationId": "deleteAuthentication",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Authentication deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "Authentication not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    }
+  ],
+  "schemas": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "UserCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "UserUpdate": {
+      "type": "object",
+      "properties": {}
+    },
+    "Profile": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "ProfileCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "ProfileUpdate": {
+      "type": "object",
+      "properties": {}
+    },
+    "Authentication": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "AuthenticationCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "AuthenticationUpdate": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  "events": [
+    {
+      "name": "UserService:updated",
+      "payload": {
+        "entityId": "string",
+        "changes": "object"
+      }
+    },
+    {
+      "name": "AuthService:updated",
+      "payload": {
+        "entityId": "string",
+        "changes": "object"
+      }
+    }
+  ]
+}

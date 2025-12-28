@@ -1,0 +1,565 @@
+{
+  "name": "DriverManagement",
+  "displayName": "Driver Management",
+  "description": "API contract for Driver Management context",
+  "version": "1.0.0",
+  "owner": "Backend-Agent",
+  "baseUrl": "/api/v1/driver-management",
+  "endpoints": [
+    {
+      "path": "/api/v1/driver-management/drivers",
+      "method": "GET",
+      "summary": "List Drivers",
+      "description": "Get paginated list of drivers",
+      "operationId": "listDrivers",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of drivers",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/driver-management/drivers",
+      "method": "POST",
+      "summary": "Create Driver",
+      "description": "Create a new driver",
+      "operationId": "createDriver",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/DriverCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "Driver created",
+          "schema": {
+            "$ref": "#/components/schemas/Driver"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/driver-management/drivers/{id}",
+      "method": "GET",
+      "summary": "Get Driver",
+      "description": "Get a single driver by ID",
+      "operationId": "getDriver",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Driver details",
+          "schema": {
+            "$ref": "#/components/schemas/Driver"
+          }
+        },
+        "404": {
+          "description": "Driver not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/driver-management/drivers/{id}",
+      "method": "PUT",
+      "summary": "Update Driver",
+      "description": "Update an existing driver",
+      "operationId": "updateDriver",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/DriverUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Driver updated",
+          "schema": {
+            "$ref": "#/components/schemas/Driver"
+          }
+        },
+        "404": {
+          "description": "Driver not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/driver-management/drivers/{id}",
+      "method": "DELETE",
+      "summary": "Delete Driver",
+      "description": "Delete a driver",
+      "operationId": "deleteDriver",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Driver deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "Driver not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/driver-management/vehicles",
+      "method": "GET",
+      "summary": "List Vehicles",
+      "description": "Get paginated list of vehicles",
+      "operationId": "listVehicles",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of vehicles",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/driver-management/vehicles",
+      "method": "POST",
+      "summary": "Create Vehicle",
+      "description": "Create a new vehicle",
+      "operationId": "createVehicle",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/VehicleCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "Vehicle created",
+          "schema": {
+            "$ref": "#/components/schemas/Vehicle"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/driver-management/vehicles/{id}",
+      "method": "GET",
+      "summary": "Get Vehicle",
+      "description": "Get a single vehicle by ID",
+      "operationId": "getVehicle",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Vehicle details",
+          "schema": {
+            "$ref": "#/components/schemas/Vehicle"
+          }
+        },
+        "404": {
+          "description": "Vehicle not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/driver-management/vehicles/{id}",
+      "method": "PUT",
+      "summary": "Update Vehicle",
+      "description": "Update an existing vehicle",
+      "operationId": "updateVehicle",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/VehicleUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Vehicle updated",
+          "schema": {
+            "$ref": "#/components/schemas/Vehicle"
+          }
+        },
+        "404": {
+          "description": "Vehicle not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/driver-management/vehicles/{id}",
+      "method": "DELETE",
+      "summary": "Delete Vehicle",
+      "description": "Delete a vehicle",
+      "operationId": "deleteVehicle",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Vehicle deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "Vehicle not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/driver-management/availabilitys",
+      "method": "GET",
+      "summary": "List Availabilitys",
+      "description": "Get paginated list of availabilitys",
+      "operationId": "listAvailabilitys",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of availabilitys",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/driver-management/availabilitys",
+      "method": "POST",
+      "summary": "Create Availability",
+      "description": "Create a new availability",
+      "operationId": "createAvailability",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/AvailabilityCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "Availability created",
+          "schema": {
+            "$ref": "#/components/schemas/Availability"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/driver-management/availabilitys/{id}",
+      "method": "GET",
+      "summary": "Get Availability",
+      "description": "Get a single availability by ID",
+      "operationId": "getAvailability",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Availability details",
+          "schema": {
+            "$ref": "#/components/schemas/Availability"
+          }
+        },
+        "404": {
+          "description": "Availability not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/driver-management/availabilitys/{id}",
+      "method": "PUT",
+      "summary": "Update Availability",
+      "description": "Update an existing availability",
+      "operationId": "updateAvailability",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/AvailabilityUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Availability updated",
+          "schema": {
+            "$ref": "#/components/schemas/Availability"
+          }
+        },
+        "404": {
+          "description": "Availability not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/driver-management/availabilitys/{id}",
+      "method": "DELETE",
+      "summary": "Delete Availability",
+      "description": "Delete a availability",
+      "operationId": "deleteAvailability",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Availability deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "Availability not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    }
+  ],
+  "schemas": {
+    "Driver": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "DriverCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "DriverUpdate": {
+      "type": "object",
+      "properties": {}
+    },
+    "Vehicle": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "VehicleCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "VehicleUpdate": {
+      "type": "object",
+      "properties": {}
+    },
+    "Availability": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "AvailabilityCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "AvailabilityUpdate": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  "events": [
+    {
+      "name": "DriverService:updated",
+      "payload": {
+        "entityId": "string",
+        "changes": "object"
+      }
+    },
+    {
+      "name": "VehicleService:updated",
+      "payload": {
+        "entityId": "string",
+        "changes": "object"
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "plan-1766963193974",
+  "version": "1.0",
+  "status": "pending",
+  "tasks": [],
+  "executionGroups": [],
+  "checkpoints": [],
+  "dependencyGraph": {},
+  "phases": {},
+  "estimatedDuration": 0,
+  "taskCount": 0,
+  "metadata": {
+    "createdAt": "2025-12-28T23:06:33.974Z",
+    "source": "manual",
+    "maxConcurrency": 3
+  }
+}

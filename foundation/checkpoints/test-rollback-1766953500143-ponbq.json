@@ -1,0 +1,14 @@
+{
+  "id": "test-rollback-1766953500143-ponbq",
+  "operation": "test-rollback",
+  "timestamp": 1766953500143,
+  "metadata": {},
+  "git": {
+    "branch": "main",
+    "commit": "aac39560399945d682ed4664c2a8697a3152853d",
+    "hasUncommittedChanges": true,
+    "stashRef": "288f04d0ff11a59fbc28e048b1354b19d6371bf9"
+  },
+  "files": [],
+  "status": "active"
+}

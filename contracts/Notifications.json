@@ -1,0 +1,558 @@
+{
+  "name": "Notifications",
+  "displayName": "Notifications",
+  "description": "API contract for Notifications context",
+  "version": "1.0.0",
+  "owner": "Backend-Agent",
+  "baseUrl": "/api/v1/notifications",
+  "endpoints": [
+    {
+      "path": "/api/v1/notifications/notifications",
+      "method": "GET",
+      "summary": "List Notifications",
+      "description": "Get paginated list of notifications",
+      "operationId": "listNotifications",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of notifications",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/notifications/notifications",
+      "method": "POST",
+      "summary": "Create Notification",
+      "description": "Create a new notification",
+      "operationId": "createNotification",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/NotificationCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "Notification created",
+          "schema": {
+            "$ref": "#/components/schemas/Notification"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/notifications/notifications/{id}",
+      "method": "GET",
+      "summary": "Get Notification",
+      "description": "Get a single notification by ID",
+      "operationId": "getNotification",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Notification details",
+          "schema": {
+            "$ref": "#/components/schemas/Notification"
+          }
+        },
+        "404": {
+          "description": "Notification not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/notifications/notifications/{id}",
+      "method": "PUT",
+      "summary": "Update Notification",
+      "description": "Update an existing notification",
+      "operationId": "updateNotification",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/NotificationUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Notification updated",
+          "schema": {
+            "$ref": "#/components/schemas/Notification"
+          }
+        },
+        "404": {
+          "description": "Notification not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/notifications/notifications/{id}",
+      "method": "DELETE",
+      "summary": "Delete Notification",
+      "description": "Delete a notification",
+      "operationId": "deleteNotification",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Notification deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "Notification not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/notifications/templates",
+      "method": "GET",
+      "summary": "List Templates",
+      "description": "Get paginated list of templates",
+      "operationId": "listTemplates",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of templates",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/notifications/templates",
+      "method": "POST",
+      "summary": "Create Template",
+      "description": "Create a new template",
+      "operationId": "createTemplate",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/TemplateCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "Template created",
+          "schema": {
+            "$ref": "#/components/schemas/Template"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/notifications/templates/{id}",
+      "method": "GET",
+      "summary": "Get Template",
+      "description": "Get a single template by ID",
+      "operationId": "getTemplate",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Template details",
+          "schema": {
+            "$ref": "#/components/schemas/Template"
+          }
+        },
+        "404": {
+          "description": "Template not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/notifications/templates/{id}",
+      "method": "PUT",
+      "summary": "Update Template",
+      "description": "Update an existing template",
+      "operationId": "updateTemplate",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/TemplateUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Template updated",
+          "schema": {
+            "$ref": "#/components/schemas/Template"
+          }
+        },
+        "404": {
+          "description": "Template not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/notifications/templates/{id}",
+      "method": "DELETE",
+      "summary": "Delete Template",
+      "description": "Delete a template",
+      "operationId": "deleteTemplate",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Template deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "Template not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/notifications/channels",
+      "method": "GET",
+      "summary": "List Channels",
+      "description": "Get paginated list of channels",
+      "operationId": "listChannels",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of channels",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/notifications/channels",
+      "method": "POST",
+      "summary": "Create Channel",
+      "description": "Create a new channel",
+      "operationId": "createChannel",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/ChannelCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "Channel created",
+          "schema": {
+            "$ref": "#/components/schemas/Channel"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/notifications/channels/{id}",
+      "method": "GET",
+      "summary": "Get Channel",
+      "description": "Get a single channel by ID",
+      "operationId": "getChannel",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Channel details",
+          "schema": {
+            "$ref": "#/components/schemas/Channel"
+          }
+        },
+        "404": {
+          "description": "Channel not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/notifications/channels/{id}",
+      "method": "PUT",
+      "summary": "Update Channel",
+      "description": "Update an existing channel",
+      "operationId": "updateChannel",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/ChannelUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Channel updated",
+          "schema": {
+            "$ref": "#/components/schemas/Channel"
+          }
+        },
+        "404": {
+          "description": "Channel not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/notifications/channels/{id}",
+      "method": "DELETE",
+      "summary": "Delete Channel",
+      "description": "Delete a channel",
+      "operationId": "deleteChannel",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Channel deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "Channel not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    }
+  ],
+  "schemas": {
+    "Notification": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "NotificationCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "NotificationUpdate": {
+      "type": "object",
+      "properties": {}
+    },
+    "Template": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "TemplateCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "TemplateUpdate": {
+      "type": "object",
+      "properties": {}
+    },
+    "Channel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "ChannelCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "ChannelUpdate": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  "events": [
+    {
+      "name": "NotificationService:updated",
+      "payload": {
+        "entityId": "string",
+        "changes": "object"
+      }
+    }
+  ]
+}

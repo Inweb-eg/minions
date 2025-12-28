@@ -1,0 +1,565 @@
+{
+  "name": "RideManagement",
+  "displayName": "Ride Management",
+  "description": "API contract for Ride Management context",
+  "version": "1.0.0",
+  "owner": "Backend-Agent",
+  "baseUrl": "/api/v1/ride-management",
+  "endpoints": [
+    {
+      "path": "/api/v1/ride-management/rides",
+      "method": "GET",
+      "summary": "List Rides",
+      "description": "Get paginated list of rides",
+      "operationId": "listRides",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of rides",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ride-management/rides",
+      "method": "POST",
+      "summary": "Create Ride",
+      "description": "Create a new ride",
+      "operationId": "createRide",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/RideCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "Ride created",
+          "schema": {
+            "$ref": "#/components/schemas/Ride"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ride-management/rides/{id}",
+      "method": "GET",
+      "summary": "Get Ride",
+      "description": "Get a single ride by ID",
+      "operationId": "getRide",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Ride details",
+          "schema": {
+            "$ref": "#/components/schemas/Ride"
+          }
+        },
+        "404": {
+          "description": "Ride not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ride-management/rides/{id}",
+      "method": "PUT",
+      "summary": "Update Ride",
+      "description": "Update an existing ride",
+      "operationId": "updateRide",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/RideUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Ride updated",
+          "schema": {
+            "$ref": "#/components/schemas/Ride"
+          }
+        },
+        "404": {
+          "description": "Ride not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ride-management/rides/{id}",
+      "method": "DELETE",
+      "summary": "Delete Ride",
+      "description": "Delete a ride",
+      "operationId": "deleteRide",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Ride deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "Ride not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ride-management/routes",
+      "method": "GET",
+      "summary": "List Routes",
+      "description": "Get paginated list of routes",
+      "operationId": "listRoutes",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of routes",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ride-management/routes",
+      "method": "POST",
+      "summary": "Create Route",
+      "description": "Create a new route",
+      "operationId": "createRoute",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/RouteCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "Route created",
+          "schema": {
+            "$ref": "#/components/schemas/Route"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ride-management/routes/{id}",
+      "method": "GET",
+      "summary": "Get Route",
+      "description": "Get a single route by ID",
+      "operationId": "getRoute",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Route details",
+          "schema": {
+            "$ref": "#/components/schemas/Route"
+          }
+        },
+        "404": {
+          "description": "Route not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ride-management/routes/{id}",
+      "method": "PUT",
+      "summary": "Update Route",
+      "description": "Update an existing route",
+      "operationId": "updateRoute",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/RouteUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Route updated",
+          "schema": {
+            "$ref": "#/components/schemas/Route"
+          }
+        },
+        "404": {
+          "description": "Route not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ride-management/routes/{id}",
+      "method": "DELETE",
+      "summary": "Delete Route",
+      "description": "Delete a route",
+      "operationId": "deleteRoute",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Route deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "Route not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ride-management/pricings",
+      "method": "GET",
+      "summary": "List Pricings",
+      "description": "Get paginated list of pricings",
+      "operationId": "listPricings",
+      "auth": true,
+      "request": {
+        "query": {
+          "page": {
+            "type": "integer",
+            "default": 1
+          },
+          "limit": {
+            "type": "integer",
+            "default": 20
+          },
+          "sort": {
+            "type": "string"
+          },
+          "search": {
+            "type": "string"
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "List of pricings",
+          "schema": {
+            "$ref": "#/components/schemas/PaginatedResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ride-management/pricings",
+      "method": "POST",
+      "summary": "Create Pricing",
+      "description": "Create a new pricing",
+      "operationId": "createPricing",
+      "auth": true,
+      "request": {
+        "body": {
+          "$ref": "#/components/schemas/PricingCreate"
+        }
+      },
+      "response": {
+        "201": {
+          "description": "Pricing created",
+          "schema": {
+            "$ref": "#/components/schemas/Pricing"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ride-management/pricings/{id}",
+      "method": "GET",
+      "summary": "Get Pricing",
+      "description": "Get a single pricing by ID",
+      "operationId": "getPricing",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Pricing details",
+          "schema": {
+            "$ref": "#/components/schemas/Pricing"
+          }
+        },
+        "404": {
+          "description": "Pricing not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ride-management/pricings/{id}",
+      "method": "PUT",
+      "summary": "Update Pricing",
+      "description": "Update an existing pricing",
+      "operationId": "updatePricing",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        },
+        "body": {
+          "$ref": "#/components/schemas/PricingUpdate"
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Pricing updated",
+          "schema": {
+            "$ref": "#/components/schemas/Pricing"
+          }
+        },
+        "404": {
+          "description": "Pricing not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/api/v1/ride-management/pricings/{id}",
+      "method": "DELETE",
+      "summary": "Delete Pricing",
+      "description": "Delete a pricing",
+      "operationId": "deletePricing",
+      "auth": true,
+      "request": {
+        "params": {
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Pricing deleted",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "404": {
+          "description": "Pricing not found",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    }
+  ],
+  "schemas": {
+    "Ride": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "RideCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "RideUpdate": {
+      "type": "object",
+      "properties": {}
+    },
+    "Route": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "RouteCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "RouteUpdate": {
+      "type": "object",
+      "properties": {}
+    },
+    "Pricing": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "PricingCreate": {
+      "type": "object",
+      "required": [],
+      "properties": {}
+    },
+    "PricingUpdate": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  "events": [
+    {
+      "name": "RideService:updated",
+      "payload": {
+        "entityId": "string",
+        "changes": "object"
+      }
+    },
+    {
+      "name": "PricingService:updated",
+      "payload": {
+        "entityId": "string",
+        "changes": "object"
+      }
+    }
+  ]
+}

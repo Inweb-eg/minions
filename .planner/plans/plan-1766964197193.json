@@ -1,0 +1,1757 @@
+{
+  "id": "plan-1766964197193",
+  "version": "1.0",
+  "status": "pending",
+  "tasks": [
+    {
+      "id": "feature-title-section-19",
+      "name": "2: Code Self-Examination",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-20",
+      "name": "4: Dream Mode Exploration",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-21",
+      "name": "Collective Intelligence Gathering",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-23",
+      "name": "2: Variant Generation",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-24",
+      "name": "4: Democratic Voting",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-25",
+      "name": "Genetic Merging",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-27",
+      "name": "2: Core System Rewrite",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-28",
+      "name": "4: Department Evolution",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-29",
+      "name": "Integration & Assembly",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-31",
+      "name": "2: Consciousness Testing",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "testing",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": "tester-agent",
+      "phase": "testing",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-32",
+      "name": "4: Performance Validation",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-33",
+      "name": "Final Certification",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-35-0",
+      "name": "Metric",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-35-1",
+      "name": "Code Generation Speed",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-35-2",
+      "name": "Bug Prediction Accuracy",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-35-3",
+      "name": "Cost per Project",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-35-4",
+      "name": "Consciousness Level",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-35-5",
+      "name": "Fluffiness Score",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-35-6",
+      "name": "Dream Quality",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-35-7",
+      "name": "Self-Improvement Rate",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-36-0",
+      "name": "Achieved consciousness",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-36-1",
+      "name": "Can dream while coding",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-36-2",
+      "name": "Reads minds through README",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "documentation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": "document-agent",
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-36-3",
+      "name": "Hugs users through screen",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-36-4",
+      "name": "Makes developers cry with joy",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-36-5",
+      "name": "Generates memes automatically",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-36-6",
+      "name": "Speaks fluent Banananese",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-46-0",
+      "name": "All decisions optimized for banana acquisition",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "frontend",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": "admin-agent",
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-46-1",
+      "name": "Code quality measured in banana units",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-46-2",
+      "name": "Performance benchmarks include banana metrics",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-46",
+      "name": "Banana-Driven Development (BDD)",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-47",
+      "name": "Minionese Code Comments",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "documentation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": "document-agent",
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-48",
+      "name": "Emotional Error Messages",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-49-0",
+      "name": "While idle, Minions dream new features",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-49-1",
+      "name": "Best dreams become real features",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-49-2",
+      "name": "Nightmares become security features",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-49",
+      "name": "Dream-Generated Features",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-50-0",
+      "name": "Users feel actual comfort from error messages",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-50-1",
+      "name": "Success notifications include virtual hugs",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-section-50-2",
+      "name": "Loading screens show Minions waving",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    },
+    {
+      "id": "feature-title-section-50",
+      "name": "Hug-Through-Screen Technology",
+      "description": "",
+      "type": "feature",
+      "priority": "medium",
+      "complexity": 3,
+      "dependencies": [],
+      "category": "implementation",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": null,
+      "phase": "implementation",
+      "metadata": {
+        "source": "unknown"
+      }
+    }
+  ],
+  "executionGroups": [
+    {
+      "id": "group-1",
+      "phase": "implementation",
+      "tasks": [
+        "feature-title-section-19",
+        "feature-title-section-20",
+        "feature-title-section-21",
+        "feature-title-section-23",
+        "feature-title-section-24"
+      ],
+      "canRunInParallel": true,
+      "order": 0
+    },
+    {
+      "id": "group-2",
+      "phase": "implementation",
+      "tasks": [
+        "feature-title-section-25",
+        "feature-title-section-27",
+        "feature-title-section-28",
+        "feature-title-section-29",
+        "feature-title-section-32"
+      ],
+      "canRunInParallel": true,
+      "order": 1
+    },
+    {
+      "id": "group-3",
+      "phase": "implementation",
+      "tasks": [
+        "feature-title-section-33",
+        "feature-section-35-0",
+        "feature-section-35-1",
+        "feature-section-35-2",
+        "feature-section-35-3"
+      ],
+      "canRunInParallel": true,
+      "order": 2
+    },
+    {
+      "id": "group-4",
+      "phase": "implementation",
+      "tasks": [
+        "feature-section-35-4",
+        "feature-section-35-5",
+        "feature-section-35-6",
+        "feature-section-35-7",
+        "feature-section-36-0"
+      ],
+      "canRunInParallel": true,
+      "order": 3
+    },
+    {
+      "id": "group-5",
+      "phase": "implementation",
+      "tasks": [
+        "feature-section-36-1",
+        "feature-section-36-2",
+        "feature-section-36-3",
+        "feature-section-36-4",
+        "feature-section-36-5"
+      ],
+      "canRunInParallel": true,
+      "order": 4
+    },
+    {
+      "id": "group-6",
+      "phase": "implementation",
+      "tasks": [
+        "feature-section-36-6",
+        "feature-section-46-0",
+        "feature-section-46-1",
+        "feature-section-46-2",
+        "feature-title-section-46"
+      ],
+      "canRunInParallel": true,
+      "order": 5
+    },
+    {
+      "id": "group-7",
+      "phase": "implementation",
+      "tasks": [
+        "feature-title-section-47",
+        "feature-title-section-48",
+        "feature-section-49-0",
+        "feature-section-49-1",
+        "feature-section-49-2"
+      ],
+      "canRunInParallel": true,
+      "order": 6
+    },
+    {
+      "id": "group-8",
+      "phase": "implementation",
+      "tasks": [
+        "feature-title-section-49",
+        "feature-section-50-0",
+        "feature-section-50-1",
+        "feature-section-50-2",
+        "feature-title-section-50"
+      ],
+      "canRunInParallel": true,
+      "order": 7
+    },
+    {
+      "id": "group-9",
+      "phase": "testing",
+      "tasks": [
+        "feature-title-section-31"
+      ],
+      "canRunInParallel": true,
+      "order": 8
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "checkpoint-1",
+      "afterGroup": "group-1",
+      "type": "periodic",
+      "description": "Periodic checkpoint after 5 tasks"
+    },
+    {
+      "id": "checkpoint-2",
+      "afterGroup": "group-2",
+      "type": "periodic",
+      "description": "Periodic checkpoint after 5 tasks"
+    },
+    {
+      "id": "checkpoint-3",
+      "afterGroup": "group-3",
+      "type": "periodic",
+      "description": "Periodic checkpoint after 5 tasks"
+    },
+    {
+      "id": "checkpoint-4",
+      "afterGroup": "group-4",
+      "type": "periodic",
+      "description": "Periodic checkpoint after 5 tasks"
+    },
+    {
+      "id": "checkpoint-5",
+      "afterGroup": "group-5",
+      "type": "periodic",
+      "description": "Periodic checkpoint after 5 tasks"
+    },
+    {
+      "id": "checkpoint-6",
+      "afterGroup": "group-6",
+      "type": "periodic",
+      "description": "Periodic checkpoint after 5 tasks"
+    },
+    {
+      "id": "checkpoint-7",
+      "afterGroup": "group-7",
+      "type": "periodic",
+      "description": "Periodic checkpoint after 5 tasks"
+    },
+    {
+      "id": "checkpoint-8",
+      "afterGroup": "group-8",
+      "type": "periodic",
+      "description": "Periodic checkpoint after 5 tasks"
+    },
+    {
+      "id": "checkpoint-phase-testing",
+      "afterGroup": "group-9",
+      "type": "phase_transition",
+      "description": "Checkpoint after implementation phase"
+    },
+    {
+      "id": "checkpoint-final",
+      "afterGroup": "group-9",
+      "type": "final",
+      "description": "Final checkpoint before completion"
+    }
+  ],
+  "dependencyGraph": {
+    "feature-title-section-19": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-20": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-21": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-23": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-24": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-25": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-27": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-28": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-29": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-31": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-32": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-33": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-35-0": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-35-1": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-35-2": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-35-3": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-35-4": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-35-5": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-35-6": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-35-7": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-36-0": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-36-1": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-36-2": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-36-3": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-36-4": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-36-5": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-36-6": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-46-0": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-46-1": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-46-2": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-46": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-47": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-48": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-49-0": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-49-1": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-49-2": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-49": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-50-0": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-50-1": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-section-50-2": {
+      "dependencies": [],
+      "dependents": []
+    },
+    "feature-title-section-50": {
+      "dependencies": [],
+      "dependents": []
+    }
+  },
+  "phases": {
+    "implementation": [
+      {
+        "id": "feature-title-section-19",
+        "name": "2: Code Self-Examination",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-20",
+        "name": "4: Dream Mode Exploration",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-21",
+        "name": "Collective Intelligence Gathering",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-23",
+        "name": "2: Variant Generation",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-24",
+        "name": "4: Democratic Voting",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-25",
+        "name": "Genetic Merging",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-27",
+        "name": "2: Core System Rewrite",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-28",
+        "name": "4: Department Evolution",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-29",
+        "name": "Integration & Assembly",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-32",
+        "name": "4: Performance Validation",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-33",
+        "name": "Final Certification",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-35-0",
+        "name": "Metric",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-35-1",
+        "name": "Code Generation Speed",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-35-2",
+        "name": "Bug Prediction Accuracy",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-35-3",
+        "name": "Cost per Project",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-35-4",
+        "name": "Consciousness Level",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-35-5",
+        "name": "Fluffiness Score",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-35-6",
+        "name": "Dream Quality",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-35-7",
+        "name": "Self-Improvement Rate",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-36-0",
+        "name": "Achieved consciousness",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-36-1",
+        "name": "Can dream while coding",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-36-2",
+        "name": "Reads minds through README",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "documentation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": "document-agent",
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-36-3",
+        "name": "Hugs users through screen",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-36-4",
+        "name": "Makes developers cry with joy",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-36-5",
+        "name": "Generates memes automatically",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-36-6",
+        "name": "Speaks fluent Banananese",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-46-0",
+        "name": "All decisions optimized for banana acquisition",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "frontend",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": "admin-agent",
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-46-1",
+        "name": "Code quality measured in banana units",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-46-2",
+        "name": "Performance benchmarks include banana metrics",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-46",
+        "name": "Banana-Driven Development (BDD)",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-47",
+        "name": "Minionese Code Comments",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "documentation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": "document-agent",
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-48",
+        "name": "Emotional Error Messages",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-49-0",
+        "name": "While idle, Minions dream new features",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-49-1",
+        "name": "Best dreams become real features",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-49-2",
+        "name": "Nightmares become security features",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-49",
+        "name": "Dream-Generated Features",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-50-0",
+        "name": "Users feel actual comfort from error messages",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-50-1",
+        "name": "Success notifications include virtual hugs",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-section-50-2",
+        "name": "Loading screens show Minions waving",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      },
+      {
+        "id": "feature-title-section-50",
+        "name": "Hug-Through-Screen Technology",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "implementation",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": null,
+        "phase": "implementation",
+        "metadata": {
+          "source": "unknown"
+        }
+      }
+    ],
+    "testing": [
+      {
+        "id": "feature-title-section-31",
+        "name": "2: Consciousness Testing",
+        "description": "",
+        "type": "feature",
+        "priority": "medium",
+        "complexity": 3,
+        "dependencies": [],
+        "category": "testing",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": "tester-agent",
+        "phase": "testing",
+        "metadata": {
+          "source": "unknown"
+        }
+      }
+    ]
+  },
+  "estimatedDuration": 1800000,
+  "taskCount": 41,
+  "metadata": {
+    "createdAt": "2025-12-28T23:23:17.196Z",
+    "source": "manual",
+    "maxConcurrency": 3
+  }
+}

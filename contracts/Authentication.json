@@ -1,0 +1,309 @@
+{
+  "name": "Authentication",
+  "displayName": "Authentication APIs",
+  "description": "Authentication and authorization endpoints",
+  "version": "1.0.0",
+  "baseUrl": "/api/v1/auth",
+  "endpoints": [
+    {
+      "path": "/register",
+      "method": "POST",
+      "summary": "Register User",
+      "description": "Create a new user account",
+      "operationId": "registerUser",
+      "auth": false,
+      "request": {
+        "body": {
+          "type": "object",
+          "required": [
+            "email",
+            "password",
+            "name"
+          ],
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "password": {
+              "type": "string",
+              "minLength": 8
+            },
+            "name": {
+              "type": "string",
+              "minLength": 2
+            },
+            "phone": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response": {
+        "201": {
+          "description": "User registered successfully",
+          "schema": {
+            "$ref": "#/components/schemas/AuthResponse"
+          }
+        },
+        "400": {
+          "description": "Validation error",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        },
+        "409": {
+          "description": "User already exists",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/login",
+      "method": "POST",
+      "summary": "Login",
+      "description": "Authenticate user and receive tokens",
+      "operationId": "loginUser",
+      "auth": false,
+      "request": {
+        "body": {
+          "type": "object",
+          "required": [
+            "email",
+            "password"
+          ],
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email"
+            },
+            "password": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Login successful",
+          "schema": {
+            "$ref": "#/components/schemas/AuthResponse"
+          }
+        },
+        "401": {
+          "description": "Invalid credentials",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/refresh",
+      "method": "POST",
+      "summary": "Refresh Token",
+      "description": "Get new access token using refresh token",
+      "operationId": "refreshToken",
+      "auth": false,
+      "request": {
+        "body": {
+          "type": "object",
+          "required": [
+            "refreshToken"
+          ],
+          "properties": {
+            "refreshToken": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Token refreshed",
+          "schema": {
+            "$ref": "#/components/schemas/TokenResponse"
+          }
+        },
+        "401": {
+          "description": "Invalid refresh token",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/logout",
+      "method": "POST",
+      "summary": "Logout",
+      "description": "Invalidate current session",
+      "operationId": "logoutUser",
+      "auth": true,
+      "request": {},
+      "response": {
+        "200": {
+          "description": "Logged out successfully",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/me",
+      "method": "GET",
+      "summary": "Get Current User",
+      "description": "Get authenticated user profile",
+      "operationId": "getCurrentUser",
+      "auth": true,
+      "request": {},
+      "response": {
+        "200": {
+          "description": "Current user data",
+          "schema": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "401": {
+          "description": "Unauthorized",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    },
+    {
+      "path": "/password/forgot",
+      "method": "POST",
+      "summary": "Forgot Password",
+      "description": "Request password reset email",
+      "operationId": "forgotPassword",
+      "auth": false,
+      "request": {
+        "body": {
+          "type": "object",
+          "required": [
+            "email"
+          ],
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email"
+            }
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Reset email sent",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        }
+      }
+    },
+    {
+      "path": "/password/reset",
+      "method": "POST",
+      "summary": "Reset Password",
+      "description": "Reset password with token",
+      "operationId": "resetPassword",
+      "auth": false,
+      "request": {
+        "body": {
+          "type": "object",
+          "required": [
+            "token",
+            "password"
+          ],
+          "properties": {
+            "token": {
+              "type": "string"
+            },
+            "password": {
+              "type": "string",
+              "minLength": 8
+            }
+          }
+        }
+      },
+      "response": {
+        "200": {
+          "description": "Password reset successful",
+          "schema": {
+            "$ref": "#/components/schemas/SuccessResponse"
+          }
+        },
+        "400": {
+          "description": "Invalid or expired token",
+          "schema": {
+            "$ref": "#/components/schemas/Error"
+          }
+        }
+      }
+    }
+  ],
+  "schemas": {
+    "AuthResponse": {
+      "type": "object",
+      "properties": {
+        "user": {
+          "$ref": "#/components/schemas/User"
+        },
+        "tokens": {
+          "$ref": "#/components/schemas/TokenResponse"
+        }
+      }
+    },
+    "TokenResponse": {
+      "type": "object",
+      "properties": {
+        "accessToken": {
+          "type": "string"
+        },
+        "refreshToken": {
+          "type": "string"
+        },
+        "expiresIn": {
+          "type": "integer"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string",
+          "enum": [
+            "user",
+            "driver",
+            "admin"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

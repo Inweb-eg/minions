@@ -42,18 +42,18 @@ export class ReadmeParser extends EventEmitter {
       ...config
     };
 
-    // Patterns for detecting sections
+    // Patterns for detecting sections (emoji-aware - emojis can appear before keywords)
     this.sectionPatterns = {
-      [SectionType.OVERVIEW]: /^#+\s*(overview|about|introduction|summary)/i,
-      [SectionType.FEATURES]: /^#+\s*(features|capabilities|what it does|highlights)/i,
-      [SectionType.INSTALLATION]: /^#+\s*(install|getting started|setup|quick start)/i,
-      [SectionType.USAGE]: /^#+\s*(usage|how to use|examples?|basic usage)/i,
-      [SectionType.API]: /^#+\s*(api|reference|methods|endpoints)/i,
-      [SectionType.CONFIGURATION]: /^#+\s*(config|configuration|options|settings)/i,
-      [SectionType.CONTRIBUTING]: /^#+\s*(contribut|development|dev setup)/i,
-      [SectionType.LICENSE]: /^#+\s*license/i,
-      [SectionType.ROADMAP]: /^#+\s*(roadmap|planned|upcoming|future)/i,
-      [SectionType.TODO]: /^#+\s*(todo|tasks|checklist)/i
+      [SectionType.OVERVIEW]: /^#+\s*[^\w]*(overview|about|introduction|summary|executive)/i,
+      [SectionType.FEATURES]: /^#+\s*[^\w]*(features|capabilities|what it does|highlights|innovation|unique|game.?changing|revolutionary)/i,
+      [SectionType.INSTALLATION]: /^#+\s*[^\w]*(install|getting started|setup|quick start)/i,
+      [SectionType.USAGE]: /^#+\s*[^\w]*(usage|how to use|examples?|basic usage|execution|commands)/i,
+      [SectionType.API]: /^#+\s*[^\w]*(api|reference|methods|endpoints)/i,
+      [SectionType.CONFIGURATION]: /^#+\s*[^\w]*(config|configuration|options|settings)/i,
+      [SectionType.CONTRIBUTING]: /^#+\s*[^\w]*(contribut|development|dev setup)/i,
+      [SectionType.LICENSE]: /^#+\s*[^\w]*license/i,
+      [SectionType.ROADMAP]: /^#+\s*[^\w]*(roadmap|planned|upcoming|future|implementation plan|evolution|phase)/i,
+      [SectionType.TODO]: /^#+\s*[^\w]*(todo|tasks|checklist|success metrics|achievements|goals|outcomes)/i
     };
 
     // Patterns for detecting features
@@ -145,6 +145,22 @@ export class ReadmeParser extends EventEmitter {
     for (const section of featureSections) {
       const sectionFeatures = this._extractFeatures(section);
       result.features.push(...sectionFeatures);
+
+      // Also check subsections (sections that come after this one at a deeper level)
+      const sectionIndex = result.sections.indexOf(section);
+      for (let i = sectionIndex + 1; i < result.sections.length; i++) {
+        const subSection = result.sections[i];
+        // Stop if we hit a section at the same or higher level
+        if (subSection.level <= section.level) break;
+        // Extract features from subsection
+        const subFeatures = this._extractFeatures(subSection);
+        result.features.push(...subFeatures);
+        // Also extract feature from subsection title if it matches patterns
+        const titleFeature = this._extractFeatureFromTitle(subSection, section.title);
+        if (titleFeature) {
+          result.features.push(titleFeature);
+        }
+      }
     }
 
     // Also check overview for high-level features
@@ -353,6 +369,41 @@ export class ReadmeParser extends EventEmitter {
         continue;
       }
 
+      // Numbered items with bold: 1. **Feature name** or ### 1. **Feature**
+      const numberedBoldMatch = trimmed.match(/^(?:#{1,4}\s*)?\d+\.\s*\*\*(.+?)\*\*\s*(.*)$/);
+      if (numberedBoldMatch) {
+        features.push({
+          id: `feature-${section.id}-${featureIndex++}`,
+          name: numberedBoldMatch[1].trim(),
+          description: numberedBoldMatch[2].trim() || undefined,
+          type: this._determineFeatureType(numberedBoldMatch[1]),
+          status: 'planned',
+          source: section.title,
+          isFromOverview: isOverview
+        });
+        continue;
+      }
+
+      // Table rows: | Name | Title | Description |
+      const tableMatch = trimmed.match(/^\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/);
+      if (tableMatch && !trimmed.includes('---') && !trimmed.toLowerCase().includes('agent name')) {
+        const name = tableMatch[1].trim();
+        const title = tableMatch[2].trim();
+        // Skip header rows and separator rows
+        if (name && !name.match(/^[-:]+$/) && name.length > 2 && name.length < 50) {
+          features.push({
+            id: `feature-${section.id}-${featureIndex++}`,
+            name: name,
+            description: title,
+            type: this._determineFeatureType(name),
+            status: 'planned',
+            source: section.title,
+            isFromOverview: isOverview
+          });
+        }
+        continue;
+      }
+
       // Simple list items (if not in overview to avoid noise)
       if (!isOverview && /^[-*]\s+[A-Z]/.test(trimmed)) {
         const listMatch = trimmed.match(/^[-*]\s+(.+)$/);
@@ -370,6 +421,44 @@ export class ReadmeParser extends EventEmitter {
     }
 
     return features;
+  }
+
+  /**
+   * Extract a feature from a section title
+   * Handles titles like "### 1. **Banana-Driven Development (BDD)**"
+   */
+  _extractFeatureFromTitle(section, parentTitle) {
+    const title = section.title || '';
+
+    // Pattern: "1. **Feature Name**" or "**Feature Name**" or numbered items
+    const boldMatch = title.match(/(?:\d+\.\s*)?\*\*(.+?)\*\*/);
+    if (boldMatch) {
+      return {
+        id: `feature-title-${section.id}`,
+        name: boldMatch[1].trim(),
+        description: section.content?.substring(0, 200)?.trim() || undefined,
+        type: this._determineFeatureType(boldMatch[1]),
+        status: 'planned',
+        source: parentTitle,
+        isFromTitle: true
+      };
+    }
+
+    // Pattern: "Phase X: Name" or "Day X: Name"
+    const phaseMatch = title.match(/(?:Phase|Day|Step)\s*\d*[-:]?\s*(.+)/i);
+    if (phaseMatch) {
+      return {
+        id: `feature-title-${section.id}`,
+        name: phaseMatch[1].trim(),
+        description: section.content?.substring(0, 200)?.trim() || undefined,
+        type: this._determineFeatureType(phaseMatch[1]),
+        status: 'planned',
+        source: parentTitle,
+        isFromTitle: true
+      };
+    }
+
+    return null;
   }
 
   /**
