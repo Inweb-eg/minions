@@ -1,0 +1,97 @@
+{
+  "id": "plan-1766215770286",
+  "version": "1.0",
+  "status": "failed",
+  "tasks": [
+    {
+      "id": "task-1",
+      "name": "Test task",
+      "description": "",
+      "type": "implementation",
+      "priority": 3,
+      "complexity": 3,
+      "dependencies": [],
+      "category": "testing",
+      "estimatedDuration": 900000,
+      "status": "pending",
+      "agent": "tester-agent",
+      "phase": "testing",
+      "metadata": {
+        "source": "unknown"
+      }
+    }
+  ],
+  "executionGroups": [
+    {
+      "id": "group-1",
+      "phase": "testing",
+      "tasks": [
+        "task-1"
+      ],
+      "canRunInParallel": true,
+      "order": 0
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "checkpoint-final",
+      "afterGroup": "group-1",
+      "type": "final",
+      "description": "Final checkpoint before completion"
+    }
+  ],
+  "dependencyGraph": {
+    "task-1": {
+      "dependencies": [],
+      "dependents": []
+    }
+  },
+  "phases": {
+    "testing": [
+      {
+        "id": "task-1",
+        "name": "Test task",
+        "description": "",
+        "type": "implementation",
+        "priority": 3,
+        "complexity": 3,
+        "dependencies": [],
+        "category": "testing",
+        "estimatedDuration": 900000,
+        "status": "pending",
+        "agent": "tester-agent",
+        "phase": "testing",
+        "metadata": {
+          "source": "unknown"
+        }
+      }
+    ]
+  },
+  "estimatedDuration": 900000,
+  "taskCount": 1,
+  "metadata": {
+    "createdAt": "2025-12-20T07:29:30.286Z",
+    "source": "manual",
+    "maxConcurrency": 3
+  },
+  "startedAt": "2025-12-20T07:29:30.287Z",
+  "completedAt": "2025-12-20T07:29:30.288Z",
+  "result": {
+    "success": false,
+    "tasksCompleted": 0,
+    "tasksFailed": 1,
+    "errors": [
+      {
+        "taskId": "task-1",
+        "error": "Task not found in assignments"
+      }
+    ],
+    "summary": {
+      "totalTasks": 1,
+      "completed": 0,
+      "failed": 1,
+      "duration": 0
+    },
+    "duration": 0
+  }
+}

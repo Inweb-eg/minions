@@ -1,0 +1,14 @@
+{
+  "id": "integration-test-1765651880307-9qafx",
+  "operation": "integration-test",
+  "timestamp": 1765651880307,
+  "metadata": {},
+  "git": {
+    "branch": "main",
+    "commit": "d1923f4e2299843b3ff3848d190f6f400fc27f34",
+    "hasUncommittedChanges": true,
+    "stashRef": null
+  },
+  "files": [],
+  "status": "active"
+}

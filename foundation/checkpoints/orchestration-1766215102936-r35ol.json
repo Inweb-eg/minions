@@ -1,0 +1,14 @@
+{
+  "id": "orchestration-1766215102936-r35ol",
+  "operation": "orchestration",
+  "timestamp": 1766215102936,
+  "metadata": {
+    "changedFiles": [],
+    "timestamp": 1766215102936
+  },
+  "git": null,
+  "files": [],
+  "status": "rolled_back",
+  "rollback_time": 1766215102988,
+  "rollback_reason": "Agent failures: failing-agent"
+}

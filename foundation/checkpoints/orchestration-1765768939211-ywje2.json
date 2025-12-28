@@ -1,0 +1,19 @@
+{
+  "id": "orchestration-1765768939211-ywje2",
+  "operation": "orchestration",
+  "timestamp": 1765768939211,
+  "metadata": {
+    "changedFiles": [],
+    "timestamp": 1765768939211
+  },
+  "git": {
+    "branch": "main",
+    "commit": "7b7f8c71f48425b3b4cf34e89b56da7d96690cac",
+    "hasUncommittedChanges": true,
+    "stashRef": null
+  },
+  "files": [],
+  "status": "rolled_back",
+  "rollback_time": 1765768939277,
+  "rollback_reason": "Agent failures: failing-agent"
+}

@@ -542,7 +542,7 @@ class CostAwareRouter {
     this.stats.totalCost += result.cost || 0;
 
     // Calculate savings compared to always using premium
-    const premiumCost = (result.tokens?.prompt || 0 + result.tokens?.completion || 0) / 1000 * 0.03;
+    const premiumCost = ((result.tokens?.prompt || 0) + (result.tokens?.completion || 0)) / 1000 * 0.03;
     this.stats.savings += premiumCost - (result.cost || 0);
 
     // Update average quality

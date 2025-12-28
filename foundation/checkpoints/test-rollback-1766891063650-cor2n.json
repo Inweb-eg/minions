@@ -1,0 +1,11 @@
+{
+  "id": "test-rollback-1766891063650-cor2n",
+  "operation": "test-rollback",
+  "timestamp": 1766891063650,
+  "metadata": {},
+  "git": null,
+  "files": [],
+  "status": "rolled_back",
+  "rollback_time": 1766891063677,
+  "rollback_reason": "Integration test"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "integration-test-1765660508391-qlbmr",
+  "operation": "integration-test",
+  "timestamp": 1765660508391,
+  "metadata": {},
+  "git": {
+    "branch": "main",
+    "commit": "bfc800b5471436cb6d5115b92937b0962c63a447",
+    "hasUncommittedChanges": true,
+    "stashRef": "2c7683e45ea228db0d7ef2c565002fa3d30a21a2"
+  },
+  "files": [],
+  "status": "active"
+}

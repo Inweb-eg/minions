@@ -1,0 +1,16 @@
+{
+  "id": "test-rollback-1766890935138-pxn7z",
+  "operation": "test-rollback",
+  "timestamp": 1766890935138,
+  "metadata": {},
+  "git": {
+    "branch": "main",
+    "commit": "ce3d8fb430c3d378aacca573e9eacd53e6d58971",
+    "hasUncommittedChanges": true,
+    "stashRef": null
+  },
+  "files": [],
+  "status": "rolled_back",
+  "rollback_time": 1766890935176,
+  "rollback_reason": "Integration test"
+}
