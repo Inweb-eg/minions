@@ -1637,3 +1637,195 @@ healthMonitor.registerHealthCheck('database-agent', async (metrics) => ({
 2. **Test execution** - External process
 3. **AST parsing** - Large files
 4. **Memory** - Large history retention
+
+---
+
+## Minions 2.0: Revolutionary Enhancements
+
+The enhanced architecture adds six new capability layers for self-improving AI.
+
+### Enhanced Architecture Diagram (Minions 2.0)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              Ecosystem Layer                                 │
+│  ┌─────────────────────────┐  ┌─────────────────────────────────────────┐  │
+│  │   PluginMarketplace     │  │        SelfImprovingEngine              │  │
+│  │   - Plugin discovery    │  │        - Self-analysis                  │  │
+│  │   - Security scanning   │  │        - Weakness detection             │  │
+│  │   - Version management  │  │        - Auto-improvement               │  │
+│  └─────────────────────────┘  └─────────────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                           Production Intelligence                            │
+│  ┌─────────────────────────┐  ┌─────────────────────────────────────────┐  │
+│  │   SelfHealingAgent      │  │       BlockchainCertifier               │  │
+│  │   - Health monitoring   │  │       - Code certification              │  │
+│  │   - Auto-diagnosis      │  │       - Audit trail                     │  │
+│  │   - Self-generated fix  │  │       - Provenance tracking             │  │
+│  └─────────────────────────┘  └─────────────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                            Evolution Agents                                  │
+│  ┌─────────────────────────┐  ┌─────────────────────────────────────────┐  │
+│  │  CodeEvolutionAgent     │  │       PredictiveDebugger                │  │
+│  │  - Genetic algorithms   │  │       - Bug prediction                  │  │
+│  │  - Fitness evaluation   │  │       - Time-travel debugging           │  │
+│  │  - Code mutation        │  │       - Pattern learning                │  │
+│  └─────────────────────────┘  └─────────────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                             Knowledge Brain                                  │
+│  ┌─────────────────────────┐  ┌─────────────────────────────────────────┐  │
+│  │    KnowledgeBrain       │  │    PatternRecognitionEngine             │  │
+│  │    - Vector similarity  │  │    - 30+ built-in detectors             │  │
+│  │    - Relationship graph │  │    - Auto-learning                      │  │
+│  │    - Quality scoring    │  │    - Category analysis                  │  │
+│  └─────────────────────────┘  └─────────────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                            LLM Management                                    │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────────────────┐  │
+│  │CostAwareRouter│  │BudgetManager │  │      ResponseCache               │  │
+│  │ - Multi-tier │  │ - Tracking   │  │      - Memory L1                 │  │
+│  │ - Escalation │  │ - Alerts     │  │      - File L2                   │  │
+│  │ - 95% saving │  │ - Optimize   │  │      - Semantic matching         │  │
+│  └──────────────┘  └──────────────┘  └──────────────────────────────────┘  │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                          Intelligence Layer                                  │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌────────────────────┐ │
+│  │   README     │ │  ZeroShot    │ │    Spec      │ │    Natural         │ │
+│  │  Amplifier   │ │  Architect   │ │  Evolution   │ │  Language IF       │ │
+│  │  100x less   │ │  1 sentence  │ │  Genetic     │ │  "Build Uber       │ │
+│  │  input       │ │  → full arch │ │  optimization│ │   for dogs"        │ │
+│  └──────────────┘ └──────────────┘ └──────────────┘ └────────────────────┘ │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                    Original Foundation (Phase 0-3)                          │
+│  EventBus │ Orchestrator │ HealthMonitor │ MetricsCollector │ RollbackMgr  │
+│  MemoryStore │ DecisionLogger │ StateMachine │ EnhancedEventBus            │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Intelligence Layer Components
+
+#### ReadmeAmplifier
+- Input: 10-line README
+- Output: 1000-line enterprise specification
+- Features: Domain detection, tech stack inference, API structure generation
+
+#### ZeroShotArchitect
+- Input: Single sentence description
+- Output: Complete architecture (C4, OpenAPI, K8s, Terraform, CI/CD)
+- Reference apps: Uber, Airbnb, Instagram, Slack patterns
+
+#### SpecEvolution
+- 5 optimization strategies (cost, scale, speed, security, maintenance)
+- Genetic algorithm for merging best aspects
+- Simulation-based fitness scoring
+
+#### NaturalLanguageInterface
+- Reference app knowledge base
+- Feature keyword mappings
+- Constraint inference from casual language
+
+### LLM Management Layer
+
+#### Cost Routing Strategy
+```
+Request → Complexity Assessment
+           ↓
+        Low complexity → Free tier (Ollama)
+           ↓
+        Medium → Penny tier (GPT-3.5/Haiku)
+           ↓
+        High → Dollar tier (GPT-4o-mini/Sonnet)
+           ↓
+        Critical → Premium tier (GPT-4o/Opus)
+```
+
+#### Budget Allocation
+- Critical tasks: 30%
+- Normal tasks: 50%
+- Simple tasks: 10%
+- Reserve: 10%
+
+### Knowledge Brain Layer
+
+#### Vector Similarity Search
+- TF-IDF based vectorization
+- Cosine similarity matching
+- Relationship graph for connected knowledge
+
+#### Pattern Categories
+1. Architectural (Singleton, Repository, Factory)
+2. Code Smells (Long Method, God Object)
+3. Bug-Prone (Race Conditions, Missing Await)
+4. Performance (N+1 Query, Sync I/O)
+5. Security (SQL Injection, XSS)
+
+### Evolution Agents Layer
+
+#### Genetic Algorithm Flow
+```
+Original Code
+    ↓
+Generate Population (5 variants)
+    ↓
+For each generation:
+    ├─→ Evaluate Fitness
+    ├─→ Select Top Performers
+    ├─→ Crossover (merge best)
+    ├─→ Mutation (small changes)
+    └─→ Next Generation
+    ↓
+Return Best Individual
+```
+
+#### Fitness Metrics
+- Performance: 25%
+- Readability: 20%
+- Maintainability: 20%
+- Security: 20%
+- Testability: 15%
+
+### Production Layer
+
+#### Self-Healing Flow
+```
+Health Check → Issue Detected
+    ↓
+Diagnosis → Root Cause Analysis
+    ↓
+Generate Fix → Based on learned patterns
+    ↓
+Sandbox Test → Validate fix safety
+    ↓
+Apply Fix → With automatic rollback
+    ↓
+Learn → Store successful fix pattern
+```
+
+#### Blockchain Certification
+- SHA-256 content hashing
+- Block creation with proof
+- Chain integrity verification
+- Full audit trail generation
+
+### Ecosystem Layer
+
+#### Plugin Security Levels
+- Verified: Full trust (1.0)
+- Reviewed: High trust (0.8)
+- Community: Medium trust (0.5)
+- Unverified: Low trust (0.2)
+
+#### Self-Improvement Cycle
+```
+Analyze Self → Health Score
+    ↓
+Identify Weaknesses → Priority sorted
+    ↓
+Generate Improvements → Strategy-based
+    ↓
+Test in Sandbox → Benchmark
+    ↓
+Apply if Approved → Version bump
+    ↓
+Learn from Success → Pattern storage
+```

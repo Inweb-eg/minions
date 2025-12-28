@@ -39,6 +39,28 @@ Complete API documentation for the Minions framework.
 - [Writer Agents Registry](#writer-agents-registry)
 - [CLI Reference](#cli-reference)
 - [initializeMinions Options (Complete)](#initializeminions-options-complete)
+- [Phase 4: Intelligence Layer](#phase-4-intelligence-layer)
+  - [ReadmeAmplifier](#readmeamplifier)
+  - [ZeroShotArchitect](#zeroshotarchitect)
+  - [SpecEvolution](#specevolution)
+  - [PredictiveAnalyzer](#predictiveanalyzer)
+  - [NaturalLanguageInterface](#naturallanguageinterface)
+- [Phase 5: LLM Management](#phase-5-llm-management)
+  - [CostAwareRouter](#costawarerouter)
+  - [BudgetManager](#budgetmanager)
+  - [ResponseCache](#responsecache)
+- [Phase 6: Knowledge Brain](#phase-6-knowledge-brain)
+  - [KnowledgeBrain](#knowledgebrain)
+  - [PatternRecognitionEngine](#patternrecognitionengine)
+- [Phase 7: Evolution Agents](#phase-7-evolution-agents)
+  - [CodeEvolutionAgent](#codeevolutionagent)
+  - [PredictiveDebugger](#predictivedebugger)
+- [Phase 8: Production Intelligence](#phase-8-production-intelligence)
+  - [SelfHealingAgent](#selfhealingagent)
+  - [BlockchainCertifier](#blockchaincertifier)
+- [Phase 9: Ecosystem](#phase-9-ecosystem)
+  - [PluginMarketplace](#pluginmarketplace)
+  - [SelfImprovingEngine](#selfimprovingengine)
 
 ---
 
@@ -3065,4 +3087,626 @@ await initializeMinions({
   // Writer Agents
   writerAgentsInitialized: boolean
 }
+```
+
+---
+
+## Phase 4: Intelligence Layer
+
+Advanced intelligence modules for README amplification and predictive analysis.
+
+### ReadmeAmplifier
+
+Transforms minimal README into comprehensive enterprise specifications.
+
+#### getReadmeAmplifier()
+
+```javascript
+import { getReadmeAmplifier } from 'minions/intelligence';
+
+const amplifier = getReadmeAmplifier();
+await amplifier.initialize();
+```
+
+#### amplifier.amplify(readme)
+
+Amplify a README into full specification.
+
+```javascript
+const spec = await amplifier.amplify(`
+# My App
+A simple todo app
+`);
+// Returns: { domain, techStack, apiStructure, databaseSchema, security, ... }
+```
+
+### ZeroShotArchitect
+
+Generates complete architecture from a single sentence.
+
+#### getZeroShotArchitect()
+
+```javascript
+import { getZeroShotArchitect } from 'minions/intelligence';
+
+const architect = getZeroShotArchitect();
+await architect.initialize();
+```
+
+#### architect.generateFromSentence(description)
+
+Generate architecture from description.
+
+```javascript
+const arch = await architect.generateFromSentence('Build me Uber for dogs');
+// Returns: { c4Diagrams, apiSpec, database, kubernetes, terraform, cicd, docker }
+```
+
+### SpecEvolution
+
+Evolutionary architecture optimization through genetic algorithms.
+
+#### getSpecEvolution()
+
+```javascript
+import { getSpecEvolution } from 'minions/intelligence';
+
+const evolution = getSpecEvolution();
+await evolution.initialize();
+```
+
+#### evolution.evolveSpecs(basicSpecs)
+
+Evolve specifications for optimal architecture.
+
+```javascript
+const evolved = await evolution.evolveSpecs(basicSpecs);
+// Returns: { optimized, generations, fitnessHistory }
+```
+
+### PredictiveAnalyzer
+
+Predicts bugs and issues before they exist.
+
+#### getPredictiveAnalyzer()
+
+```javascript
+import { getPredictiveAnalyzer } from 'minions/intelligence';
+
+const analyzer = getPredictiveAnalyzer();
+await analyzer.initialize();
+```
+
+#### analyzer.predictIssues(specs)
+
+Predict potential issues in specifications.
+
+```javascript
+const predictions = await analyzer.predictIssues(specs);
+// Returns: { issues, preventiveSolutions, actionPlan }
+```
+
+### NaturalLanguageInterface
+
+Understands casual descriptions and converts to technical requirements.
+
+#### getNaturalLanguageInterface()
+
+```javascript
+import { getNaturalLanguageInterface } from 'minions/intelligence';
+
+const nli = getNaturalLanguageInterface();
+await nli.initialize();
+```
+
+#### nli.understandIntent(userInput)
+
+Parse natural language into requirements.
+
+```javascript
+const requirements = await nli.understandIntent('I want an app like Instagram but for pets');
+// Returns: { requirements, references, features, constraints, domain }
+```
+
+---
+
+## Phase 5: LLM Management
+
+Cost-aware LLM routing and budget management for 95% cost reduction.
+
+### CostAwareRouter
+
+Multi-tier model routing with intelligent escalation.
+
+#### getCostAwareRouter(options)
+
+```javascript
+import { getCostAwareRouter, MODEL_TIERS } from 'minions/llm-manager';
+
+const router = getCostAwareRouter({
+  enableLocalModels: true,
+  enableCache: true
+});
+await router.initialize();
+```
+
+#### MODEL_TIERS Constants
+
+```javascript
+MODEL_TIERS.free     // Ollama local models (cost: $0)
+MODEL_TIERS.penny    // GPT-3.5, Claude Haiku (cost: ~$0.001)
+MODEL_TIERS.dollar   // GPT-4o-mini, Claude Sonnet (cost: ~$0.005)
+MODEL_TIERS.premium  // GPT-4o, Claude Opus (cost: ~$0.035)
+```
+
+#### router.route(request)
+
+Route a prompt with cost optimization.
+
+```javascript
+const result = await router.route({
+  prompt: 'Explain recursion',
+  minQuality: 0.7,
+  maxCost: 0.01,
+  priority: 'normal'
+});
+// Returns: { response, model, cost, tier, cached }
+```
+
+### BudgetManager
+
+Budget tracking and allocation management.
+
+#### getBudgetManager(options)
+
+```javascript
+import { getBudgetManager } from 'minions/llm-manager';
+
+const budget = getBudgetManager({
+  monthlyBudget: 200
+});
+await budget.initialize();
+```
+
+#### budget.getStatus()
+
+Get current budget status.
+
+```javascript
+const status = budget.getStatus();
+// Returns: { spent, remaining, dailyAverage, projectedMonthly }
+```
+
+#### budget.recordUsage(cost, metadata)
+
+Record API usage.
+
+```javascript
+await budget.recordUsage(0.005, {
+  model: 'gpt-4o-mini',
+  agent: 'code-reviewer',
+  tokens: { prompt: 500, completion: 200 }
+});
+```
+
+### ResponseCache
+
+Multi-layer caching for 100% free cache hits.
+
+#### getResponseCache(options)
+
+```javascript
+import { getResponseCache } from 'minions/llm-manager';
+
+const cache = getResponseCache({
+  enableFilePersistence: true,
+  ttlMinutes: 15
+});
+await cache.initialize();
+```
+
+#### cache.get(prompt, context)
+
+Get cached response.
+
+```javascript
+const cached = await cache.get(prompt, context);
+// Returns: { response, confidence } or null
+```
+
+#### cache.set(prompt, response, context)
+
+Cache a response.
+
+```javascript
+await cache.set(prompt, response, { model: 'gpt-4' });
+```
+
+---
+
+## Phase 6: Knowledge Brain
+
+Collective intelligence system with vector similarity search.
+
+### KnowledgeBrain
+
+Distributed knowledge storage and retrieval.
+
+#### getKnowledgeBrain(options)
+
+```javascript
+import { getKnowledgeBrain, KNOWLEDGE_TYPES } from 'minions/knowledge-brain';
+
+const brain = getKnowledgeBrain({
+  storageDir: '.knowledge',
+  enablePersistence: true
+});
+await brain.initialize();
+```
+
+#### KNOWLEDGE_TYPES Constants
+
+```javascript
+KNOWLEDGE_TYPES.CODE_PATTERN      // Code patterns
+KNOWLEDGE_TYPES.BUG_FIX           // Bug fix solutions
+KNOWLEDGE_TYPES.ARCHITECTURE      // Architecture decisions
+KNOWLEDGE_TYPES.OPTIMIZATION      // Performance optimizations
+KNOWLEDGE_TYPES.SECURITY          // Security patterns
+KNOWLEDGE_TYPES.TEST_PATTERN      // Testing patterns
+```
+
+#### brain.learn(experience)
+
+Store knowledge from experience.
+
+```javascript
+await brain.learn({
+  type: KNOWLEDGE_TYPES.BUG_FIX,
+  content: { problem: '...', solution: '...' },
+  tags: ['async', 'promise'],
+  quality: 'verified'
+});
+```
+
+#### brain.recall(query)
+
+Recall relevant knowledge.
+
+```javascript
+const knowledge = await brain.recall({
+  type: KNOWLEDGE_TYPES.BUG_FIX,
+  tags: ['async']
+});
+// Returns: Array of matching knowledge items
+```
+
+### PatternRecognitionEngine
+
+Automatic pattern discovery with 30+ built-in detectors.
+
+#### getPatternRecognitionEngine()
+
+```javascript
+import { getPatternRecognitionEngine, PATTERN_CATEGORIES } from 'minions/knowledge-brain';
+
+const engine = getPatternRecognitionEngine();
+await engine.initialize();
+```
+
+#### PATTERN_CATEGORIES Constants
+
+```javascript
+PATTERN_CATEGORIES.ARCHITECTURAL  // Singleton, Repository, Factory
+PATTERN_CATEGORIES.CODE_SMELL     // Long Method, God Object
+PATTERN_CATEGORIES.BUG_PRONE      // Race Conditions, Missing Await
+PATTERN_CATEGORIES.PERFORMANCE    // N+1 Query, Sync I/O
+PATTERN_CATEGORIES.SECURITY       // SQL Injection, XSS
+```
+
+#### engine.detectPatterns(code)
+
+Detect patterns in code.
+
+```javascript
+const patterns = await engine.detectPatterns(code);
+// Returns: { patterns, summary, recommendations }
+```
+
+---
+
+## Phase 7: Evolution Agents
+
+Self-improving code through genetic algorithms.
+
+### CodeEvolutionAgent
+
+Genetic algorithm-based code optimization.
+
+#### getCodeEvolutionAgent(options)
+
+```javascript
+import { getCodeEvolutionAgent, EVOLUTION_STRATEGIES } from 'minions/evolution-agents';
+
+const evolution = getCodeEvolutionAgent({
+  populationSize: 5,
+  generations: 5,
+  mutationRate: 0.1
+});
+await evolution.initialize();
+```
+
+#### EVOLUTION_STRATEGIES Constants
+
+```javascript
+EVOLUTION_STRATEGIES.SPEED        // Optimize for performance
+EVOLUTION_STRATEGIES.MEMORY       // Optimize for memory
+EVOLUTION_STRATEGIES.READABILITY  // Optimize for readability
+EVOLUTION_STRATEGIES.SECURITY     // Optimize for security
+EVOLUTION_STRATEGIES.TESTABILITY  // Optimize for testability
+```
+
+#### evolution.evolveCode(code, requirements)
+
+Evolve code through generations.
+
+```javascript
+const result = await evolution.evolveCode(code, {
+  strategy: EVOLUTION_STRATEGIES.SPEED,
+  targetImprovement: 20
+});
+// Returns: { evolvedCode, improvement, generations, fitness }
+```
+
+### PredictiveDebugger
+
+Time-travel debugging and bug prediction.
+
+#### getPredictiveDebugger(options)
+
+```javascript
+import { getPredictiveDebugger, DEBUG_MODES } from 'minions/evolution-agents';
+
+const debugger_ = getPredictiveDebugger({
+  mode: DEBUG_MODES.PROACTIVE,
+  enableTimeTravelDebugging: true
+});
+await debugger_.initialize();
+```
+
+#### DEBUG_MODES Constants
+
+```javascript
+DEBUG_MODES.PASSIVE     // Record only
+DEBUG_MODES.PREDICTIVE  // Predict and warn
+DEBUG_MODES.PROACTIVE   // Predict, warn, and suggest fixes
+```
+
+#### debugger_.analyzeCode(code)
+
+Analyze code for potential bugs.
+
+```javascript
+const analysis = await debugger_.analyzeCode(code);
+// Returns: { predictions, fixes, riskScore, summary }
+```
+
+#### debugger_.createSnapshot(type, data)
+
+Create execution snapshot for time-travel.
+
+```javascript
+const snapshot = debugger_.createSnapshot('variable', { x: 10, y: 20 });
+```
+
+#### debugger_.travelToSnapshot(snapshotId)
+
+Travel to a previous snapshot.
+
+```javascript
+const result = debugger_.travelToSnapshot(snapshot.id);
+// Returns: { success, snapshot, futureSnapshots }
+```
+
+---
+
+## Phase 8: Production Intelligence
+
+Self-healing and blockchain audit capabilities.
+
+### SelfHealingAgent
+
+Autonomous production monitoring and healing.
+
+#### getSelfHealingAgent(options)
+
+```javascript
+import { getSelfHealingAgent, HEALING_STRATEGIES } from 'minions/production';
+
+const healer = getSelfHealingAgent({
+  enableAutoFix: true,
+  enableAutoRollback: true,
+  checkInterval: 30000
+});
+await healer.initialize();
+```
+
+#### HEALING_STRATEGIES Constants
+
+```javascript
+HEALING_STRATEGIES.RESTART         // Restart service
+HEALING_STRATEGIES.ROLLBACK        // Rollback deployment
+HEALING_STRATEGIES.SCALE_UP        // Add instances
+HEALING_STRATEGIES.CIRCUIT_BREAKER // Enable circuit breaker
+HEALING_STRATEGIES.CACHE_CLEAR     // Clear caches
+HEALING_STRATEGIES.CONFIG_UPDATE   // Update configuration
+```
+
+#### healer.startMonitoring()
+
+Start continuous health monitoring.
+
+```javascript
+healer.startMonitoring();
+```
+
+#### healer.runHealthChecks()
+
+Run all health checks.
+
+```javascript
+const report = await healer.runHealthChecks();
+// Returns: { checks, overall: { score, status } }
+```
+
+### BlockchainCertifier
+
+Immutable code provenance and audit trail.
+
+#### getBlockchainCertifier(options)
+
+```javascript
+import { getBlockchainCertifier, CERTIFICATE_TYPES } from 'minions/production';
+
+const certifier = getBlockchainCertifier({
+  chainId: 'minions-production'
+});
+await certifier.initialize();
+```
+
+#### CERTIFICATE_TYPES Constants
+
+```javascript
+CERTIFICATE_TYPES.CODE        // Code certification
+CERTIFICATE_TYPES.TEST        // Test results
+CERTIFICATE_TYPES.SECURITY    // Security scan
+CERTIFICATE_TYPES.DEPLOYMENT  // Deployment record
+CERTIFICATE_TYPES.REVIEW      // Code review
+```
+
+#### certifier.certifyCode(code, metadata)
+
+Certify code with metadata.
+
+```javascript
+const cert = await certifier.certifyCode(code, {
+  generatedBy: 'backend-writer-agent',
+  qualityScore: 92,
+  testResults: { passed: 50, failed: 0 }
+});
+// Returns: { certificate, verifyUrl, blockchainRef }
+```
+
+#### certifier.verifyCertificate(certificateId)
+
+Verify a certificate.
+
+```javascript
+const verification = await certifier.verifyCertificate(cert.certificate.id);
+// Returns: { valid, certificate, blockInfo, chainIntegrity }
+```
+
+---
+
+## Phase 9: Ecosystem
+
+Community-driven plugin marketplace and self-improvement.
+
+### PluginMarketplace
+
+Community-driven agent ecosystem.
+
+#### getPluginMarketplace(options)
+
+```javascript
+import { getPluginMarketplace, PLUGIN_CATEGORIES } from 'minions/ecosystem';
+
+const marketplace = getPluginMarketplace({
+  enableSecurityScan: true,
+  enableSandbox: true
+});
+await marketplace.initialize();
+```
+
+#### PLUGIN_CATEGORIES Constants
+
+```javascript
+PLUGIN_CATEGORIES.AGENT        // Full agents
+PLUGIN_CATEGORIES.SKILL        // Skill extensions
+PLUGIN_CATEGORIES.INTEGRATION  // External integrations
+PLUGIN_CATEGORIES.ANALYZER     // Code analyzers
+PLUGIN_CATEGORIES.GENERATOR    // Code generators
+```
+
+#### marketplace.searchPlugins(query, options)
+
+Search for plugins.
+
+```javascript
+const plugins = await marketplace.searchPlugins('security', {
+  category: PLUGIN_CATEGORIES.ANALYZER,
+  minRating: 4.0
+});
+// Returns: Array of matching plugins
+```
+
+#### marketplace.installPlugin(pluginId)
+
+Install a plugin.
+
+```javascript
+const result = await marketplace.installPlugin('security-squad');
+// Returns: { success, plugin, message }
+```
+
+### SelfImprovingEngine
+
+Minions that can analyze and upgrade themselves.
+
+#### getSelfImprovingEngine(options)
+
+```javascript
+import { getSelfImprovingEngine, IMPROVEMENT_CATEGORIES } from 'minions/ecosystem';
+
+const improver = getSelfImprovingEngine({
+  enableAutoImprove: false,
+  requireApproval: true
+});
+await improver.initialize();
+```
+
+#### IMPROVEMENT_CATEGORIES Constants
+
+```javascript
+IMPROVEMENT_CATEGORIES.PERFORMANCE   // Speed improvements
+IMPROVEMENT_CATEGORIES.RELIABILITY   // Stability improvements
+IMPROVEMENT_CATEGORIES.CAPABILITIES  // New features
+IMPROVEMENT_CATEGORIES.EFFICIENCY    // Resource usage
+IMPROVEMENT_CATEGORIES.SECURITY      // Security hardening
+```
+
+#### improver.analyzeSelf()
+
+Analyze own codebase and performance.
+
+```javascript
+const analysis = await improver.analyzeSelf();
+// Returns: { healthScore, weaknesses, codeQuality, performance }
+```
+
+#### improver.generateImprovements()
+
+Generate improvements for weaknesses.
+
+```javascript
+const improvements = await improver.generateImprovements();
+// Returns: Array of proposed improvements
+```
+
+#### improver.upgradeItself()
+
+Run full upgrade cycle.
+
+```javascript
+const result = await improver.upgradeItself();
+// Returns: { previousVersion, newVersion, improvements, totalGain }
 ```
