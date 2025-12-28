@@ -1,6 +1,20 @@
+<div align="center">
+
 # Minions
 
-A generic, reusable autonomous multi-agent system framework for AI-powered development workflows.
+### AI That Dreams
+
+![Minions Banner](https://github.com/user-attachments/assets/e1be888e-b70a-4fcb-b4b7-4c57d84420a3)
+
+**Full AI Software Development Company & Self-Improving Development System**
+
+*A generic, reusable autonomous multi-agent system framework for AI-powered development workflows.*
+
+[![By Kareem Hussein](https://img.shields.io/badge/By-Kareem%20Hussein-blue)](https://github.com/kareemhussein)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)](https://nodejs.org/)
+[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+
+</div>
 
 ## Overview
 
