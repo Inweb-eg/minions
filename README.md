@@ -10,9 +10,16 @@
 
 *A generic, reusable autonomous multi-agent system framework for AI-powered development workflows.*
 
-[![By Kareem Hussein](https://img.shields.io/badge/By-Kareem%20Hussein-blue)](https://github.com/kareemhussein)
+[![By Kareem Hussein](https://img.shields.io/badge/Author-Kareem%20Hussein-blue)](https://github.com/kareemhussein)
+[![Inweb Software Solutions](https://img.shields.io/badge/Company-Inweb%20Software%20Solutions-purple)](https://inwebsolutions.com)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+
+---
+
+**Author:** Kareem Hussein
+
+**Company:** Inweb Software Solutions
 
 </div>
 
@@ -671,12 +678,15 @@ Features:
 
 ### Supporting Agents
 
-| Agent | Role | Description |
-|-------|------|-------------|
-| **Gru** | Coordinator | Web interface, conversation handling |
-| **Dr. Nefario** | Planner | Converts requirements to execution plans |
-| **Silas** | Project Manager | Manages external project connections |
-| **Lucy** | Completion | Runs autonomous completion loops |
+| Agent | Character | Role | Description |
+|-------|-----------|------|-------------|
+| **Gru** | Gru | Coordinator | Web interface, conversation handling, client intake |
+| **Dr. Nefario** | Dr. Nefario | Architect | Converts requirements to execution plans |
+| **Silas** | Silas Ramsbottom | Project Manager | Manages external project connections, framework detection |
+| **Lucy** | Lucy Wilde | Completion | Runs autonomous completion loops, gap detection |
+| **Tom** | Tom | Security & Risk | Security scanning, threat modeling (STRIDE), risk tracking |
+| **Vision** | - | Product Owner | README parsing, feature decomposition, acceptance criteria |
+| **Planner** | - | Execution Engine | Task coordination, progress tracking, iteration management |
 
 See [Gru Guide](docs/gru-guide.md) for detailed setup instructions.
 
@@ -753,17 +763,31 @@ minions/
 │   │   └── public/            # Web dashboard (HTML/CSS/JS)
 │   ├── nefario-agent/         # Plan generation agent
 │   ├── project-manager-agent/ # External project management (Silas)
-│   └── project-completion-agent/ # Autonomous completion (Lucy)
+│   ├── project-completion-agent/ # Autonomous completion (Lucy)
+│   ├── security-risk-agent/   # Security & risk management (Tom)
+│   │   ├── ThreatModeler.js   # STRIDE threat modeling
+│   │   ├── RiskTracker.js     # Risk register management
+│   │   ├── AuditLogger.js     # Security audit trail
+│   │   └── OpsValidator.js    # Deployment validation
+│   ├── vision-agent/          # Product owner agent
+│   │   ├── ReadmeParser.js    # README analysis
+│   │   ├── FeatureDecomposer.js # Epic → Story → Task
+│   │   └── AcceptanceGenerator.js # BDD criteria
+│   └── planner-agent/         # Execution engine
+│       ├── ExecutionPlanner.js # Plan creation
+│       ├── Coordinator.js     # Agent assignment
+│       └── ProgressTracker.js # Progress measurement
 ├── examples/                  # Usage examples
 │   ├── basic-usage.js
 │   └── example-agent.js
 ├── projects/                  # Connected external projects
 └── docs/                      # Documentation
-    ├── api-reference.md
-    ├── architecture.md
-    ├── getting-started.md
-    ├── creating-agents.md
-    ├── skills-guide.md
+    ├── component-index.md     # Quick reference for all components
+    ├── api-reference.md       # Complete API documentation
+    ├── architecture.md        # Framework internals
+    ├── getting-started.md     # Setup guide
+    ├── creating-agents.md     # Agent development patterns
+    ├── skills-guide.md        # Skills documentation
     └── gru-guide.md           # Gru Agent setup guide
 ```
 
@@ -945,6 +969,7 @@ See [docs/api-reference.md](docs/api-reference.md) for complete API documentatio
 
 ## Documentation
 
+- [Component Index](docs/component-index.md) - Quick reference for all components, singletons, and events
 - [Getting Started](docs/getting-started.md) - Step-by-step setup and first agent tutorial
 - [Gru Guide](docs/gru-guide.md) - Web interface setup with Docker and Ollama
 - [Architecture Guide](docs/architecture.md) - Deep dive into framework internals and data flows
@@ -955,3 +980,17 @@ See [docs/api-reference.md](docs/api-reference.md) for complete API documentatio
 ## License
 
 MIT
+
+---
+
+<div align="center">
+
+**Minions Framework**
+
+Created by **Kareem Hussein**
+
+**Inweb Software Solutions**
+
+*Building the future of autonomous AI development*
+
+</div>
