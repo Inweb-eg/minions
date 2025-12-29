@@ -1,0 +1,149 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minions.dev/schemas/scope.schema.json",
+  "title": "Project Scope",
+  "description": "Defines the boundaries and scope of the project. Owned by Nefario (Planner Agent).",
+  "type": "object",
+  "required": ["version", "projectName", "boundaries"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Schema version",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "projectName": {
+      "type": "string",
+      "description": "Name of the project"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of project scope"
+    },
+    "objectives": {
+      "type": "array",
+      "description": "High-level project objectives",
+      "items": {
+        "type": "object",
+        "required": ["id", "title"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^obj-\\d+"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string",
+            "enum": ["critical", "high", "medium", "low"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["planned", "in_progress", "completed", "deferred"]
+          }
+        }
+      }
+    },
+    "boundaries": {
+      "type": "object",
+      "description": "What's in and out of scope",
+      "required": ["inScope", "outOfScope"],
+      "properties": {
+        "inScope": {
+          "type": "array",
+          "description": "Items explicitly in scope",
+          "items": {
+            "type": "object",
+            "required": ["item"],
+            "properties": {
+              "item": { "type": "string" },
+              "details": { "type": "string" },
+              "addedAt": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "outOfScope": {
+          "type": "array",
+          "description": "Items explicitly out of scope",
+          "items": {
+            "type": "object",
+            "required": ["item", "reason"],
+            "properties": {
+              "item": { "type": "string" },
+              "reason": { "type": "string" },
+              "mayReconsider": { "type": "boolean" },
+              "addedAt": { "type": "string", "format": "date-time" }
+            }
+          }
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "description": "Technical or business constraints",
+      "items": {
+        "type": "object",
+        "required": ["constraint"],
+        "properties": {
+          "constraint": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["technical", "business", "regulatory", "resource", "time"]
+          },
+          "impact": { "type": "string" },
+          "negotiable": { "type": "boolean" }
+        }
+      }
+    },
+    "stakeholders": {
+      "type": "array",
+      "description": "Project stakeholders",
+      "items": {
+        "type": "object",
+        "required": ["name", "role"],
+        "properties": {
+          "name": { "type": "string" },
+          "role": { "type": "string" },
+          "interest": { "type": "string" },
+          "influence": {
+            "type": "string",
+            "enum": ["high", "medium", "low"]
+          }
+        }
+      }
+    },
+    "deliverables": {
+      "type": "array",
+      "description": "Expected project deliverables",
+      "items": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string" },
+          "description": { "type": "string" },
+          "type": {
+            "type": "string",
+            "enum": ["feature", "documentation", "api", "integration", "other"]
+          },
+          "acceptance": { "type": "string" }
+        }
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "owner": {
+      "type": "string",
+      "description": "Agent that owns this file",
+      "default": "Nefario"
+    }
+  }
+}

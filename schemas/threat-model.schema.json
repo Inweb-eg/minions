@@ -1,0 +1,258 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minions.dev/schemas/threat-model.schema.json",
+  "title": "Threat Model",
+  "description": "STRIDE-based threat model. Owned by Tom (SecurityRiskAgent). Stored in security/threat-model.json",
+  "type": "object",
+  "required": ["version", "threats"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "projectName": {
+      "type": "string"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "assets": {
+      "type": "array",
+      "description": "Assets to protect",
+      "items": {
+        "$ref": "#/definitions/asset"
+      }
+    },
+    "threats": {
+      "type": "array",
+      "description": "Identified threats",
+      "items": {
+        "$ref": "#/definitions/threat"
+      }
+    },
+    "mitigations": {
+      "type": "array",
+      "description": "Applied mitigations",
+      "items": {
+        "$ref": "#/definitions/mitigation"
+      }
+    },
+    "dataFlows": {
+      "type": "array",
+      "description": "Data flows in the system",
+      "items": {
+        "$ref": "#/definitions/dataFlow"
+      }
+    },
+    "owner": {
+      "type": "string",
+      "default": "Tom"
+    }
+  },
+  "definitions": {
+    "asset": {
+      "type": "object",
+      "required": ["id", "name", "type"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^asset-\\d+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["data", "service", "infrastructure", "user", "code", "credential"]
+        },
+        "description": {
+          "type": "string"
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "internal", "confidential", "restricted", "critical"]
+        },
+        "owner": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string",
+          "description": "Where the asset resides"
+        },
+        "addedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "threat": {
+      "type": "object",
+      "required": ["id", "title", "category", "status"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^threat-\\d+-\\d+$"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["spoofing", "tampering", "repudiation", "info_disclosure", "dos", "elevation"],
+          "description": "STRIDE category"
+        },
+        "affectedAssets": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "attackVector": {
+          "type": "string",
+          "description": "How the attack would be carried out"
+        },
+        "likelihood": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "impact": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["identified", "analyzing", "mitigated", "accepted", "transferred"]
+        },
+        "mitigations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "description": { "type": "string" },
+              "implementedBy": { "type": "string" },
+              "implementedAt": { "type": "string", "format": "date-time" },
+              "effectiveness": {
+                "type": "string",
+                "enum": ["full", "partial"]
+              }
+            }
+          }
+        },
+        "prerequisites": {
+          "type": "array",
+          "description": "What attacker needs before exploiting",
+          "items": { "type": "string" }
+        },
+        "cvssScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 10,
+          "description": "CVSS score if applicable"
+        },
+        "references": {
+          "type": "array",
+          "description": "CVE IDs, CWE IDs, or other references",
+          "items": { "type": "string" }
+        },
+        "addedBy": {
+          "type": "string"
+        },
+        "addedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "mitigation": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^mitigation-\\d+$"
+        },
+        "threatId": {
+          "type": "string",
+          "description": "ID of threat this mitigates"
+        },
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["preventive", "detective", "corrective", "compensating"]
+        },
+        "implementedBy": {
+          "type": "string"
+        },
+        "implementedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "effectiveness": {
+          "type": "string",
+          "enum": ["full", "partial"]
+        },
+        "verification": {
+          "type": "string",
+          "description": "How effectiveness was verified"
+        }
+      }
+    },
+    "dataFlow": {
+      "type": "object",
+      "required": ["id", "name", "source", "destination"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^flow-\\d+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string",
+          "description": "Where data comes from"
+        },
+        "destination": {
+          "type": "string",
+          "description": "Where data goes"
+        },
+        "dataType": {
+          "type": "string",
+          "description": "Type of data being transferred"
+        },
+        "protocol": {
+          "type": "string",
+          "description": "Protocol used (HTTP, gRPC, etc.)"
+        },
+        "encrypted": {
+          "type": "boolean",
+          "default": true
+        },
+        "authenticated": {
+          "type": "boolean",
+          "default": true
+        },
+        "trustBoundary": {
+          "type": "boolean",
+          "description": "Whether this crosses a trust boundary"
+        },
+        "sensitivity": {
+          "type": "string",
+          "enum": ["public", "internal", "confidential", "restricted"]
+        },
+        "addedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

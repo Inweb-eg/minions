@@ -1,0 +1,176 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minions.dev/schemas/risks.schema.json",
+  "title": "Project Risks",
+  "description": "Tracks and manages project risks. Owned by Tom (SecurityRiskAgent).",
+  "type": "object",
+  "required": ["version", "lastUpdated", "items"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "projectName": {
+      "type": "string"
+    },
+    "lastUpdated": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/risk"
+      }
+    },
+    "history": {
+      "type": "array",
+      "description": "Risk change history",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "action": {
+            "type": "string",
+            "enum": ["RISK_ADDED", "RISK_UPDATED", "RISK_MITIGATED", "RISK_ACCEPTED", "RISK_CLOSED"]
+          },
+          "data": { "type": "object" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "owner": {
+      "type": "string",
+      "default": "Tom"
+    }
+  },
+  "definitions": {
+    "risk": {
+      "type": "object",
+      "required": ["id", "title", "category", "severity", "status"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique risk ID",
+          "pattern": "^risk-\\d+-\\d+$"
+        },
+        "title": {
+          "type": "string",
+          "description": "Short risk title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed risk description"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["technical", "security", "operational", "business", "external"],
+          "description": "Risk category"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low", "info"],
+          "description": "Risk severity level"
+        },
+        "likelihood": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "Probability of occurrence"
+        },
+        "impact": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "Impact if risk occurs"
+        },
+        "score": {
+          "type": "number",
+          "description": "Calculated risk score (likelihood × impact × severity weight)"
+        },
+        "residualScore": {
+          "type": "number",
+          "description": "Risk score after mitigation"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["identified", "analyzing", "mitigating", "mitigated", "monitoring", "closed", "accepted"]
+        },
+        "owner": {
+          "type": "string",
+          "description": "Person/team responsible for this risk"
+        },
+        "affectedAreas": {
+          "type": "array",
+          "description": "Areas of project affected",
+          "items": { "type": "string" }
+        },
+        "triggers": {
+          "type": "array",
+          "description": "Events that would trigger this risk",
+          "items": { "type": "string" }
+        },
+        "mitigationPlan": {
+          "type": "string",
+          "description": "Plan to mitigate risk"
+        },
+        "contingencyPlan": {
+          "type": "string",
+          "description": "Plan if risk occurs"
+        },
+        "mitigations": {
+          "type": "array",
+          "description": "Applied mitigations",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "description": { "type": "string" },
+              "type": {
+                "type": "string",
+                "enum": ["avoid", "reduce", "transfer", "accept"]
+              },
+              "effectiveness": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "implementedBy": { "type": "string" },
+              "implementedAt": { "type": "string", "format": "date-time" },
+              "evidence": { "type": "string" }
+            }
+          }
+        },
+        "identifiedBy": {
+          "type": "string"
+        },
+        "identifiedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Deadline for addressing risk"
+        },
+        "reviewDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Next review date"
+        },
+        "acceptedBy": {
+          "type": "string"
+        },
+        "acceptedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "acceptanceReason": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minions.dev/schemas/assumptions.schema.json",
+  "title": "Project Assumptions",
+  "description": "Documents assumptions made during project planning and execution.",
+  "type": "object",
+  "required": ["version", "projectName", "assumptions"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "projectName": {
+      "type": "string"
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/assumption"
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "definitions": {
+    "assumption": {
+      "type": "object",
+      "required": ["id", "assumption", "category", "status"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique assumption ID",
+          "pattern": "^ASM-\\d+$"
+        },
+        "assumption": {
+          "type": "string",
+          "description": "The assumption statement"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed explanation"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["technical", "business", "resource", "timeline", "user", "environment", "dependency", "other"],
+          "description": "Category of assumption"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "validated", "invalidated", "monitoring"],
+          "description": "Current status of the assumption"
+        },
+        "basis": {
+          "type": "string",
+          "description": "What this assumption is based on"
+        },
+        "impact": {
+          "type": "string",
+          "enum": ["low", "medium", "high", "critical"],
+          "description": "Impact if assumption proves false"
+        },
+        "probability": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "Probability assumption is correct"
+        },
+        "validationMethod": {
+          "type": "string",
+          "description": "How to validate this assumption"
+        },
+        "validatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "validatedBy": {
+          "type": "string"
+        },
+        "validationResult": {
+          "type": "string",
+          "description": "Result of validation"
+        },
+        "contingencyPlan": {
+          "type": "string",
+          "description": "What to do if assumption is false"
+        },
+        "affectedRequirements": {
+          "type": "array",
+          "description": "Requirement IDs affected by this assumption",
+          "items": { "type": "string" }
+        },
+        "affectedComponents": {
+          "type": "array",
+          "description": "Components affected by this assumption",
+          "items": { "type": "string" }
+        },
+        "relatedRisks": {
+          "type": "array",
+          "description": "Risk IDs related to this assumption",
+          "items": { "type": "string" }
+        },
+        "madeBy": {
+          "type": "string",
+          "description": "Who made this assumption"
+        },
+        "madeAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reviewDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When to review this assumption"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

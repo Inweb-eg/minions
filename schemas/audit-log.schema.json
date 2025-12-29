@@ -1,0 +1,183 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minions.dev/schemas/audit-log.schema.json",
+  "title": "Security Audit Log",
+  "description": "Security audit trail. Owned by Tom (SecurityRiskAgent). Stored in security/audit-log.json",
+  "type": "object",
+  "required": ["version", "entries"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "projectName": {
+      "type": "string"
+    },
+    "entries": {
+      "type": "array",
+      "description": "Audit log entries",
+      "items": {
+        "$ref": "#/definitions/auditEntry"
+      }
+    },
+    "alerts": {
+      "type": "array",
+      "description": "Security alerts",
+      "items": {
+        "$ref": "#/definitions/alert"
+      }
+    },
+    "statistics": {
+      "type": "object",
+      "description": "Audit statistics",
+      "properties": {
+        "totalEntries": {
+          "type": "number"
+        },
+        "byType": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "bySeverity": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "lastEntry": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "owner": {
+      "type": "string",
+      "default": "Tom"
+    }
+  },
+  "definitions": {
+    "auditEntry": {
+      "type": "object",
+      "required": ["id", "timestamp", "type", "action"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^audit-\\d+-[a-z0-9]+$"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["scan", "risk", "threat", "access", "permission", "validation", "alert", "config", "deployment", "incident"]
+        },
+        "action": {
+          "type": "string",
+          "description": "Specific action performed"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["info", "warning", "error", "critical"]
+        },
+        "agent": {
+          "type": "string",
+          "description": "Agent that created this entry"
+        },
+        "project": {
+          "type": "string"
+        },
+        "details": {
+          "type": "object",
+          "description": "Additional details",
+          "additionalProperties": true
+        },
+        "user": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string",
+          "enum": ["agent", "system", "user", "manual", "external"]
+        },
+        "correlationId": {
+          "type": "string",
+          "description": "ID to correlate related entries"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "alert": {
+      "type": "object",
+      "required": ["id", "timestamp", "type", "title", "severity"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^alert-\\d+$"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "type": {
+          "type": "string",
+          "description": "Alert type (e.g., secret_exposure, critical_vulnerability)"
+        },
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["info", "warning", "error", "critical"]
+        },
+        "source": {
+          "type": "string"
+        },
+        "affectedResources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "recommendations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "acknowledged": {
+          "type": "boolean",
+          "default": false
+        },
+        "acknowledgedBy": {
+          "type": "string"
+        },
+        "acknowledgedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resolved": {
+          "type": "boolean",
+          "default": false
+        },
+        "resolvedBy": {
+          "type": "string"
+        },
+        "resolvedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "resolution": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

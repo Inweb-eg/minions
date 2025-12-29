@@ -1,0 +1,169 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minions.dev/schemas/gaps.schema.json",
+  "title": "Project Gaps",
+  "description": "Tracks gaps between current state and requirements. Owned by Lucy (ProjectCompletionAgent).",
+  "type": "object",
+  "required": ["version", "gaps"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "projectName": {
+      "type": "string"
+    },
+    "lastAnalyzed": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/gap"
+      }
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "totalGaps": {
+          "type": "number"
+        },
+        "byPriority": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "byCategory": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "completionPercentage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "owner": {
+      "type": "string",
+      "default": "Lucy"
+    }
+  },
+  "definitions": {
+    "gap": {
+      "type": "object",
+      "required": ["id", "title", "category", "status", "priority"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^gap-\\d+$"
+        },
+        "title": {
+          "type": "string",
+          "description": "Short gap description"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed gap description"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["feature", "test", "documentation", "integration", "performance", "security", "ux", "accessibility", "other"]
+        },
+        "status": {
+          "type": "string",
+          "enum": ["identified", "analyzing", "planned", "in_progress", "resolved", "wont_fix", "deferred"]
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low"]
+        },
+        "requirementId": {
+          "type": "string",
+          "description": "Related requirement ID"
+        },
+        "currentState": {
+          "type": "string",
+          "description": "What exists now"
+        },
+        "desiredState": {
+          "type": "string",
+          "description": "What should exist"
+        },
+        "impact": {
+          "type": "string",
+          "description": "Impact of this gap"
+        },
+        "effort": {
+          "type": "string",
+          "enum": ["xs", "s", "m", "l", "xl"],
+          "description": "Estimated effort to close"
+        },
+        "affectedComponents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "blockedBy": {
+          "type": "array",
+          "description": "Gap IDs that block this one",
+          "items": {
+            "type": "string"
+          }
+        },
+        "blocks": {
+          "type": "array",
+          "description": "Gap IDs blocked by this one",
+          "items": {
+            "type": "string"
+          }
+        },
+        "resolution": {
+          "type": "object",
+          "properties": {
+            "approach": {
+              "type": "string"
+            },
+            "implementedBy": {
+              "type": "string"
+            },
+            "implementedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "verifiedBy": {
+              "type": "string"
+            },
+            "verifiedAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        },
+        "identifiedBy": {
+          "type": "string"
+        },
+        "identifiedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

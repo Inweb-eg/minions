@@ -1,0 +1,152 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minions.dev/schemas/requirements.schema.json",
+  "title": "Project Requirements",
+  "description": "Defines functional and non-functional requirements. Owned by Nefario (Planner Agent).",
+  "type": "object",
+  "required": ["version", "projectName", "requirements"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "projectName": {
+      "type": "string"
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/requirement"
+      }
+    },
+    "categories": {
+      "type": "array",
+      "description": "Custom requirement categories",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "owner": {
+      "type": "string",
+      "default": "Nefario"
+    }
+  },
+  "definitions": {
+    "requirement": {
+      "type": "object",
+      "required": ["id", "title", "type", "priority", "status"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique requirement ID",
+          "pattern": "^REQ-[A-Z]+-\\d+$"
+        },
+        "title": {
+          "type": "string",
+          "description": "Short requirement title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed requirement description"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["functional", "non-functional", "constraint", "interface"],
+          "description": "Type of requirement"
+        },
+        "category": {
+          "type": "string",
+          "description": "Requirement category",
+          "enum": ["user-story", "feature", "performance", "security", "usability", "reliability", "scalability", "maintainability", "compatibility", "other"]
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["must-have", "should-have", "could-have", "wont-have"],
+          "description": "MoSCoW priority"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "approved", "in_progress", "implemented", "verified", "rejected", "deferred"]
+        },
+        "source": {
+          "type": "string",
+          "description": "Where this requirement came from"
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Why this requirement exists"
+        },
+        "acceptanceCriteria": {
+          "type": "array",
+          "description": "Criteria for requirement acceptance",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "criterion": { "type": "string" },
+              "verified": { "type": "boolean" },
+              "verifiedAt": { "type": "string", "format": "date-time" }
+            }
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "description": "IDs of requirements this depends on",
+          "items": { "type": "string" }
+        },
+        "relatedTo": {
+          "type": "array",
+          "description": "IDs of related requirements",
+          "items": { "type": "string" }
+        },
+        "implementedIn": {
+          "type": "array",
+          "description": "Files/components implementing this requirement",
+          "items": { "type": "string" }
+        },
+        "testedBy": {
+          "type": "array",
+          "description": "Test cases verifying this requirement",
+          "items": { "type": "string" }
+        },
+        "effort": {
+          "type": "string",
+          "enum": ["xs", "s", "m", "l", "xl"],
+          "description": "Estimated effort"
+        },
+        "risk": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "Implementation risk"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "type": "string"
+        },
+        "assignedTo": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

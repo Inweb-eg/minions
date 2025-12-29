@@ -1,0 +1,281 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minions.dev/schemas/environments.schema.json",
+  "title": "Environment Configuration",
+  "description": "Environment configurations for deployment. Owned by Tom (SecurityRiskAgent). Stored in ops/environments.json",
+  "type": "object",
+  "required": ["version", "environments"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "environments": {
+      "type": "object",
+      "description": "Environment configurations keyed by name",
+      "additionalProperties": {
+        "$ref": "#/definitions/environment"
+      }
+    },
+    "owner": {
+      "type": "string",
+      "default": "Tom"
+    }
+  },
+  "definitions": {
+    "environment": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Environment name"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["development", "staging", "production", "test"],
+          "description": "Environment type"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Base URL for this environment"
+        },
+        "region": {
+          "type": "string",
+          "description": "Deployment region"
+        },
+        "variables": {
+          "type": "object",
+          "description": "Environment variables",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "secrets": {
+          "type": "array",
+          "description": "Secret references (not actual values)",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Secret name"
+              },
+              "source": {
+                "type": "string",
+                "description": "Where secret is stored (vault, aws-secrets, env, etc.)"
+              },
+              "key": {
+                "type": "string",
+                "description": "Key/path in secret store"
+              },
+              "required": {
+                "type": "boolean",
+                "default": true
+              }
+            }
+          }
+        },
+        "features": {
+          "type": "object",
+          "description": "Feature flags for this environment",
+          "additionalProperties": {
+            "type": "boolean"
+          }
+        },
+        "scaling": {
+          "type": "object",
+          "description": "Scaling configuration",
+          "properties": {
+            "minInstances": {
+              "type": "number",
+              "minimum": 0
+            },
+            "maxInstances": {
+              "type": "number",
+              "minimum": 1
+            },
+            "targetCPU": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "targetMemory": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100
+            }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "description": "Resource allocation",
+          "properties": {
+            "cpu": {
+              "type": "string",
+              "description": "CPU allocation (e.g., '500m', '2')"
+            },
+            "memory": {
+              "type": "string",
+              "description": "Memory allocation (e.g., '512Mi', '2Gi')"
+            },
+            "storage": {
+              "type": "string",
+              "description": "Storage allocation"
+            }
+          }
+        },
+        "monitoring": {
+          "type": "object",
+          "description": "Monitoring configuration",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "alertsEnabled": {
+              "type": "boolean",
+              "default": true
+            },
+            "loggingLevel": {
+              "type": "string",
+              "enum": ["debug", "info", "warn", "error"]
+            },
+            "metricsEndpoint": {
+              "type": "string"
+            },
+            "healthCheckPath": {
+              "type": "string",
+              "default": "/health"
+            },
+            "alertRecipients": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "networking": {
+          "type": "object",
+          "description": "Network configuration",
+          "properties": {
+            "vpc": {
+              "type": "string"
+            },
+            "subnets": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "securityGroups": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ingressRules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "port": { "type": "number" },
+                  "protocol": { "type": "string" },
+                  "source": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "database": {
+          "type": "object",
+          "description": "Database configuration",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["postgres", "mysql", "mongodb", "redis", "other"]
+            },
+            "host": {
+              "type": "string",
+              "description": "Host reference (use ${SECRET_NAME} for secrets)"
+            },
+            "port": {
+              "type": "number"
+            },
+            "name": {
+              "type": "string"
+            },
+            "ssl": {
+              "type": "boolean",
+              "default": true
+            },
+            "poolSize": {
+              "type": "number"
+            }
+          }
+        },
+        "cache": {
+          "type": "object",
+          "description": "Cache configuration",
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": ["redis", "memcached", "in-memory", "none"]
+            },
+            "host": {
+              "type": "string"
+            },
+            "port": {
+              "type": "number"
+            },
+            "ttl": {
+              "type": "number",
+              "description": "Default TTL in seconds"
+            }
+          }
+        },
+        "backup": {
+          "type": "object",
+          "description": "Backup configuration",
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "schedule": {
+              "type": "string",
+              "description": "Cron expression"
+            },
+            "retention": {
+              "type": "number",
+              "description": "Days to retain backups"
+            },
+            "destination": {
+              "type": "string"
+            }
+          }
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether this environment is active",
+          "default": true
+        },
+        "protected": {
+          "type": "boolean",
+          "description": "Whether extra confirmation needed for deployments",
+          "default": false
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

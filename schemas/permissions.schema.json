@@ -1,0 +1,177 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://minions.dev/schemas/permissions.schema.json",
+  "title": "Permissions Configuration",
+  "description": "Role-based access control configuration. Owned by Tom (SecurityRiskAgent). Stored in security/permissions.json",
+  "type": "object",
+  "required": ["version"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "projectName": {
+      "type": "string"
+    },
+    "roles": {
+      "type": "array",
+      "description": "Defined roles",
+      "items": {
+        "$ref": "#/definitions/role"
+      }
+    },
+    "resources": {
+      "type": "array",
+      "description": "Protected resources",
+      "items": {
+        "$ref": "#/definitions/resource"
+      }
+    },
+    "policies": {
+      "type": "array",
+      "description": "Access policies",
+      "items": {
+        "$ref": "#/definitions/policy"
+      }
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "owner": {
+      "type": "string",
+      "default": "Tom"
+    }
+  },
+  "definitions": {
+    "role": {
+      "type": "object",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^role-\\d+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "permissions": {
+          "type": "array",
+          "description": "Permissions granted to this role",
+          "items": {
+            "type": "string"
+          }
+        },
+        "inheritsFrom": {
+          "type": "array",
+          "description": "Role IDs this role inherits from",
+          "items": {
+            "type": "string"
+          }
+        },
+        "isSystem": {
+          "type": "boolean",
+          "description": "Whether this is a system-defined role"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "resource": {
+      "type": "object",
+      "required": ["id", "name", "type"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^resource-\\d+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["api", "file", "database", "service", "ui", "config"]
+        },
+        "path": {
+          "type": "string",
+          "description": "Resource path or identifier"
+        },
+        "actions": {
+          "type": "array",
+          "description": "Valid actions on this resource",
+          "items": {
+            "type": "string"
+          }
+        },
+        "defaultPolicy": {
+          "type": "string",
+          "enum": ["allow", "deny"],
+          "default": "deny"
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": ["id", "name", "effect"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^policy-\\d+$"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "effect": {
+          "type": "string",
+          "enum": ["allow", "deny"]
+        },
+        "principals": {
+          "type": "array",
+          "description": "Role IDs or user patterns this applies to",
+          "items": {
+            "type": "string"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "description": "Actions this policy applies to",
+          "items": {
+            "type": "string"
+          }
+        },
+        "resources": {
+          "type": "array",
+          "description": "Resource patterns this applies to",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conditions": {
+          "type": "object",
+          "description": "Conditions for policy to apply",
+          "additionalProperties": true
+        },
+        "priority": {
+          "type": "number",
+          "description": "Policy evaluation priority (higher = evaluated first)"
+        },
+        "enabled": {
+          "type": "boolean",
+          "default": true
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}
