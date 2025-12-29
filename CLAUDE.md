@@ -70,6 +70,7 @@ Tests are in `foundation/tests/` using Jest. Coverage threshold is 85% for branc
 ## Documentation
 
 Detailed documentation is available in the `docs/` folder:
+- `docs/component-index.md` - Quick reference index of all components, singletons, and events
 - `docs/api-reference.md` - Complete API documentation for all components
 - `docs/architecture.md` - Deep dive into framework internals and data flows
 - `docs/getting-started.md` - Step-by-step setup and first agent tutorial
