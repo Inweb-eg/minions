@@ -72,3 +72,26 @@ Detailed documentation is available in the `docs/` folder:
 - `docs/getting-started.md` - Step-by-step setup and first agent tutorial
 - `docs/creating-agents.md` - Agent development patterns and best practices
 - `docs/skills-guide.md` - Using and creating skills
+- `docs/gru-guide.md` - Gru Agent usage guide with Ollama setup
+
+## Client Interface Agents
+
+**Gru Agent** (`agents/gru-agent/`):
+- Web interface coordinator at `http://localhost:3000`
+- Conversational AI powered by Ollama or Gemini
+- Components: `WebServer.js`, `ConversationEngine.js`, `OllamaAdapter.js`, `ProjectIntake.js`, `StatusTracker.js`
+- Start with: `node agents/gru-agent/start.js`
+
+**Dr. Nefario Agent** (`agents/nefario-agent/`):
+- Claude Code adapter for AI-powered code generation
+- Components: `ClaudeCodeBridge.js`, `OutputParser.js`, `TaskRunner.js`
+
+**Project Manager (Silas)** (`agents/project-manager-agent/`):
+- Manages connections to external projects
+- Framework detection and project scanning
+- Components: `ProjectRegistry.js`, `ProjectScanner.js`, `ProjectInitializer.js`
+
+**Project Completion (Lucy)** (`agents/project-completion-agent/`):
+- Autonomous completion loops
+- Gap detection and resolution
+- Components: `GapDetector.js`, `CompletionTracker.js`, `ContinuousLoop.js`

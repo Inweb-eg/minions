@@ -6,6 +6,11 @@ Deep dive into the Minions framework architecture.
 
 - [Design Principles](#design-principles)
 - [Component Architecture](#component-architecture)
+- [Client Interface System](#client-interface-system)
+  - [Gru Agent](#gru-agent)
+  - [Dr. Nefario Agent](#dr-nefario-agent)
+  - [Silas - Project Manager](#silas---project-manager)
+  - [Lucy - Project Completion](#lucy---project-completion)
 - [Phase 0: Foundation Enhancements](#phase-0-foundation-enhancements)
 - [Phase 1: Vision Agent](#phase-1-vision-agent)
 - [Phase 2: Architect Agent](#phase-2-architect-agent)
@@ -379,6 +384,316 @@ Remaining? → Iterate (up to maxIterations)
     cooldown: 10000       // 10 seconds
   }
 }
+```
+
+---
+
+## Client Interface System
+
+The Client Interface System provides a web-based interface for human interaction with the Minions framework. This layer bridges human users to the autonomous agent ecosystem.
+
+### System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           Web Browser (Client)                               │
+│  ┌─────────────────────────────────────────────────────────────────────────┐│
+│  │                         app.js (Dashboard)                               ││
+│  │  - Chat Interface      - Project Intake      - Execution Monitor        ││
+│  │  - Plan Editor         - Status Display      - WebSocket Client         ││
+│  └─────────────────────────────────────────────────────────────────────────┘│
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │ WebSocket
+┌──────────────────────────────────▼──────────────────────────────────────────┐
+│                          Gru Agent (Coordinator)                             │
+│  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────────────────────┐│
+│  │  WebServer      │ │ConversationEngine│ │      StatusTracker             ││
+│  │  - Express      │ │ - Intent parsing │ │      - Phase tracking          ││
+│  │  - WebSocket    │ │ - Context mgmt   │ │      - Progress calc           ││
+│  │  - Static files │ │ - Response gen   │ │      - Gap monitoring          ││
+│  └─────────────────┘ └─────────────────┘ └─────────────────────────────────┘│
+│  ┌─────────────────┐ ┌─────────────────┐                                    │
+│  │  ProjectIntake  │ │  OllamaAdapter  │                                    │
+│  │  - Validation   │ │  - Local LLM    │                                    │
+│  │  - Scanning     │ │  - Gemini API   │                                    │
+│  │  - Init         │ │  - Fallback     │                                    │
+│  └─────────────────┘ └─────────────────┘                                    │
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │ EventBus
+┌──────────────────────────────────▼──────────────────────────────────────────┐
+│                    Dr. Nefario Agent (Claude Code Adapter)                   │
+│  ┌─────────────────┐ ┌─────────────────┐ ┌─────────────────────────────────┐│
+│  │ ClaudeCodeBridge│ │  OutputParser   │ │      TaskRunner                 ││
+│  │  - CLI spawn    │ │  - Stream parse │ │      - Task queue               ││
+│  │  - Session mgmt │ │  - Progress     │ │      - Execution                ││
+│  │  - Command exec │ │  - Error detect │ │      - Status report            ││
+│  └─────────────────┘ └─────────────────┘ └─────────────────────────────────┘│
+└──────────────────────────────────┬──────────────────────────────────────────┘
+                                   │ EventBus
+┌──────────────────────────────────▼──────────────────────────────────────────┐
+│                         Project Management Agents                            │
+│  ┌─────────────────────────────────┐ ┌─────────────────────────────────────┐│
+│  │   Silas - ProjectManagerAgent   │ │   Lucy - ProjectCompletionAgent    ││
+│  │   - External project connection │ │   - Autonomous completion loops     ││
+│  │   - Framework detection         │ │   - Gap detection & resolution      ││
+│  │   - Project registry            │ │   - Progress tracking               ││
+│  └─────────────────────────────────┘ └─────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Gru Agent
+
+The main coordinator agent that provides a conversational interface for users.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                          GruAgent                                │
+├─────────────────────────────────────────────────────────────────┤
+│  State: IDLE → CONVERSING → PLANNING → EXECUTING → VERIFYING    │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐                       │
+│  │    WebServer    │  │ConversationEngine│                      │
+│  │                 │  │                 │                       │
+│  │ - Express HTTP  │  │ - Chat context  │                       │
+│  │ - WebSocket WS  │  │ - Intent detect │                       │
+│  │ - Static assets │  │ - Plan builder  │                       │
+│  │ - Message route │  │ - AI integration│                       │
+│  └─────────────────┘  └─────────────────┘                       │
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐                       │
+│  │  ProjectIntake  │  │  StatusTracker  │                       │
+│  │                 │  │                 │                       │
+│  │ - Path validate │  │ - Phase monitor │                       │
+│  │ - Project scan  │  │ - Progress calc │                       │
+│  │ - Framework det │  │ - Gap tracking  │                       │
+│  │ - Init workspace│  │ - Completion %  │                       │
+│  └─────────────────┘  └─────────────────┘                       │
+│                                                                  │
+│  ┌─────────────────┐                                            │
+│  │  OllamaAdapter  │                                            │
+│  │                 │                                            │
+│  │ - Local Ollama  │                                            │
+│  │ - Gemini fallbk │                                            │
+│  │ - Chat history  │                                            │
+│  │ - Model select  │                                            │
+│  └─────────────────┘                                            │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**WebSocket Message Protocol:**
+```javascript
+// Client → Server
+{ type: 'chat:message', message: string }
+{ type: 'project:submit', path: string, description?: string }
+{ type: 'plan:approve' }
+{ type: 'plan:edit' }
+{ type: 'execution:start' }
+
+// Server → Client
+{ type: 'chat:greeting', content: string }
+{ type: 'chat:response', message: string, provider: string }
+{ type: 'project:scanned', summary: object }
+{ type: 'plan:created', plan: object }
+{ type: 'plan:needsChanges' }
+{ type: 'execution:started', projectName: string }
+{ type: 'execution:updated', phase: string, progress: number, gaps: array }
+{ type: 'execution:completed', summary: object }
+{ type: 'error', error: string }
+```
+
+**Execution Phases:**
+```
+IDLE → SCANNING → PLANNING → BUILDING → TESTING → FIXING → VERIFYING → COMPLETED
+```
+
+### Dr. Nefario Agent
+
+Claude Code adapter that bridges Gru to the AI coding assistant.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                       NefarioAgent                               │
+├─────────────────────────────────────────────────────────────────┤
+│  State: IDLE → CONNECTING → EXECUTING → PARSING → REPORTING     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐                       │
+│  │ClaudeCodeBridge │  │   OutputParser  │                       │
+│  │                 │  │                 │                       │
+│  │ - Spawn process │  │ - Stream buffer │                       │
+│  │ - Session ID    │  │ - JSON extract  │                       │
+│  │ - Command queue │  │ - Progress parse│                       │
+│  │ - Exit handling │  │ - Error detect  │                       │
+│  └─────────────────┘  └─────────────────┘                       │
+│                                                                  │
+│  ┌─────────────────┐                                            │
+│  │   TaskRunner    │                                            │
+│  │                 │                                            │
+│  │ - Task queue    │                                            │
+│  │ - Concurrency   │                                            │
+│  │ - Status track  │                                            │
+│  │ - Result cache  │                                            │
+│  └─────────────────┘                                            │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Task Flow:**
+```
+Gru Request
+    ↓ EventBus
+NefarioAgent.executeTask(task)
+    ↓
+ClaudeCodeBridge.spawn('claude', args)
+    ↓
+OutputParser.parse(stdout stream)
+    ↓
+TaskRunner.complete(result)
+    ↓ EventBus
+Gru receives TASK_COMPLETED event
+```
+
+### Silas - Project Manager
+
+Manages connections between Minions and external projects.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    ProjectManagerAgent (Silas)                   │
+├─────────────────────────────────────────────────────────────────┤
+│  State: IDLE → CONNECTING → SCANNING → SYNCING → ERROR          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │ ProjectRegistry │  │ ProjectScanner  │  │ProjectInitializer││
+│  │                 │  │                 │  │                 │ │
+│  │ - CRUD ops      │  │ - Dir traversal │  │ - Workspace     │ │
+│  │ - Persistence   │  │ - Framework det │  │ - Config gen    │ │
+│  │ - Query         │  │ - Component map │  │ - Cleanup       │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Project Connection Flow:**
+```
+connect(projectPath)
+    ↓
+ProjectScanner.scan(path)
+    → { framework, language, components }
+    ↓
+ProjectInitializer.initialize(name, scanResult)
+    → { workspacePath }
+    ↓
+ProjectRegistry.addProject(project)
+    ↓
+Emit PROJECT_CONNECTED event
+```
+
+**Supported Frameworks:**
+- Node.js / Express
+- React / Next.js
+- Flutter / Dart
+- Python / Django / Flask
+- Generic (auto-detect)
+
+### Lucy - Project Completion
+
+Autonomous completion engine that drives projects to 100%.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                  ProjectCompletionAgent (Lucy)                   │
+├─────────────────────────────────────────────────────────────────┤
+│  State: IDLE → ANALYZING → PLANNING → BUILDING → TESTING →     │
+│         FIXING → VERIFYING → PAUSED → COMPLETED                 │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │   GapDetector   │  │CompletionTracker│  │ ContinuousLoop  │ │
+│  │                 │  │                 │  │                 │ │
+│  │ - Missing code  │  │ - Progress calc │  │ - Iteration mgr │ │
+│  │ - Missing tests │  │ - Gap count     │  │ - Pause/resume  │ │
+│  │ - Missing docs  │  │ - History       │  │ - Max iterations│ │
+│  │ - Prioritize    │  │ - Persistence   │  │ - Event emit    │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Completion Loop:**
+```
+startCompletion(project)
+    ↓
+while (progress < targetCompletion && iteration < maxIterations):
+    ↓
+    Phase 1: ANALYZING
+    ├─→ GapDetector.detect(project) → gaps[]
+    └─→ Emit GAP_DETECTED
+    ↓
+    CompletionTracker.calculate() → progress%
+    ├─→ If progress >= target: COMPLETED, break
+    └─→ If no gaps: break
+    ↓
+    Phase 2: PLANNING
+    └─→ GapDetector.prioritize(gaps)
+    ↓
+    Phase 3: BUILDING
+    └─→ Work on highest priority gap
+    ↓
+    Phase 4: TESTING
+    └─→ Run tests
+    ↓
+    Phase 5: FIXING
+    └─→ Auto-fix failures
+    ↓
+    Phase 6: VERIFYING
+    ├─→ CompletionTracker.updateProgress()
+    └─→ Emit GAP_RESOLVED
+    ↓
+    Save state, next iteration
+```
+
+**Gap Types:**
+- `missing_implementation` - Feature not coded
+- `missing_tests` - Code without test coverage
+- `missing_docs` - Undocumented APIs
+- `failing_tests` - Tests not passing
+- `security_issues` - Vulnerability detected
+- `performance_issues` - Slow code paths
+
+### Docker Deployment
+
+The Client Interface System includes Docker support for self-contained deployment:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Docker Container (minions)                    │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │  Ollama Server  │  │    Node.js      │  │  Claude Code    │ │
+│  │  (Local LLM)    │  │  (Gru Agent)    │  │  (via Nefario)  │ │
+│  │  Port: 11434    │  │  Port: 3000     │  │                 │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+│                                                                  │
+│  Environment Variables:                                          │
+│  - OLLAMA_HOST=http://localhost:11434                           │
+│  - GEMINI_API_KEY (optional fallback)                           │
+│  - ANTHROPIC_API_KEY (for Claude Code)                          │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Quick Start:**
+```bash
+# Build and run with Docker Compose
+docker-compose up -d
+
+# Access the web interface
+open http://localhost:3000
 ```
 
 ---

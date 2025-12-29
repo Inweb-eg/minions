@@ -6,6 +6,7 @@ A step-by-step guide to get up and running with the Minions framework.
 
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
+- [Quick Start: Gru Web Interface](#quick-start-gru-web-interface)
 - [Basic Setup](#basic-setup)
 - [Creating Your First Agent](#creating-your-first-agent)
 - [Running the Orchestrator](#running-the-orchestrator)
@@ -56,6 +57,27 @@ cd your-project/minions
 npm run install:all
 ```
 
+### Option 3: Docker Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/your-org/minions.git
+cd minions
+
+# Start with Docker (includes Ollama for local AI)
+cd docker
+docker-compose up -d
+
+# Access the Gru web interface
+open http://localhost:2505
+```
+
+For GPU acceleration (NVIDIA):
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+```
+
 ### Verify Installation
 
 ```bash
@@ -64,6 +86,44 @@ npm test
 
 # Run the basic example
 node examples/basic-usage.js
+```
+
+---
+
+## Quick Start: Gru Web Interface
+
+The fastest way to start using Minions is through the Gru web interface - a client-friendly dashboard for project planning and execution.
+
+### Start Gru
+
+```bash
+# Start the Gru web interface
+node index.js --gru
+
+# Or with a custom port
+node index.js --gru --port 3000
+```
+
+### What is Gru?
+
+Gru is the client interface agent that provides:
+
+- **Project Planning** - Discuss your project requirements through AI-powered conversation
+- **Auto-Detection** - Automatically scan and understand existing project structures
+- **Plan Generation** - Dr. Nefario creates detailed execution plans
+- **Real-time Monitoring** - Watch progress with live status updates
+- **Execution Control** - Pause, resume, or stop execution at any time
+
+### Environment Variables
+
+```bash
+# Required for AI features (choose one)
+OLLAMA_HOST=http://localhost:11434  # Local Ollama server
+GEMINI_API_KEY=your-api-key         # Google Gemini API fallback
+
+# Optional
+MINIONS_PORT=2505                   # Web interface port
+OLLAMA_MODEL=llama3.2:3b            # Ollama model to use
 ```
 
 ---

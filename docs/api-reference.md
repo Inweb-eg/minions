@@ -25,6 +25,11 @@ Complete API documentation for the Minions framework.
   - [FlutterWriterAgent](#flutterwriteragent)
   - [BackendWriterAgent](#backendwriteragent)
   - [FrontendWriterAgent](#frontendwriteragent)
+- [Client Interface System](#client-interface-system)
+  - [GruAgent](#gruagent)
+  - [NefarioAgent](#nefarioagent)
+  - [ProjectManagerAgent (Silas)](#projectmanageragent-silas)
+  - [ProjectCompletionAgent (Lucy)](#projectcompletionagent-lucy)
 - [Skills](#skills)
 - [Analyzers](#analyzers)
 - [ASTParser](#astparser)
@@ -1926,6 +1931,441 @@ const result = await frontend.generatePage({
   features: ['search', 'pagination', 'sorting'],
   actions: ['create', 'edit', 'delete']
 });
+```
+
+---
+
+## Client Interface System
+
+Web-based human interface for the Minions framework with conversational AI and project management.
+
+### GruAgent
+
+Main coordinator agent providing a conversational web interface for users.
+
+#### getGruAgent(options)
+
+```javascript
+import { getGruAgent, GruEvents, AgentState } from 'minions/client-interface';
+
+const gru = getGruAgent({
+  port: 3000,
+  projectRoot: process.cwd(),
+  ollamaHost: 'http://localhost:11434',
+  geminiApiKey: process.env.GEMINI_API_KEY  // Optional fallback
+});
+
+await gru.initialize(eventBus);
+```
+
+#### GruEvents
+
+```javascript
+// WebSocket message types (Client → Server)
+GruEvents.CHAT_MESSAGE       // { type: 'chat:message', message: string }
+GruEvents.PROJECT_SUBMIT     // { type: 'project:submit', path: string, description?: string }
+GruEvents.PLAN_APPROVE       // { type: 'plan:approve' }
+GruEvents.PLAN_EDIT          // { type: 'plan:edit' }
+GruEvents.EXECUTION_START    // { type: 'execution:start' }
+
+// WebSocket message types (Server → Client)
+GruEvents.CHAT_GREETING      // { type: 'chat:greeting', content: string }
+GruEvents.CHAT_RESPONSE      // { type: 'chat:response', message: string, provider: string }
+GruEvents.PROJECT_SCANNED    // { type: 'project:scanned', summary: object }
+GruEvents.PLAN_CREATED       // { type: 'plan:created', plan: object }
+GruEvents.PLAN_NEEDS_CHANGES // { type: 'plan:needsChanges' }
+GruEvents.EXECUTION_STARTED  // { type: 'execution:started', projectName: string }
+GruEvents.EXECUTION_UPDATED  // { type: 'execution:updated', phase: string, progress: number }
+GruEvents.EXECUTION_COMPLETED// { type: 'execution:completed', summary: object }
+GruEvents.ERROR              // { type: 'error', error: string }
+```
+
+#### AgentState Constants
+
+```javascript
+AgentState.IDLE        // Waiting for user input
+AgentState.CONVERSING  // In conversation with user
+AgentState.SCANNING    // Scanning project
+AgentState.PLANNING    // Creating execution plan
+AgentState.EXECUTING   // Executing plan
+AgentState.VERIFYING   // Verifying results
+AgentState.COMPLETED   // Execution complete
+AgentState.ERROR       // Error state
+```
+
+#### gru.start()
+
+Start the web server and WebSocket connections.
+
+```javascript
+await gru.start();
+// Server listening on http://localhost:3000
+```
+
+#### gru.getStatus()
+
+Get current agent status.
+
+```javascript
+const status = gru.getStatus();
+// {
+//   name: 'GruAgent',
+//   alias: 'Gru',
+//   state: 'IDLE',
+//   currentProject: null,
+//   metrics: {...}
+// }
+```
+
+#### gru.shutdown()
+
+Gracefully shutdown the agent.
+
+```javascript
+await gru.shutdown();
+```
+
+---
+
+### NefarioAgent
+
+Claude Code adapter that bridges Gru to the AI coding assistant.
+
+#### getNefarioAgent(options)
+
+```javascript
+import { getNefarioAgent, NefarioEvents, TaskStatus } from 'minions/client-interface';
+
+const nefario = getNefarioAgent({
+  projectRoot: process.cwd(),
+  claudePath: 'claude',  // Path to Claude Code CLI
+  defaultTimeout: 300000  // 5 minutes
+});
+
+await nefario.initialize(eventBus);
+```
+
+#### NefarioEvents
+
+```javascript
+// Incoming events (requests)
+NefarioEvents.EXECUTE_TASK      // Execute a Claude Code task
+NefarioEvents.CANCEL_TASK       // Cancel running task
+NefarioEvents.GET_STATUS        // Get agent status
+
+// Outgoing events
+NefarioEvents.TASK_STARTED      // Task execution started
+NefarioEvents.TASK_PROGRESS     // Task progress update
+NefarioEvents.TASK_COMPLETED    // Task completed successfully
+NefarioEvents.TASK_FAILED       // Task failed
+NefarioEvents.OUTPUT_RECEIVED   // Raw output from Claude Code
+```
+
+#### TaskStatus Constants
+
+```javascript
+TaskStatus.PENDING     // Task queued
+TaskStatus.RUNNING     // Task executing
+TaskStatus.COMPLETED   // Task succeeded
+TaskStatus.FAILED      // Task failed
+TaskStatus.CANCELLED   // Task cancelled
+```
+
+#### nefario.executeTask(task)
+
+Execute a task using Claude Code.
+
+```javascript
+const result = await nefario.executeTask({
+  type: 'code_generation',
+  prompt: 'Create a user authentication module',
+  projectPath: '/path/to/project',
+  options: {
+    model: 'opus',
+    timeout: 300000
+  }
+});
+// {
+//   success: boolean,
+//   output: string,
+//   filesModified: string[],
+//   duration: number
+// }
+```
+
+#### nefario.cancelTask(taskId)
+
+Cancel a running task.
+
+```javascript
+await nefario.cancelTask('task-123');
+```
+
+#### nefario.getStatus()
+
+Get current agent status.
+
+```javascript
+const status = nefario.getStatus();
+// {
+//   name: 'NefarioAgent',
+//   alias: 'Dr. Nefario',
+//   state: 'IDLE',
+//   runningTasks: [],
+//   metrics: {...}
+// }
+```
+
+---
+
+### ProjectManagerAgent (Silas)
+
+Manages connections between Minions and external projects.
+
+#### getProjectManager(options)
+
+```javascript
+import { getProjectManager, ProjectManagerEvents, AgentState } from 'minions/client-interface';
+
+const silas = getProjectManager({
+  projectRoot: process.cwd(),
+  stateDir: '.project-manager',
+  projectsDir: 'projects'
+});
+
+await silas.initialize(eventBus);
+```
+
+#### ProjectManagerEvents
+
+```javascript
+// Incoming events (requests)
+ProjectManagerEvents.PROJECT_CONNECT      // Connect to external project
+ProjectManagerEvents.PROJECT_DISCONNECT   // Disconnect project
+ProjectManagerEvents.PROJECT_SCAN         // Scan project structure
+ProjectManagerEvents.PROJECT_SYNC         // Sync project state
+
+// Outgoing events
+ProjectManagerEvents.PROJECT_CONNECTED    // Project connected successfully
+ProjectManagerEvents.PROJECT_DISCONNECTED // Project disconnected
+ProjectManagerEvents.PROJECT_SCANNED      // Project scan complete
+ProjectManagerEvents.PROJECT_SYNCED       // Project synced
+ProjectManagerEvents.PROJECT_ERROR        // Error occurred
+```
+
+#### silas.connect(projectPath, options)
+
+Connect to an external project.
+
+```javascript
+const result = await silas.connect('/path/to/external/project', {
+  name: 'my-project'  // Optional custom name
+});
+// {
+//   success: true,
+//   project: {
+//     name: 'my-project',
+//     sourcePath: '/path/to/external/project',
+//     workspacePath: '/minions/projects/my-project',
+//     framework: 'express',
+//     language: 'javascript',
+//     components: [...],
+//     connectedAt: timestamp,
+//     status: 'connected'
+//   }
+// }
+```
+
+#### silas.disconnect(projectName)
+
+Disconnect a project.
+
+```javascript
+await silas.disconnect('my-project');
+```
+
+#### silas.scan(projectName)
+
+Scan/rescan a connected project.
+
+```javascript
+const result = await silas.scan('my-project');
+// {
+//   success: true,
+//   project: {...},
+//   scanResult: {
+//     framework: 'express',
+//     language: 'javascript',
+//     components: ['routes', 'models', 'controllers']
+//   }
+// }
+```
+
+#### silas.list()
+
+List all connected projects.
+
+```javascript
+const projects = silas.list();
+// [{ name, sourcePath, framework, status, ... }, ...]
+```
+
+#### silas.getProject(projectName)
+
+Get a project by name.
+
+```javascript
+const project = silas.getProject('my-project');
+```
+
+#### silas.syncProject(projectName)
+
+Sync project state with source.
+
+```javascript
+await silas.syncProject('my-project');
+```
+
+---
+
+### ProjectCompletionAgent (Lucy)
+
+Autonomous completion engine that drives projects to 100%.
+
+#### getCompletionAgent(options)
+
+```javascript
+import { getCompletionAgent, CompletionEvents, AgentState } from 'minions/client-interface';
+
+const lucy = getCompletionAgent({
+  projectRoot: process.cwd(),
+  stateDir: '.project-completion',
+  targetCompletion: 100,
+  maxIterations: 50
+});
+
+await lucy.initialize(eventBus);
+```
+
+#### CompletionEvents
+
+```javascript
+// Incoming events (requests)
+CompletionEvents.COMPLETION_START   // Start completion for project
+CompletionEvents.COMPLETION_PAUSE   // Pause completion loop
+CompletionEvents.COMPLETION_RESUME  // Resume completion loop
+CompletionEvents.COMPLETION_STOP    // Stop completion entirely
+
+// Outgoing events
+CompletionEvents.COMPLETION_STARTED  // Completion started
+CompletionEvents.COMPLETION_PAUSED   // Completion paused
+CompletionEvents.COMPLETION_RESUMED  // Completion resumed
+CompletionEvents.COMPLETION_FINISHED // Completion finished (success or stopped)
+CompletionEvents.ITERATION_STARTED   // New iteration started
+CompletionEvents.ITERATION_COMPLETED // Iteration completed
+CompletionEvents.GAP_DETECTED        // Gaps detected in project
+CompletionEvents.GAP_RESOLVED        // Gap was resolved
+CompletionEvents.PROGRESS_UPDATED    // Progress percentage updated
+CompletionEvents.COMPLETION_ERROR    // Error occurred
+```
+
+#### lucy.startCompletion(project, options)
+
+Start autonomous completion for a project.
+
+```javascript
+const result = await lucy.startCompletion(project, {
+  targetCompletion: 100,
+  maxIterations: 50
+});
+// { success: true, project: 'my-project' }
+```
+
+#### lucy.pauseCompletion()
+
+Pause the completion loop.
+
+```javascript
+await lucy.pauseCompletion();
+// { success: true }
+```
+
+#### lucy.resumeCompletion()
+
+Resume a paused completion loop.
+
+```javascript
+await lucy.resumeCompletion();
+// { success: true }
+```
+
+#### lucy.stopCompletion()
+
+Stop completion entirely.
+
+```javascript
+await lucy.stopCompletion();
+// { success: true }
+```
+
+#### lucy.getProgress(projectName)
+
+Get current completion progress.
+
+```javascript
+const progress = await lucy.getProgress('my-project');
+// {
+//   percentage: 75,
+//   gaps: [
+//     { id: 'gap-1', type: 'missing_tests', description: '...', priority: 1 },
+//     { id: 'gap-2', type: 'missing_docs', description: '...', priority: 2 }
+//   ],
+//   project: 'my-project'
+// }
+```
+
+#### lucy.getGaps()
+
+Get list of detected gaps.
+
+```javascript
+const gaps = lucy.getGaps();
+// [{ id, type, description, priority, detected_at }, ...]
+```
+
+#### lucy.getStatus()
+
+Get current agent status.
+
+```javascript
+const status = lucy.getStatus();
+// {
+//   name: 'ProjectCompletionAgent',
+//   alias: 'Lucy',
+//   state: 'ANALYZING',
+//   currentProject: 'my-project',
+//   metrics: {
+//     iterationsCompleted: 5,
+//     gapsDetected: 12,
+//     gapsResolved: 8,
+//     errorsCount: 0,
+//     lastActivity: timestamp
+//   }
+// }
+```
+
+#### Gap Types
+
+```javascript
+// Types of gaps Lucy can detect and resolve
+'missing_implementation'  // Feature not yet coded
+'missing_tests'           // Code without test coverage
+'missing_docs'            // Undocumented APIs/functions
+'failing_tests'           // Tests that don't pass
+'security_issues'         // Security vulnerabilities
+'performance_issues'      // Performance bottlenecks
+'lint_errors'             // Linting/style errors
+'type_errors'             // TypeScript type errors
 ```
 
 ---
