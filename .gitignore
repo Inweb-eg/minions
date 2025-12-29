@@ -1,0 +1,70 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Database files (keep .db but ignore temp files)
+*.db-shm
+*.db-wal
+*.db-journal
+
+# Runtime state files
+.planner/planner-state.json
+.planner/plans/
+.vision/vision-state.json
+.project-completion/
+.project-manager/
+checkpoints/
+foundation/checkpoints/
+foundation/.planner/planner-state.json
+foundation/.planner/plans/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Cache directories
+.cache/
+.benchmark-history/
+.nyc_output/
+coverage/
+
+# Generated code (can be regenerated)
+generated/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Test artifacts
+test-results/
+junit.xml
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS files
+Thumbs.db
+ehthumbs.db
+
+# Architecture state (regenerated at runtime)
+architecture/blueprint.json
+
+# Decision logs (runtime state)
+decisions/decisions.json
