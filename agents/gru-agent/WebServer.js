@@ -1,0 +1,348 @@
+/**
+ * WebServer
+ * ---------
+ * Serves the HTML dashboard and handles WebSocket connections
+ * for real-time communication with clients.
+ *
+ * Part of Gru Agent - Minions Client Interface System
+ */
+
+import EventEmitter from 'events';
+import express from 'express';
+import { createServer } from 'http';
+import { WebSocketServer } from 'ws';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { createLogger } from '../../foundation/common/logger.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export class WebServer extends EventEmitter {
+  constructor(config = {}) {
+    super();
+    this.logger = createLogger('WebServer');
+
+    this.config = {
+      port: config.port || 2505,
+      fallbackPort: config.fallbackPort || 8005,
+      host: config.host || 'localhost',
+      publicDir: config.publicDir || path.join(__dirname, 'public'),
+      ...config
+    };
+
+    this.app = null;
+    this.server = null;
+    this.wss = null;
+    this.clients = new Map();
+    this.isRunning = false;
+  }
+
+  /**
+   * Start the web server
+   */
+  async start() {
+    if (this.isRunning) {
+      return { success: true, port: this.config.port };
+    }
+
+    return new Promise((resolve, reject) => {
+      this.app = express();
+
+      // Middleware
+      this.app.use(express.json());
+      this.app.use(express.static(this.config.publicDir));
+
+      // Setup routes
+      this._setupRoutes();
+
+      // Create HTTP server
+      this.server = createServer(this.app);
+
+      // Setup WebSocket
+      this._setupWebSocket();
+
+      // Try primary port, then fallback
+      this._tryListen(this.config.port)
+        .then((port) => {
+          this.config.port = port;
+          this.isRunning = true;
+          this.logger.info(`Web server running at http://${this.config.host}:${port}`);
+          this.emit('started', { port, host: this.config.host });
+          resolve({ success: true, port, host: this.config.host });
+        })
+        .catch((err) => {
+          this.logger.error(`Failed to start server: ${err.message}`);
+          reject(err);
+        });
+    });
+  }
+
+  /**
+   * Try to listen on a port, fallback if busy
+   * @private
+   */
+  _tryListen(port) {
+    return new Promise((resolve, reject) => {
+      this.server.once('error', (err) => {
+        if (err.code === 'EADDRINUSE') {
+          this.logger.warn(`Port ${port} in use, trying ${this.config.fallbackPort}`);
+          this.server.listen(this.config.fallbackPort, this.config.host, () => {
+            resolve(this.config.fallbackPort);
+          });
+        } else {
+          reject(err);
+        }
+      });
+
+      this.server.listen(port, this.config.host, () => {
+        resolve(port);
+      });
+    });
+  }
+
+  /**
+   * Setup HTTP routes
+   * @private
+   */
+  _setupRoutes() {
+    // Health check
+    this.app.get('/api/health', (req, res) => {
+      res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    });
+
+    // Get server info
+    this.app.get('/api/info', (req, res) => {
+      res.json({
+        name: 'Gru Agent',
+        version: '1.0.0',
+        clients: this.clients.size
+      });
+    });
+
+    // Chat endpoint (REST fallback if WebSocket fails)
+    this.app.post('/api/chat', (req, res) => {
+      const { message } = req.body;
+      if (!message) {
+        return res.status(400).json({ error: 'Message is required' });
+      }
+
+      this.emit('chat:message', { message, source: 'rest' });
+
+      // Response will be sent via event listener in GruAgent
+      res.json({ received: true, message: 'Processing...' });
+    });
+
+    // Serve index.html for all other routes (SPA support)
+    this.app.get('*', (req, res) => {
+      res.sendFile(path.join(this.config.publicDir, 'index.html'));
+    });
+  }
+
+  /**
+   * Setup WebSocket server
+   * @private
+   */
+  _setupWebSocket() {
+    this.wss = new WebSocketServer({ server: this.server });
+
+    this.wss.on('connection', (ws, req) => {
+      const clientId = this._generateClientId();
+      this.clients.set(clientId, ws);
+
+      this.logger.info(`Client connected: ${clientId}`);
+      this.emit('client:connected', { clientId });
+
+      // Send welcome message
+      this.sendToClient(clientId, {
+        type: 'welcome',
+        clientId,
+        message: 'Connected to Gru Agent'
+      });
+
+      // Handle messages
+      ws.on('message', (data) => {
+        try {
+          const message = JSON.parse(data.toString());
+          this._handleWebSocketMessage(clientId, message);
+        } catch (error) {
+          this.logger.error(`Invalid message from ${clientId}: ${error.message}`);
+          this.sendToClient(clientId, {
+            type: 'error',
+            message: 'Invalid message format'
+          });
+        }
+      });
+
+      // Handle close
+      ws.on('close', () => {
+        this.clients.delete(clientId);
+        this.logger.info(`Client disconnected: ${clientId}`);
+        this.emit('client:disconnected', { clientId });
+      });
+
+      // Handle errors
+      ws.on('error', (error) => {
+        this.logger.error(`WebSocket error for ${clientId}: ${error.message}`);
+      });
+    });
+  }
+
+  /**
+   * Handle incoming WebSocket message
+   * @private
+   */
+  _handleWebSocketMessage(clientId, message) {
+    const { type, payload } = message;
+
+    switch (type) {
+      case 'chat':
+        this.emit('chat:message', {
+          clientId,
+          message: payload.message,
+          source: 'websocket'
+        });
+        break;
+
+      case 'project:new':
+        this.emit('project:new', { clientId, ...payload });
+        break;
+
+      case 'project:existing':
+        this.emit('project:existing', { clientId, ...payload });
+        break;
+
+      case 'project:confirm':
+        this.emit('project:confirm', { clientId, ...payload });
+        break;
+
+      case 'plan:approve':
+        this.emit('plan:approve', { clientId, ...payload });
+        break;
+
+      case 'plan:edit':
+        this.emit('plan:edit', { clientId, ...payload });
+        break;
+
+      case 'execution:pause':
+        this.emit('execution:pause', { clientId });
+        break;
+
+      case 'execution:resume':
+        this.emit('execution:resume', { clientId });
+        break;
+
+      case 'execution:stop':
+        this.emit('execution:stop', { clientId });
+        break;
+
+      case 'ping':
+        this.sendToClient(clientId, { type: 'pong' });
+        break;
+
+      default:
+        this.logger.warn(`Unknown message type: ${type}`);
+        this.emit('message:unknown', { clientId, type, payload });
+    }
+  }
+
+  /**
+   * Broadcast message to all connected clients
+   * @param {object} message - Message to broadcast
+   */
+  broadcast(message) {
+    const data = JSON.stringify(message);
+
+    this.clients.forEach((ws, clientId) => {
+      if (ws.readyState === 1) { // WebSocket.OPEN
+        ws.send(data);
+      }
+    });
+  }
+
+  /**
+   * Send message to specific client
+   * @param {string} clientId - Client ID
+   * @param {object} message - Message to send
+   */
+  sendToClient(clientId, message) {
+    const ws = this.clients.get(clientId);
+    if (ws && ws.readyState === 1) {
+      ws.send(JSON.stringify(message));
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Generate unique client ID
+   * @private
+   */
+  _generateClientId() {
+    return `client-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  /**
+   * Get connected client count
+   */
+  getClientCount() {
+    return this.clients.size;
+  }
+
+  /**
+   * Stop the server
+   */
+  async stop() {
+    if (!this.isRunning) {
+      return { success: true };
+    }
+
+    return new Promise((resolve) => {
+      // Close all WebSocket connections
+      this.clients.forEach((ws, clientId) => {
+        ws.close(1000, 'Server shutting down');
+      });
+      this.clients.clear();
+
+      // Close WebSocket server
+      if (this.wss) {
+        this.wss.close();
+      }
+
+      // Close HTTP server
+      if (this.server) {
+        this.server.close(() => {
+          this.isRunning = false;
+          this.logger.info('Web server stopped');
+          this.emit('stopped');
+          resolve({ success: true });
+        });
+      } else {
+        this.isRunning = false;
+        resolve({ success: true });
+      }
+    });
+  }
+
+  /**
+   * Get server status
+   */
+  getStatus() {
+    return {
+      isRunning: this.isRunning,
+      port: this.config.port,
+      host: this.config.host,
+      clients: this.clients.size
+    };
+  }
+
+  /**
+   * Shutdown
+   */
+  async shutdown() {
+    await this.stop();
+    this.removeAllListeners();
+  }
+}
+
+export default WebServer;

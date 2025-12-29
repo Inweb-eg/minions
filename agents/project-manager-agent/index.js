@@ -447,11 +447,19 @@ export class ProjectManagerAgent extends EventEmitter {
 // Singleton factory
 let instance = null;
 
-export function getProjectManager(config) {
+/**
+ * Get singleton instance of ProjectManagerAgent
+ * @param {object} config - Configuration options
+ */
+ProjectManagerAgent.getInstance = function(config) {
   if (!instance) {
     instance = new ProjectManagerAgent(config);
   }
   return instance;
+};
+
+export function getProjectManager(config) {
+  return ProjectManagerAgent.getInstance(config);
 }
 
 export function resetProjectManager() {

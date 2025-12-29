@@ -481,11 +481,19 @@ export class ProjectCompletionAgent extends EventEmitter {
 // Singleton factory
 let instance = null;
 
-export function getCompletionAgent(config) {
+/**
+ * Get singleton instance of ProjectCompletionAgent
+ * @param {object} config - Configuration options
+ */
+ProjectCompletionAgent.getInstance = function(config) {
   if (!instance) {
     instance = new ProjectCompletionAgent(config);
   }
   return instance;
+};
+
+export function getCompletionAgent(config) {
+  return ProjectCompletionAgent.getInstance(config);
 }
 
 export function resetCompletionAgent() {
