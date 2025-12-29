@@ -1,37 +1,112 @@
 # Minions Framework - Docker Compose
 # ===================================
 #
-# Full stack deployment with Ollama integrated
+# Two-container setup: Ollama (persistent with models) + Minions (application)
 #
 # Usage:
-#   docker-compose up -d          # Start all services
-#   docker-compose up -d minions  # Start Minions only (uses external Ollama)
+#   docker-compose up -d          # Start Ollama + Minions
+#   docker-compose up -d ollama   # Start Ollama only (to pre-download models)
 #   docker-compose logs -f        # View logs
 #   docker-compose down           # Stop all services
+#   docker-compose down minions && docker-compose build --no-cache minions && docker-compose up -d minions
+#                                 # Rebuild Minions only (Ollama models preserved)
 #
 # GPU Support (NVIDIA):
 #   docker-compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
 
-version: '3.8'
-
 services:
-  # Main Minions service with Ollama integrated
+  # Ollama Service - Persistent container with models
+  # Models stored in volume, survives rebuilds
+  ollama:
+    image: ollama/ollama:latest
+    container_name: minions-ollama
+    restart: unless-stopped
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  # Main Minions service - connects to Ollama container
   minions:
     build:
       context: ..
       dockerfile: docker/Dockerfile
-      target: minions
+      target: minions-slim
     image: minions:latest
     container_name: minions
     restart: unless-stopped
+    depends_on:
+      ollama:
+        condition: service_healthy
+    ports:
+      - "${MINIONS_PORT:-2505}:2505"
+    volumes:
+      # Persistent data
+      - minions-data:/app/data
+      # Mount projects directory for existing project support
+      - ${PROJECTS_PATH:-./projects}:/projects:ro
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - MINIONS_PORT=2505
+      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-deepseek-coder:6.7b}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2505/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Development version with hot reload
+  minions-dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: minions-dev
+    image: minions:dev
+    container_name: minions-dev
+    restart: unless-stopped
+    profiles: ["dev"]
+    depends_on:
+      ollama:
+        condition: service_healthy
+    ports:
+      - "${MINIONS_PORT:-2505}:2505"
+    volumes:
+      # Mount source for hot reload
+      - ..:/app
+      - /app/node_modules
+      - /app/foundation/node_modules
+    environment:
+      - NODE_ENV=development
+      - MINIONS_PORT=2505
+      - OLLAMA_HOST=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-deepseek-coder:6.7b}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+
+  # Integrated version (Ollama inside Minions) - for single container deployments
+  minions-integrated:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      target: minions-integrated
+    image: minions:integrated
+    container_name: minions-integrated
+    restart: unless-stopped
+    profiles: ["integrated"]
     ports:
       - "${MINIONS_PORT:-2505}:2505"
       - "${OLLAMA_PORT:-11434}:11434"
     volumes:
-      # Persistent data
       - minions-data:/app/data
       - minions-models:/app/data/models
-      # Mount projects directory for existing project support
       - ${PROJECTS_PATH:-./projects}:/projects:ro
     environment:
       - NODE_ENV=${NODE_ENV:-production}
@@ -45,75 +120,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 120s
-
-  # Slim version - uses external Ollama
-  minions-slim:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
-      target: minions-slim
-    image: minions:slim
-    container_name: minions-slim
-    restart: unless-stopped
-    profiles: ["slim"]
-    ports:
-      - "${MINIONS_PORT:-2505}:2505"
-    volumes:
-      - minions-data:/app/data
-      - ${PROJECTS_PATH:-./projects}:/projects:ro
-    environment:
-      - NODE_ENV=${NODE_ENV:-production}
-      - MINIONS_PORT=2505
-      - OLLAMA_HOST=${OLLAMA_HOST:-http://host.docker.internal:11434}
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:2505/api/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Development version with hot reload
-  minions-dev:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
-      target: minions-dev
-    image: minions:dev
-    container_name: minions-dev
-    restart: unless-stopped
-    profiles: ["dev"]
-    ports:
-      - "${MINIONS_PORT:-2505}:2505"
-      - "${OLLAMA_PORT:-11434}:11434"
-    volumes:
-      # Mount source for hot reload
-      - ..:/app
-      - /app/node_modules
-      - /app/foundation/node_modules
-      - minions-models:/app/data/models
-    environment:
-      - NODE_ENV=development
-      - MINIONS_PORT=2505
-      - OLLAMA_HOST=http://localhost:11434
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-
-  # Standalone Ollama (for external use)
-  ollama:
-    image: ollama/ollama:latest
-    container_name: minions-ollama
-    restart: unless-stopped
-    profiles: ["ollama-only"]
-    ports:
-      - "${OLLAMA_PORT:-11434}:11434"
-    volumes:
-      - ollama-models:/root/.ollama
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
 volumes:
   minions-data:

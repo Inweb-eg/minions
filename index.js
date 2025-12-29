@@ -109,7 +109,9 @@ async function startGru(options) {
     // Create Gru instance
     const gru = GruAgent.getInstance({
       port: options.port,
-      fallbackPort: options.port === 2505 ? 8005 : options.port + 1
+      fallbackPort: options.port === 2505 ? 8005 : options.port + 1,
+      ollamaHost: process.env.OLLAMA_HOST || 'http://localhost:11434',
+      model: process.env.OLLAMA_MODEL || 'deepseek-coder:6.7b'
     });
 
     // Initialize Gru

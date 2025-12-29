@@ -82,13 +82,29 @@ Minions is an event-driven framework for building and orchestrating multiple AI 
 
 ## Installation
 
+### Option 1: Docker (Recommended)
+
 ```bash
-# Clone and install
+cd minions/docker
+
+# Start Ollama + Minions containers
+docker compose up -d
+
+# Pull the AI model (first time only)
+docker exec minions-ollama ollama pull deepseek-coder:6.7b
+docker restart minions
+
+# Access web interface at http://localhost:2505
+```
+
+### Option 2: Manual Installation
+
+```bash
 cd minions
 npm run install:all
 ```
 
-**Requirements:** Node.js >= 18.0.0
+**Requirements:** Node.js >= 18.0.0, Ollama (for AI features)
 
 ## Quick Start
 
@@ -630,12 +646,50 @@ EventTypes.AGENT_HEALTH_CHECK  // Health check performed
 // See foundation/event-bus/eventTypes.js for full list (80+ events)
 ```
 
+## Client Interface Agents
+
+Minions includes a client-friendly web interface for project planning and execution.
+
+### Gru Agent (Web Interface)
+
+Start the Gru web interface for conversational project planning:
+
+```bash
+# Using Docker (recommended)
+cd docker && docker compose up -d
+# Access: http://localhost:2505
+
+# Using Node.js
+node index.js --gru
+```
+
+Features:
+- Conversational AI powered by Ollama (deepseek-coder) or Gemini
+- Project scanning and framework detection
+- Interactive plan creation and approval
+- Real-time execution monitoring
+
+### Supporting Agents
+
+| Agent | Role | Description |
+|-------|------|-------------|
+| **Gru** | Coordinator | Web interface, conversation handling |
+| **Dr. Nefario** | Planner | Converts requirements to execution plans |
+| **Silas** | Project Manager | Manages external project connections |
+| **Lucy** | Completion | Runs autonomous completion loops |
+
+See [Gru Guide](docs/gru-guide.md) for detailed setup instructions.
+
 ## Project Structure
 
 ```
 minions/
 ├── index.js                    # Main entry point & exports
 ├── package.json
+├── docker/                     # Docker configuration
+│   ├── Dockerfile              # Multi-stage build (slim, dev, integrated)
+│   ├── docker-compose.yml      # Two-container setup (Ollama + Minions)
+│   └── docker-compose.gpu.yml  # GPU support for NVIDIA
 ├── foundation/                 # Core infrastructure
 │   ├── event-bus/             # AgentEventBus, EventTypes (80+ events)
 │   ├── health-monitor/        # HealthMonitor, HealthStatus
@@ -690,17 +744,27 @@ minions/
 │   │   └── skills/            # Route, Model, Service, Middleware, Validator, Controller
 │   ├── frontend-writer-agent/ # Frontend code generation
 │   │   └── skills/            # Component, Hook, Store, Form, Api, Page
-│   └── writer-skills/         # Base class for writer skills
-│       └── BaseWriterSkill.js
+│   ├── writer-skills/         # Base class for writer skills
+│   │   └── BaseWriterSkill.js
+│   ├── gru-agent/             # Client interface coordinator
+│   │   ├── WebServer.js       # Express + WebSocket server
+│   │   ├── ConversationEngine.js
+│   │   ├── OllamaAdapter.js   # Ollama/Gemini integration
+│   │   └── public/            # Web dashboard (HTML/CSS/JS)
+│   ├── nefario-agent/         # Plan generation agent
+│   ├── project-manager-agent/ # External project management (Silas)
+│   └── project-completion-agent/ # Autonomous completion (Lucy)
 ├── examples/                  # Usage examples
 │   ├── basic-usage.js
 │   └── example-agent.js
+├── projects/                  # Connected external projects
 └── docs/                      # Documentation
     ├── api-reference.md
     ├── architecture.md
     ├── getting-started.md
     ├── creating-agents.md
-    └── skills-guide.md
+    ├── skills-guide.md
+    └── gru-guide.md           # Gru Agent setup guide
 ```
 
 ## Self-Evolution
@@ -881,9 +945,10 @@ See [docs/api-reference.md](docs/api-reference.md) for complete API documentatio
 
 ## Documentation
 
-- [API Reference](docs/api-reference.md) - Complete API documentation for all components
-- [Architecture Guide](docs/architecture.md) - Deep dive into framework internals and data flows
 - [Getting Started](docs/getting-started.md) - Step-by-step setup and first agent tutorial
+- [Gru Guide](docs/gru-guide.md) - Web interface setup with Docker and Ollama
+- [Architecture Guide](docs/architecture.md) - Deep dive into framework internals and data flows
+- [API Reference](docs/api-reference.md) - Complete API documentation for all components
 - [Creating Agents](docs/creating-agents.md) - Agent development patterns and best practices
 - [Skills Guide](docs/skills-guide.md) - Using and creating skills
 

@@ -666,35 +666,58 @@ while (progress < targetCompletion && iteration < maxIterations):
 
 ### Docker Deployment
 
-The Client Interface System includes Docker support for self-contained deployment:
+The Client Interface System uses a two-container architecture for flexible deployment:
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    Docker Container (minions)                    │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
-│  │  Ollama Server  │  │    Node.js      │  │  Claude Code    │ │
-│  │  (Local LLM)    │  │  (Gru Agent)    │  │  (via Nefario)  │ │
-│  │  Port: 11434    │  │  Port: 3000     │  │                 │ │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
-│                                                                  │
-│  Environment Variables:                                          │
-│  - OLLAMA_HOST=http://localhost:11434                           │
-│  - GEMINI_API_KEY (optional fallback)                           │
-│  - ANTHROPIC_API_KEY (for Claude Code)                          │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         Docker Network (minions-network)                      │
+├─────────────────────────────────┬───────────────────────────────────────────┤
+│                                 │                                             │
+│  ┌───────────────────────────┐  │  ┌─────────────────────────────────────┐  │
+│  │    minions-ollama         │  │  │           minions                    │  │
+│  │    (Ollama Container)     │◄─┼──│      (Application Container)        │  │
+│  ├───────────────────────────┤  │  ├─────────────────────────────────────┤  │
+│  │  - ollama/ollama:latest   │  │  │  - node:20-slim (minions-slim)      │  │
+│  │  - Port: 11434            │  │  │  - Port: 2505                       │  │
+│  │  - Volume: ollama-models  │  │  │  - Volume: minions-data             │  │
+│  │  - deepseek-coder:6.7b    │  │  │  - WebServer + Gru Agent            │  │
+│  └───────────────────────────┘  │  └─────────────────────────────────────┘  │
+│                                 │                                             │
+│  Benefits:                                                                    │
+│  - Models persist in Docker volume (survive rebuilds)                        │
+│  - Rebuild Minions without re-downloading models                             │
+│  - Separate scaling and resource management                                  │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
+
+**Environment Variables:**
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `OLLAMA_HOST` | `http://ollama:11434` | Ollama server URL |
+| `OLLAMA_MODEL` | `deepseek-coder:6.7b` | AI model for code generation |
+| `MINIONS_PORT` | `2505` | Web interface port |
+| `GEMINI_API_KEY` | - | Gemini API fallback (optional) |
 
 **Quick Start:**
 ```bash
-# Build and run with Docker Compose
-docker-compose up -d
+# Start containers
+cd docker && docker compose up -d
+
+# Pull AI model (first time only)
+docker exec minions-ollama ollama pull deepseek-coder:6.7b
+docker restart minions
 
 # Access the web interface
-open http://localhost:3000
+open http://localhost:2505
+
+# Rebuild Minions only (models preserved)
+docker compose down minions && docker compose build --no-cache minions && docker compose up -d minions
 ```
+
+**Dockerfile Targets:**
+- `minions-slim` - Default, uses external Ollama container (recommended)
+- `minions-dev` - Development with hot reload
+- `minions-integrated` - Single container with Ollama built-in
 
 ---
 

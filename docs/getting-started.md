@@ -57,25 +57,43 @@ cd your-project/minions
 npm run install:all
 ```
 
-### Option 3: Docker Installation
+### Option 3: Docker Installation (Recommended)
+
+Docker provides a two-container setup where Ollama runs separately from Minions:
 
 ```bash
 # Clone the repository
 git clone https://github.com/your-org/minions.git
-cd minions
+cd minions/docker
 
-# Start with Docker (includes Ollama for local AI)
-cd docker
-docker-compose up -d
+# Start Ollama + Minions containers
+docker compose up -d
+
+# Pull the AI model (first time only, ~3.8GB for deepseek-coder)
+docker exec minions-ollama ollama pull deepseek-coder:6.7b
+
+# Restart Minions to connect with the model
+docker restart minions
 
 # Access the Gru web interface
 open http://localhost:2505
 ```
 
+**Two-Container Architecture:**
+- `minions-ollama` - Ollama server with AI models (persisted in Docker volume)
+- `minions` - Minions application connecting to Ollama
+
+**Key Benefits:**
+- Models persist across container rebuilds
+- Rebuild Minions without re-downloading models:
+  ```bash
+  docker compose down minions && docker compose build --no-cache minions && docker compose up -d minions
+  ```
+
 For GPU acceleration (NVIDIA):
 
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
 ```
 
 ### Verify Installation
@@ -117,14 +135,17 @@ Gru is the client interface agent that provides:
 ### Environment Variables
 
 ```bash
-# Required for AI features (choose one)
-OLLAMA_HOST=http://localhost:11434  # Local Ollama server
+# AI Configuration (choose Ollama or Gemini)
+OLLAMA_HOST=http://localhost:11434  # Local Ollama (use http://ollama:11434 in Docker)
+OLLAMA_MODEL=deepseek-coder:6.7b    # AI model for code generation
 GEMINI_API_KEY=your-api-key         # Google Gemini API fallback
 
-# Optional
-MINIONS_PORT=2505                   # Web interface port
-OLLAMA_MODEL=llama3.2:3b            # Ollama model to use
+# Server Configuration
+MINIONS_PORT=2505                   # Web interface port (default: 2505)
+NODE_ENV=production                 # Environment mode
 ```
+
+**Docker Note:** When using Docker, the Minions container automatically connects to the Ollama container using `OLLAMA_HOST=http://ollama:11434`.
 
 ---
 

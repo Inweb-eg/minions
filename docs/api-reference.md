@@ -1949,9 +1949,10 @@ Main coordinator agent providing a conversational web interface for users.
 import { getGruAgent, GruEvents, AgentState } from 'minions/client-interface';
 
 const gru = getGruAgent({
-  port: 3000,
+  port: 2505,
   projectRoot: process.cwd(),
-  ollamaHost: 'http://localhost:11434',
+  ollamaHost: process.env.OLLAMA_HOST || 'http://localhost:11434',
+  model: process.env.OLLAMA_MODEL || 'deepseek-coder:6.7b',
   geminiApiKey: process.env.GEMINI_API_KEY  // Optional fallback
 });
 
@@ -1999,7 +2000,7 @@ Start the web server and WebSocket connections.
 
 ```javascript
 await gru.start();
-// Server listening on http://localhost:3000
+// Server listening on http://localhost:2505
 ```
 
 #### gru.getStatus()

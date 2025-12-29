@@ -6,14 +6,15 @@ Complete guide for setting up and using Gru Agent - the conversational web inter
 
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
-- [Ollama Setup](#ollama-setup)
+- [Quick Start with Docker (Recommended)](#quick-start-with-docker-recommended)
+- [Ollama Setup (Manual)](#ollama-setup-manual)
   - [Installing Ollama](#installing-ollama)
   - [Pulling Models](#pulling-models)
   - [Running Ollama](#running-ollama)
 - [Gemini API (Alternative)](#gemini-api-alternative)
 - [Starting Gru Agent](#starting-gru-agent)
+  - [Using Docker (Recommended)](#using-docker-recommended)
   - [Using Node.js](#using-nodejs)
-  - [Using Docker](#using-docker)
 - [Using the Web Interface](#using-the-web-interface)
   - [Chat Screen](#chat-screen)
   - [Project Screen](#project-screen)
@@ -41,14 +42,66 @@ Gru Agent is the main coordinator agent that provides a conversational web inter
 
 Before using Gru Agent, ensure you have:
 
-- **Node.js 18+** installed
-- **npm** or **yarn** package manager
-- **Ollama** (recommended) or **Gemini API key**
+- **Docker** and **Docker Compose** (recommended) OR
+- **Node.js 18+** with **npm** or **yarn**
+- **Ollama** (if not using Docker) or **Gemini API key**
 - **Git** for version control
 
 ---
 
-## Ollama Setup
+## Quick Start with Docker (Recommended)
+
+The easiest way to get started is with Docker, which runs Ollama and Minions in separate containers:
+
+```bash
+# Clone the repository
+git clone https://github.com/your-org/minions.git
+cd minions/docker
+
+# Start the two-container setup (Ollama + Minions)
+docker compose up -d
+
+# Pull the deepseek-coder model (optimized for code generation)
+docker exec minions-ollama ollama pull deepseek-coder:6.7b
+
+# Restart Minions to connect with the model
+docker restart minions
+
+# Access the web interface
+open http://localhost:2505
+```
+
+**Two-Container Architecture:**
+
+```
+┌─────────────────────┐     ┌─────────────────────┐
+│   minions-ollama    │     │      minions        │
+│  (Ollama + Models)  │◄────│   (Web Interface)   │
+│   Port: 11434       │     │    Port: 2505       │
+│   Volume: models    │     │   Volume: data      │
+└─────────────────────┘     └─────────────────────┘
+```
+
+**Benefits:**
+- Models persist in Docker volume (survives rebuilds)
+- Rebuild Minions without re-downloading models
+- Separate scaling and resource management
+
+**Rebuild Minions Only (models preserved):**
+```bash
+docker compose down minions
+docker compose build --no-cache minions
+docker compose up -d minions
+```
+
+**GPU Support (NVIDIA):**
+```bash
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+```
+
+---
+
+## Ollama Setup (Manual)
 
 [Ollama](https://ollama.com) is a local LLM runtime that enables AI capabilities without external API calls. This is the recommended setup for privacy and cost-free usage.
 
@@ -75,31 +128,31 @@ brew install ollama
 
 ### Pulling Models
 
-After installing Ollama, pull a language model. We recommend `llama3.2` for general use:
+After installing Ollama, pull a language model. We recommend `deepseek-coder:6.7b` for code-focused tasks:
 
 ```bash
-# Pull the default model (recommended)
+# Pull the recommended model for code generation (default)
+ollama pull deepseek-coder:6.7b
+
+# Or pull a general-purpose model
 ollama pull llama3.2
 
-# Or pull a smaller model for faster responses
+# For smaller systems (less RAM required)
 ollama pull llama3.2:1b
 
-# For more capable responses (requires more RAM)
+# For more capable reasoning (requires more RAM)
 ollama pull llama3.1:8b
-
-# For code-focused tasks
-ollama pull codellama
 ```
 
 **Model Recommendations:**
 
-| Model | RAM Required | Best For |
-|-------|-------------|----------|
-| `llama3.2:1b` | 2GB | Quick responses, limited context |
-| `llama3.2` | 4GB | General use (default) |
-| `llama3.1:8b` | 8GB | Complex reasoning |
-| `codellama` | 8GB | Code generation |
-| `deepseek-coder` | 8GB | Advanced coding |
+| Model | Size | RAM Required | Best For |
+|-------|------|-------------|----------|
+| `deepseek-coder:6.7b` | 3.8GB | 8GB | Code generation (default) |
+| `llama3.2:1b` | 1.3GB | 2GB | Quick responses, limited context |
+| `llama3.2` | 2.0GB | 4GB | General conversation |
+| `llama3.1:8b` | 4.7GB | 8GB | Complex reasoning |
+| `codellama` | 3.8GB | 8GB | Code generation (alternative) |
 
 ### Running Ollama
 
@@ -159,7 +212,51 @@ GEMINI_API_KEY=your-api-key-here
 
 ## Starting Gru Agent
 
+### Using Docker (Recommended)
+
+Docker provides a two-container setup where Ollama runs separately from Minions, allowing you to rebuild the application without re-downloading AI models.
+
+1. **Start the containers:**
+```bash
+cd minions/docker
+docker compose up -d
+```
+
+2. **Pull the AI model (first time only):**
+```bash
+docker exec minions-ollama ollama pull deepseek-coder:6.7b
+docker restart minions
+```
+
+3. **Access the interface:**
+```
+http://localhost:2505
+```
+
+**Useful Docker Commands:**
+```bash
+# View logs
+docker compose logs -f
+
+# View Minions logs only
+docker logs minions -f
+
+# Check container status
+docker ps
+
+# Stop all containers
+docker compose down
+
+# Rebuild Minions (models preserved)
+docker compose down minions && docker compose build --no-cache minions && docker compose up -d minions
+
+# List available models
+docker exec minions-ollama ollama list
+```
+
 ### Using Node.js
+
+For development or if you prefer running without Docker:
 
 1. **Install dependencies:**
 ```bash
@@ -167,47 +264,28 @@ cd minions
 npm run install:all
 ```
 
-2. **Start Gru Agent:**
+2. **Start Ollama separately:**
+```bash
+ollama serve
+# In another terminal:
+ollama pull deepseek-coder:6.7b
+```
+
+3. **Start Gru Agent:**
 ```bash
 # From the minions root directory
-node agents/gru-agent/start.js
+node index.js --gru
+
+# Or with custom port
+node index.js --gru --port 3000
 
 # Or with environment variables
-OLLAMA_HOST=http://localhost:11434 node agents/gru-agent/start.js
+OLLAMA_HOST=http://localhost:11434 OLLAMA_MODEL=deepseek-coder:6.7b node index.js --gru
 ```
 
-3. **Open the web interface:**
+4. **Open the web interface:**
 ```
-http://localhost:3000
-```
-
-### Using Docker
-
-1. **Build the Docker image:**
-```bash
-cd minions/agents/gru-agent
-docker build -t minions-gru .
-```
-
-2. **Run with Docker Compose (recommended):**
-```bash
-docker-compose up -d
-```
-
-3. **Or run manually:**
-```bash
-docker run -d \
-  -p 3000:3000 \
-  -e OLLAMA_HOST=http://host.docker.internal:11434 \
-  -e GEMINI_API_KEY=your-key-here \
-  -v $(pwd)/projects:/app/projects \
-  --name minions-gru \
-  minions-gru
-```
-
-4. **Access the interface:**
-```
-http://localhost:3000
+http://localhost:2505
 ```
 
 ---
@@ -332,12 +410,34 @@ Once you approve the plan, execution begins:
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `PORT` | Web server port | `3000` |
-| `OLLAMA_HOST` | Ollama server URL | `http://localhost:11434` |
-| `OLLAMA_MODEL` | Model to use | `llama3.2` |
+| `MINIONS_PORT` | Web server port | `2505` |
+| `OLLAMA_HOST` | Ollama server URL | `http://localhost:11434` (Node.js) or `http://ollama:11434` (Docker) |
+| `OLLAMA_MODEL` | Model to use | `deepseek-coder:6.7b` |
 | `GEMINI_API_KEY` | Gemini API key (fallback) | - |
-| `PROJECT_ROOT` | Base directory for projects | Current directory |
-| `LOG_LEVEL` | Logging level | `info` |
+| `PROJECTS_PATH` | Mount path for projects | `./projects` |
+| `NODE_ENV` | Environment mode | `production` |
+
+### Docker Environment File
+
+Create `.env` in the `docker/` directory:
+
+```bash
+# Port configuration
+MINIONS_PORT=2505
+OLLAMA_PORT=11434
+
+# AI Model (default: deepseek-coder:6.7b)
+OLLAMA_MODEL=deepseek-coder:6.7b
+
+# Gemini fallback (optional)
+GEMINI_API_KEY=your-api-key-here
+
+# Projects directory (mounted read-only)
+PROJECTS_PATH=./projects
+
+# Environment
+NODE_ENV=production
+```
 
 ### Configuration File
 
@@ -345,10 +445,10 @@ Create `config.json` in the gru-agent directory:
 
 ```json
 {
-  "port": 3000,
+  "port": 2505,
   "ollama": {
     "host": "http://localhost:11434",
-    "model": "llama3.2",
+    "model": "deepseek-coder:6.7b",
     "timeout": 60000
   },
   "gemini": {
@@ -433,23 +533,45 @@ Create `config.json` in the gru-agent directory:
 
 ### Docker Issues
 
-**Error:** Container fails to start
+**Error:** Container fails to start or health check fails
 
 **Solutions:**
 1. Check Docker logs:
    ```bash
-   docker logs minions-gru
+   docker logs minions
+   docker logs minions-ollama
    ```
 
 2. Ensure ports aren't in use:
    ```bash
-   lsof -i :3000
+   lsof -i :2505
+   lsof -i :11434
    ```
 
-3. Rebuild the image:
+3. Verify Ollama container is healthy:
    ```bash
-   docker-compose build --no-cache
+   docker exec minions-ollama ollama list
    ```
+
+4. Rebuild Minions container:
+   ```bash
+   docker compose down minions
+   docker compose build --no-cache minions
+   docker compose up -d minions
+   ```
+
+5. Full reset (models preserved):
+   ```bash
+   docker compose down
+   docker compose up -d
+   ```
+
+**Error:** "localhost:2505 not reachable" from host
+
+**Solution:** The WebServer binds to `0.0.0.0` inside the container. If you modified WebServer.js, ensure:
+```javascript
+host: config.host || '0.0.0.0'  // Required for Docker
+```
 
 ### Memory Issues with Ollama
 

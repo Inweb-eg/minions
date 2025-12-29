@@ -26,7 +26,7 @@ export class WebServer extends EventEmitter {
     this.config = {
       port: config.port || 2505,
       fallbackPort: config.fallbackPort || 8005,
-      host: config.host || 'localhost',
+      host: config.host || '0.0.0.0',  // Bind to all interfaces (required for Docker)
       publicDir: config.publicDir || path.join(__dirname, 'public'),
       ...config
     };

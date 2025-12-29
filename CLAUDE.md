@@ -77,10 +77,10 @@ Detailed documentation is available in the `docs/` folder:
 ## Client Interface Agents
 
 **Gru Agent** (`agents/gru-agent/`):
-- Web interface coordinator at `http://localhost:3000`
-- Conversational AI powered by Ollama or Gemini
+- Web interface coordinator at `http://localhost:2505`
+- Conversational AI powered by Ollama (deepseek-coder:6.7b) or Gemini fallback
 - Components: `WebServer.js`, `ConversationEngine.js`, `OllamaAdapter.js`, `ProjectIntake.js`, `StatusTracker.js`
-- Start with: `node agents/gru-agent/start.js`
+- Start with: `node index.js --gru` or Docker: `docker compose up -d`
 
 **Dr. Nefario Agent** (`agents/nefario-agent/`):
 - Claude Code adapter for AI-powered code generation
@@ -95,3 +95,21 @@ Detailed documentation is available in the `docs/` folder:
 - Autonomous completion loops
 - Gap detection and resolution
 - Components: `GapDetector.js`, `CompletionTracker.js`, `ContinuousLoop.js`
+
+## Docker Setup
+
+Two-container architecture in `docker/`:
+- `docker-compose.yml` - Ollama + Minions containers (recommended)
+- `Dockerfile` - Multi-stage build with targets: `minions-slim` (default), `minions-dev`, `minions-integrated`
+
+```bash
+# Start containers
+cd docker && docker compose up -d
+
+# Pull AI model (first time)
+docker exec minions-ollama ollama pull deepseek-coder:6.7b
+docker restart minions
+
+# Rebuild Minions only (models preserved)
+docker compose down minions && docker compose build --no-cache minions && docker compose up -d minions
+```

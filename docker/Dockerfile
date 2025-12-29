@@ -1,15 +1,71 @@
 # Minions Framework - Docker Image
 # ================================
-# Multi-stage build with Ollama integrated for local AI inference
+# Multi-stage build supporting both standalone and integrated Ollama setups
 #
-# Build: docker build -t minions -f docker/Dockerfile .
-# Run: docker run -p 2505:2505 -p 11434:11434 minions
+# Targets:
+#   minions-slim       - Main image (uses external Ollama container)
+#   minions-dev        - Development with hot reload (uses external Ollama)
+#   minions-integrated - Single container with Ollama built-in
+#
+# Build: docker compose build
+# Run:   docker compose up -d
 
-# Stage 1: Base with Ollama
+# ========================================
+# Stage 1: Slim image (uses external Ollama)
+# This is the DEFAULT and RECOMMENDED target
+# ========================================
+FROM node:20-slim AS minions-slim
+
+RUN apt-get update && apt-get install -y \
+    curl \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY foundation/package*.json ./foundation/
+
+RUN npm install --production
+RUN cd foundation && npm install --production
+
+COPY . .
+
+RUN mkdir -p /app/data/projects /app/data/decisions /app/.planner /app/.vision
+
+ENV NODE_ENV=production
+ENV MINIONS_PORT=2505
+
+EXPOSE 2505
+
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+    CMD curl -f http://localhost:2505/api/health || exit 1
+
+CMD ["node", "index.js", "--gru"]
+
+
+# ========================================
+# Stage 2: Development image with full tooling
+# Uses external Ollama, adds dev dependencies
+# ========================================
+FROM minions-slim AS minions-dev
+
+# Install dev dependencies
+RUN npm install
+RUN cd foundation && npm install
+
+ENV NODE_ENV=development
+
+CMD ["node", "index.js", "--gru"]
+
+
+# ========================================
+# Stage 3: Integrated image with Ollama built-in
+# For single-container deployments (larger image, slower startup)
+# ========================================
 FROM ollama/ollama:latest AS ollama-base
 
-# Stage 2: Node.js runtime with Minions
-FROM node:20-slim AS minions
+FROM node:20-slim AS minions-integrated
 
 # Install required packages
 RUN apt-get update && apt-get install -y \
@@ -88,51 +144,3 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 
 # Run
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-
-
-# ========================================
-# Development image with full tooling
-# ========================================
-FROM minions AS minions-dev
-
-# Install dev dependencies
-RUN npm install
-RUN cd foundation && npm install
-
-ENV NODE_ENV=development
-
-# Override entrypoint for dev
-ENTRYPOINT ["node", "index.js", "--gru"]
-
-
-# ========================================
-# Slim image without Ollama (uses external AI)
-# ========================================
-FROM node:20-slim AS minions-slim
-
-RUN apt-get update && apt-get install -y \
-    curl \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
-
-COPY package*.json ./
-COPY foundation/package*.json ./foundation/
-
-RUN npm install --production
-RUN cd foundation && npm install --production
-
-COPY . .
-
-RUN mkdir -p /app/data/projects /app/data/decisions /app/.planner /app/.vision
-
-ENV NODE_ENV=production
-ENV MINIONS_PORT=2505
-
-EXPOSE 2505
-
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-    CMD curl -f http://localhost:2505/api/health || exit 1
-
-CMD ["node", "index.js", "--gru"]
