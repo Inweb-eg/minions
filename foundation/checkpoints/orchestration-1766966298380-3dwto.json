@@ -1,0 +1,19 @@
+{
+  "id": "orchestration-1766966298380-3dwto",
+  "operation": "orchestration",
+  "timestamp": 1766966298380,
+  "metadata": {
+    "changedFiles": [],
+    "timestamp": 1766966298380
+  },
+  "git": {
+    "branch": "main",
+    "commit": "d2a4cbcebdbcdd35a4de4827811bb52a914265b1",
+    "hasUncommittedChanges": true,
+    "stashRef": null
+  },
+  "files": [],
+  "status": "rolled_back",
+  "rollback_time": 1766966298622,
+  "rollback_reason": "Agent failures: failing-agent"
+}

@@ -358,23 +358,39 @@ async function runPhase4(minions) {
   log.system('Running framework tests...');
 
   try {
-    const testOutput = execSync('cd foundation && NODE_OPTIONS=--experimental-vm-modules npx jest --passWithNoTests --silent 2>&1 || true', {
-      encoding: 'utf-8',
-      timeout: 120000
-    });
+    // Use --forceExit to handle open handles from timers
+    const foundationDir = path.join(process.cwd(), 'foundation');
+    const testOutput = execSync(
+      `NODE_OPTIONS=--experimental-vm-modules npx jest --passWithNoTests --forceExit --no-coverage 2>&1 || true`,
+      {
+        encoding: 'utf-8',
+        timeout: 120000,
+        cwd: foundationDir
+      }
+    );
 
-    // Parse test results
-    const passMatch = testOutput.match(/(\d+) passed/);
-    const failMatch = testOutput.match(/(\d+) failed/);
+    // Parse test results - look for "Tests:" line specifically (not "Test Suites:")
+    const testsLineMatch = testOutput.match(/Tests:\s+(?:(\d+) failed,\s+)?(\d+) passed/);
 
-    testResults.testsPassed = passMatch ? parseInt(passMatch[1]) : 0;
-    testResults.testsFailed = failMatch ? parseInt(failMatch[1]) : 0;
-    testResults.testsRun = testResults.testsPassed + testResults.testsFailed;
+    if (testsLineMatch) {
+      testResults.testsFailed = testsLineMatch[1] ? parseInt(testsLineMatch[1]) : 0;
+      testResults.testsPassed = parseInt(testsLineMatch[2]);
+      testResults.testsRun = testResults.testsPassed + testResults.testsFailed;
+    } else {
+      // Fallback: count individual test lines
+      const passedTests = (testOutput.match(/✓/g) || []).length;
+      const failedTests = (testOutput.match(/✕/g) || []).length;
+      testResults.testsPassed = passedTests;
+      testResults.testsFailed = failedTests;
+      testResults.testsRun = passedTests + failedTests;
+    }
 
     if (testResults.testsFailed > 0) {
       log.error(`${testResults.testsFailed} tests failed`);
-    } else {
+    } else if (testResults.testsRun > 0) {
       log.success(`All ${testResults.testsRun} tests passed!`);
+    } else {
+      log.info('No tests found to run');
     }
   } catch (error) {
     log.error(`Test execution error: ${error.message}`);

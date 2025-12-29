@@ -1,0 +1,14 @@
+{
+  "id": "orchestration-1766966316017-axl2q",
+  "operation": "orchestration",
+  "timestamp": 1766966316017,
+  "metadata": {
+    "changedFiles": [],
+    "timestamp": 1766966316017
+  },
+  "git": null,
+  "files": [],
+  "status": "rolled_back",
+  "rollback_time": 1766966316130,
+  "rollback_reason": "Agent failures: failing-agent"
+}

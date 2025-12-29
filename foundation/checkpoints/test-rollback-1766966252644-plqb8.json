@@ -1,0 +1,11 @@
+{
+  "id": "test-rollback-1766966252644-plqb8",
+  "operation": "test-rollback",
+  "timestamp": 1766966252644,
+  "metadata": {},
+  "git": null,
+  "files": [],
+  "status": "rolled_back",
+  "rollback_time": 1766966252760,
+  "rollback_reason": "Integration test"
+}

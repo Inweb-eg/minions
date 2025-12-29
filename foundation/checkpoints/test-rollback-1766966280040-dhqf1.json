@@ -1,0 +1,14 @@
+{
+  "id": "test-rollback-1766966280040-dhqf1",
+  "operation": "test-rollback",
+  "timestamp": 1766966280040,
+  "metadata": {},
+  "git": {
+    "branch": "main",
+    "commit": "d2a4cbcebdbcdd35a4de4827811bb52a914265b1",
+    "hasUncommittedChanges": true,
+    "stashRef": null
+  },
+  "files": [],
+  "status": "active"
+}

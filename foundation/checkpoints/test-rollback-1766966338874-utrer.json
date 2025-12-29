@@ -1,0 +1,16 @@
+{
+  "id": "test-rollback-1766966338874-utrer",
+  "operation": "test-rollback",
+  "timestamp": 1766966338874,
+  "metadata": {},
+  "git": {
+    "branch": "main",
+    "commit": "d2a4cbcebdbcdd35a4de4827811bb52a914265b1",
+    "hasUncommittedChanges": true,
+    "stashRef": "5af651a2afaf37d06af93c13a45b7943cc93e0f8"
+  },
+  "files": [],
+  "status": "rolled_back",
+  "rollback_time": 1766966339337,
+  "rollback_reason": "Integration test"
+}
