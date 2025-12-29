@@ -32,6 +32,8 @@ class Orchestrator {
     this.executionQueue = [];
     this.executionResults = new Map();
     this.isExecuting = false;
+    this.validationAgents = []; // Agents that provide pre-execution validation (e.g., Tom)
+    this.requireValidation = true; // Whether to require validation before execution
   }
 
   /**
@@ -65,6 +67,80 @@ class Orchestrator {
     }
 
     logger.info(`Registered agent: ${agentName} (dependencies: ${dependencies.join(', ') || 'none'})`);
+  }
+
+  /**
+   * Register a validation agent (e.g., Tom for security validation)
+   * @param {object} agent - Agent with validateBeforeExecution method
+   */
+  registerValidationAgent(agent) {
+    if (agent && typeof agent.validateBeforeExecution === 'function') {
+      this.validationAgents.push(agent);
+      logger.info(`Registered validation agent: ${agent.name || agent.alias || 'unknown'}`);
+    } else {
+      logger.warn('Attempted to register invalid validation agent (missing validateBeforeExecution method)');
+    }
+  }
+
+  /**
+   * Unregister a validation agent
+   * @param {object} agent - Agent to unregister
+   */
+  unregisterValidationAgent(agent) {
+    const index = this.validationAgents.indexOf(agent);
+    if (index > -1) {
+      this.validationAgents.splice(index, 1);
+      logger.info(`Unregistered validation agent: ${agent.name || agent.alias || 'unknown'}`);
+    }
+  }
+
+  /**
+   * Run pre-execution validation with all registered validation agents
+   * @returns {object} Validation result with canProceed flag
+   */
+  async runPreExecutionValidation() {
+    if (!this.requireValidation || this.validationAgents.length === 0) {
+      return { canProceed: true, validations: [] };
+    }
+
+    logger.info('Running pre-execution validation...');
+    const validations = [];
+    let canProceed = true;
+
+    for (const agent of this.validationAgents) {
+      try {
+        const result = await agent.validateBeforeExecution();
+        validations.push({
+          agent: agent.name || agent.alias || 'unknown',
+          ...result
+        });
+
+        // Check if any critical errors prevent execution
+        if (!result.valid && result.errors?.some(e => e.severity === 'critical')) {
+          canProceed = false;
+          logger.warn(`Validation failed for ${agent.name || agent.alias}: critical errors found`);
+        }
+      } catch (error) {
+        logger.error(`Validation error for ${agent.name || agent.alias}: ${error.message}`);
+        validations.push({
+          agent: agent.name || agent.alias || 'unknown',
+          valid: false,
+          error: error.message
+        });
+      }
+    }
+
+    // Publish validation event
+    if (this.eventBus) {
+      this.eventBus.publish(EventTypes.PRE_EXECUTION_VALIDATION, {
+        canProceed,
+        validations,
+        timestamp: Date.now()
+      });
+    }
+
+    logger.info(`Pre-execution validation complete: ${canProceed ? 'PASSED' : 'FAILED'}`);
+    return { canProceed, validations };
   }
 
   /**
@@ -134,6 +210,12 @@ class Orchestrator {
     const startTime = Date.now();
 
     try {
+      // Run pre-execution validation
+      const validation = await this.runPreExecutionValidation();
+      if (!validation.canProceed) {
+        throw new Error(`Pre-execution validation failed: ${JSON.stringify(validation.validations)}`);
+      }
+
       // Create checkpoint before execution
       let checkpointId = null;
       if (this.rollbackManager) {
