@@ -90,8 +90,8 @@ async function startGru(options) {
     const { GruAgent } = await import('./agents/gru-agent/index.js');
     const { getNefarioAgent } = await import('./agents/nefario-agent/index.js');
 
-    // Import Silas and Lucy if available
-    let ProjectManagerAgent, ProjectCompletionAgent;
+    // Import Silas, Lucy, and Tom if available
+    let ProjectManagerAgent, ProjectCompletionAgent, SecurityRiskAgent;
     try {
       const silasModule = await import('./agents/project-manager-agent/index.js');
       ProjectManagerAgent = silasModule.ProjectManagerAgent;
@@ -104,6 +104,13 @@ async function startGru(options) {
       ProjectCompletionAgent = lucyModule.ProjectCompletionAgent;
     } catch (e) {
       logger.warn('ProjectCompletionAgent (Lucy) not available');
+    }
+
+    try {
+      const tomModule = await import('./agents/security-risk-agent/index.js');
+      SecurityRiskAgent = tomModule.SecurityRiskAgent;
+    } catch (e) {
+      logger.warn('SecurityRiskAgent (Tom) not available');
     }
 
     // Create Gru instance
@@ -148,6 +155,18 @@ async function startGru(options) {
       }
     }
 
+    // Add Tom if available
+    if (SecurityRiskAgent) {
+      try {
+        const tom = SecurityRiskAgent.getInstance();
+        await tom.initialize();
+        agents.tom = tom;
+        logger.info('Tom (SecurityRisk) connected');
+      } catch (e) {
+        logger.warn(`Failed to initialize Tom: ${e.message}`);
+      }
+    }
+
     // Connect all agents to Gru
     gru.setAgents(agents);
 
@@ -166,6 +185,7 @@ async function startGru(options) {
 
       if (agents.silas) await agents.silas.shutdown();
       if (agents.lucy) await agents.lucy.shutdown();
+      if (agents.tom) await agents.tom.shutdown();
 
       logger.info('Minions shutdown complete');
       process.exit(0);
