@@ -2371,6 +2371,206 @@ const status = lucy.getStatus();
 
 ---
 
+### SecurityRiskAgent (Tom)
+
+Security scanning, risk management, and pre-execution validation agent.
+
+#### getSecurityRiskAgent(options)
+
+```javascript
+import { SecurityRiskAgent, SecurityEvents } from 'minions/client-interface';
+
+const tom = SecurityRiskAgent.getInstance({
+  projectRoot: process.cwd()
+});
+
+await tom.initialize(eventBus);
+```
+
+#### SecurityEvents
+
+```javascript
+// Scanning events
+SecurityEvents.SCAN_STARTED        // Security scan started
+SecurityEvents.SCAN_COMPLETED      // Security scan completed
+SecurityEvents.VULNERABILITY_FOUND // Vulnerability detected
+SecurityEvents.SECRET_DETECTED     // Hardcoded secret found
+
+// Risk events
+SecurityEvents.RISK_IDENTIFIED     // New risk identified
+SecurityEvents.RISK_MITIGATED      // Risk has been mitigated
+SecurityEvents.RISK_UPDATED        // Risk status updated
+SecurityEvents.RISK_ESCALATED      // Risk escalated (severity increased)
+
+// Threat events
+SecurityEvents.THREAT_ADDED        // New threat added to model
+SecurityEvents.THREAT_UPDATED      // Threat updated
+SecurityEvents.THREAT_MITIGATED    // Threat mitigated
+
+// Validation events
+SecurityEvents.VALIDATION_STARTED  // Pre-execution validation started
+SecurityEvents.VALIDATION_PASSED   // Validation passed
+SecurityEvents.VALIDATION_FAILED   // Validation failed
+
+// Audit events
+SecurityEvents.AUDIT_ENTRY         // Audit log entry
+SecurityEvents.AUDIT_ALERT         // Security alert triggered
+
+// Ops events
+SecurityEvents.OPS_VALIDATED       // Environment validated
+SecurityEvents.OPS_ISSUE_FOUND     // Environment issue found
+
+// General
+SecurityEvents.SECURITY_ERROR      // Error occurred
+```
+
+#### tom.scan(projectPath)
+
+Perform a full security scan on a project.
+
+```javascript
+const result = await tom.scan('/path/to/project');
+// {
+//   success: true,
+//   secrets: [{ file, line, type, severity }],
+//   vulnerabilities: [{ file, line, type, severity, description }],
+//   risks: [{ id, description, severity, status }]
+// }
+```
+
+#### tom.scanBeforeCommit()
+
+Perform pre-commit security validation.
+
+```javascript
+const result = await tom.scanBeforeCommit();
+// {
+//   canCommit: true|false,
+//   issues: [{ type, severity, file, description }],
+//   blockers: [...],  // Critical issues that block commit
+//   warnings: [...]   // Non-blocking issues
+// }
+```
+
+#### tom.identifyRisk(risk)
+
+Add a new risk to the risk register.
+
+```javascript
+const risk = await tom.identifyRisk({
+  description: 'SQL injection vulnerability in user input',
+  severity: 'critical',
+  category: 'security',
+  source: 'security-scan'
+});
+// { id: 'risk-123', status: 'identified', ... }
+```
+
+#### tom.mitigateRisk(riskId, mitigation)
+
+Mark a risk as mitigated.
+
+```javascript
+const result = await tom.mitigateRisk('risk-123', {
+  action: 'Implemented parameterized queries',
+  verifiedBy: 'security-scan'
+});
+// { success: true, risk: { id, status: 'mitigated', ... } }
+```
+
+#### tom.addThreat(threat)
+
+Add a threat to the STRIDE threat model.
+
+```javascript
+const threat = await tom.addThreat({
+  category: 'spoofing',  // spoofing, tampering, repudiation, info_disclosure, dos, elevation
+  description: 'User session hijacking via XSS',
+  target: 'Authentication system',
+  severity: 'high'
+});
+// { id: 'threat-456', status: 'identified', ... }
+```
+
+#### tom.validateBeforeExecution()
+
+Pre-execution validation for orchestrator integration.
+
+```javascript
+const result = await tom.validateBeforeExecution();
+// {
+//   valid: true|false,
+//   errors: [{ type, severity, message }],  // Critical errors block execution
+//   warnings: [{ type, severity, message }], // Non-blocking issues
+//   agent: 'Tom',
+//   files: ['risks.json', 'security/', 'ops/']
+// }
+```
+
+#### tom.getStatus()
+
+Get current agent status.
+
+```javascript
+const status = tom.getStatus();
+// {
+//   name: 'SecurityRiskAgent',
+//   alias: 'Tom',
+//   state: 'IDLE',
+//   currentProject: { name, path },
+//   metrics: {
+//     scansCompleted: 15,
+//     risksIdentified: 8,
+//     risksMitigated: 5,
+//     threatsModeled: 12,
+//     secretsDetected: 2,
+//     vulnerabilitiesFound: 7,
+//     lastScan: timestamp
+//   }
+// }
+```
+
+#### tom.getRiskSummary()
+
+Get summary of all tracked risks.
+
+```javascript
+const summary = await tom.getRiskSummary();
+// {
+//   total: 10,
+//   bySeverity: { critical: 1, high: 3, medium: 4, low: 2 },
+//   byStatus: { identified: 4, mitigating: 2, mitigated: 3, accepted: 1 }
+// }
+```
+
+#### Sub-components
+
+**ThreatModeler** - STRIDE threat modeling
+```javascript
+const threats = await tom.threatModeler.getThreats();
+const byCategory = await tom.threatModeler.getThreatsByCategory('spoofing');
+```
+
+**RiskTracker** - Risk register management
+```javascript
+const risks = await tom.riskTracker.getRisks();
+const critical = await tom.riskTracker.getRisksBySeverity('critical');
+```
+
+**AuditLogger** - Audit trail and alerts
+```javascript
+await tom.auditLogger.log({ action: 'deployment', details: {...} });
+const alerts = await tom.auditLogger.getActiveAlerts();
+```
+
+**OpsValidator** - Environment validation
+```javascript
+const envResult = await tom.opsValidator.validateEnvironment('production');
+const secrets = await tom.opsValidator.detectSecrets('/path/to/code');
+```
+
+---
+
 ## Skills
 
 ### BaseSkill

@@ -11,6 +11,7 @@ Deep dive into the Minions framework architecture.
   - [Dr. Nefario Agent](#dr-nefario-agent)
   - [Silas - Project Manager](#silas---project-manager)
   - [Lucy - Project Completion](#lucy---project-completion)
+  - [Tom - Security & Risk](#tom---security--risk)
 - [Phase 0: Foundation Enhancements](#phase-0-foundation-enhancements)
 - [Phase 1: Vision Agent](#phase-1-vision-agent)
 - [Phase 2: Architect Agent](#phase-2-architect-agent)
@@ -438,6 +439,12 @@ The Client Interface System provides a web-based interface for human interaction
 │  │   - Framework detection         │ │   - Gap detection & resolution      ││
 │  │   - Project registry            │ │   - Progress tracking               ││
 │  └─────────────────────────────────┘ └─────────────────────────────────────┘│
+│  ┌─────────────────────────────────────────────────────────────────────────┐│
+│  │                      Tom - SecurityRiskAgent                             ││
+│  │   - Security scanning & vulnerability detection                          ││
+│  │   - Risk tracking & threat modeling (STRIDE)                             ││
+│  │   - Pre-execution validation for orchestrator                            ││
+│  └─────────────────────────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -663,6 +670,83 @@ while (progress < targetCompletion && iteration < maxIterations):
 - `failing_tests` - Tests not passing
 - `security_issues` - Vulnerability detected
 - `performance_issues` - Slow code paths
+
+### Tom - Security & Risk
+
+Security scanning, risk management, and pre-execution validation agent.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    SecurityRiskAgent (Tom)                       │
+├─────────────────────────────────────────────────────────────────┤
+│  State: IDLE → SCANNING → ANALYZING → VALIDATING → ERROR        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐ │
+│  │  ThreatModeler  │  │   RiskTracker   │  │   AuditLogger   │ │
+│  │                 │  │                 │  │                 │ │
+│  │ - STRIDE model  │  │ - Risk register │  │ - Audit trail   │ │
+│  │ - Add threats   │  │ - Severity calc │  │ - Alerts        │ │
+│  │ - Mitigations   │  │ - Status track  │  │ - Reports       │ │
+│  └─────────────────┘  └─────────────────┘  └─────────────────┘ │
+│                                                                  │
+│  ┌─────────────────────────────────────────────────────────────┐│
+│  │                      OpsValidator                            ││
+│  │  - Environment validation (dev/staging/prod)                 ││
+│  │  - Secret detection (hardcoded passwords, API keys)         ││
+│  │  - Environment comparison and drift detection                ││
+│  └─────────────────────────────────────────────────────────────┘│
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Security Scan Flow:**
+```
+scan(projectPath)
+    ↓
+    Phase 1: Secret Detection
+    ├─→ Scan for API keys, passwords, tokens
+    └─→ Emit SECRET_DETECTED if found
+    ↓
+    Phase 2: Vulnerability Scan
+    ├─→ Check dependencies, code patterns
+    └─→ Emit VULNERABILITY_FOUND for each issue
+    ↓
+    Phase 3: Risk Assessment
+    ├─→ RiskTracker.identifyRisk() for each vulnerability
+    └─→ Calculate severity (critical/high/medium/low)
+    ↓
+    Return scan results with risk summary
+```
+
+**Pre-Execution Validation (Orchestrator Integration):**
+```
+validateBeforeExecution()
+    ↓
+    Check risks.json for unmitigated critical risks
+    ↓
+    Check security/ folder exists with required files
+    ↓
+    Check ops/environments.json for valid configs
+    ↓
+    Return { valid, errors[], warnings[] }
+    ↓
+    Orchestrator blocks execution if critical errors found
+```
+
+**Managed Files:**
+- `risks.json` - Risk register with severity tracking
+- `security/threat-model.json` - STRIDE threat model
+- `security/permissions.json` - RBAC configuration
+- `security/audit-log.json` - Audit trail
+- `ops/environments.json` - Environment configurations
+
+**SecurityEvents (19 event types):**
+- Scanning: `SCAN_STARTED`, `SCAN_COMPLETED`, `VULNERABILITY_FOUND`, `SECRET_DETECTED`
+- Risk: `RISK_IDENTIFIED`, `RISK_MITIGATED`, `RISK_UPDATED`, `RISK_ESCALATED`
+- Threats: `THREAT_ADDED`, `THREAT_UPDATED`, `THREAT_MITIGATED`
+- Validation: `VALIDATION_STARTED`, `VALIDATION_PASSED`, `VALIDATION_FAILED`
+- Audit: `AUDIT_ENTRY`, `AUDIT_ALERT`
+- Ops: `OPS_VALIDATED`, `OPS_ISSUE_FOUND`
 
 ### Docker Deployment
 

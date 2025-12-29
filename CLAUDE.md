@@ -52,6 +52,9 @@ Minions is an event-driven framework for orchestrating autonomous AI agents. The
    - `AGENT_STARTED/COMPLETED/FAILED` - Lifecycle events
    - `TESTS_STARTED/COMPLETED/FAILED` - Test events
    - `AUTO_FIX_REQUESTED/FIX_COMPLETED` - Fix cycle events
+   - `SECURITY_*` - Security scanning, risk, threat, validation, audit events (Tom)
+   - `PROJECT_*` - Project management events (Silas)
+   - `COMPLETION_*` - Project completion events (Lucy)
 
 3. **Agent Registration**: Agents register with the orchestrator using a loader function pattern:
    ```javascript
@@ -95,6 +98,13 @@ Detailed documentation is available in the `docs/` folder:
 - Autonomous completion loops
 - Gap detection and resolution
 - Components: `GapDetector.js`, `CompletionTracker.js`, `ContinuousLoop.js`
+
+**Security & Risk (Tom)** (`agents/security-risk-agent/`):
+- Security scanning and vulnerability detection
+- Risk tracking and threat modeling (STRIDE)
+- Pre-execution validation for orchestrator
+- Components: `ThreatModeler.js`, `RiskTracker.js`, `AuditLogger.js`, `OpsValidator.js`
+- Events: `SecurityEvents` (19 event types for scanning, risks, threats, validation, audit, ops)
 
 ## Docker Setup
 
