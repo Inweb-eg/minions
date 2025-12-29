@@ -820,93 +820,83 @@ node cli/index.js generate flutter widget --name MyWidget --config minions.confi
 
 ## Self-Evolution Pipeline
 
-Minions includes a self-evolution capability that allows the framework to improve itself through an automated multi-phase pipeline.
+Minions is a **self-improving framework**. Describe what you want in markdown, and it will analyze, plan, generate code, and test automatically.
 
-### Evolution Phases
+### Quick Start: Extend Minions
 
-| Phase | What It Does |
-|-------|--------------|
-| 1 | Vision Agent parses evolution plan, Architect designs blueprint |
-| 2 | Decomposes features into Epics → Stories → Tasks with acceptance criteria |
-| 3 | Generates code from work items using writer agents |
-| 4 | Runs build and test cycles, applies fixes via autonomous loop |
-
-### Running Evolution
-
-```bash
-# Run full evolution with auto-commits
-node evolve.js
-
-# Skip git commits
-node evolve.js --no-commit
-
-# Start from a specific phase
-node evolve.js --phase=3
-
-# Preview without executing
-node evolve.js --dry-run
-
-# Continue past failures
-node evolve.js --continue-on-error
-```
-
-### Evolution Input File
-
-Create `minions-self-evolution-plan.md` in the project root:
+**1. Write your evolution plan** (`minions-self-evolution-plan.md`):
 
 ```markdown
-# Evolution Plan
+# My Evolution Plan
 
 ## Features
 
-### Feature 1: New Capability
-Description of what to build...
+### New Agent: Slack Notifier
+Send Slack notifications on build events.
+- Subscribe to AGENT_FAILED events
+- Format messages with error details
+- Support multiple channels
 
-### Feature 2: Enhancement
-Description of improvement...
+### Enhancement: Retry Logic
+Add automatic retry for transient failures.
+- Configurable retry count (default: 3)
+- Exponential backoff
+- Skip for permanent failures
 
 ## Requirements
-- Must be backwards compatible
-- Must include tests
+- Backwards compatible
+- Include unit tests
 ```
 
-The Vision Agent parses this document and extracts:
-- Features to implement
-- Requirements and constraints
-- Priority ordering
-
-### Git Integration
-
-With auto-commits enabled (default), each phase commits its changes:
-
-```
-feat(evolution): Phase 1 - Analysis complete
-feat(evolution): Phase 2 - Feature decomposition complete
-feat(evolution): Phase 3 - Code generation complete
-feat(evolution): Phase 4 - Test and fix cycle complete
-```
-
-### Example: Running a Full Evolution
+**2. Run evolution:**
 
 ```bash
-# 1. Create your evolution plan
-cat > minions-self-evolution-plan.md << 'EOF'
-# Minions Evolution Plan
-
-## Features
-
-### Enhanced Logging
-Add structured logging with log levels and JSON output.
-
-### Performance Metrics
-Track execution times and memory usage per agent.
-EOF
-
-# 2. Run the evolution
 node evolve.js
+```
 
-# 3. Review the commits
-git log --oneline -5
+**3. Review generated code** in `generated/` folder and commits in git log.
+
+### What Happens During Evolution
+
+| Phase | Description |
+|-------|-------------|
+| 1 | **Analysis** - Vision Agent reads plan, Architect creates blueprint |
+| 2 | **Decomposition** - Features → Epics → Stories → Tasks |
+| 3 | **Code Generation** - Writer agents generate code |
+| 4 | **Test & Fix** - Run tests, auto-fix failures |
+
+### CLI Options
+
+```bash
+node evolve.js                     # Full evolution with commits
+node evolve.js --no-commit         # Skip git commits
+node evolve.js --phase=2           # Start from phase 2
+node evolve.js --dry-run           # Preview only
+node evolve.js --continue-on-error # Don't stop on failures
+```
+
+### Writing Effective Evolution Plans
+
+**Do:**
+- Be specific about what you want built
+- Include acceptance criteria
+- Reference existing patterns ("like TesterAgent")
+- List feature dependencies
+
+**Example - Good:**
+```markdown
+### Rate Limiter Middleware
+Add Express middleware to limit API requests.
+- 100 requests per minute per IP
+- Return 429 status when exceeded
+- Configurable via environment variables
+- Similar to existing auth middleware pattern
+```
+
+**Example - Too Vague:**
+```markdown
+### Better Performance
+Make the system faster.
 ```
 
 ---

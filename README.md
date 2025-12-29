@@ -705,66 +705,77 @@ minions/
 
 ## Self-Evolution
 
-Minions can evolve itself through an automated multi-phase pipeline that analyzes plans, decomposes features, generates code, and runs test cycles.
+Minions is a **self-improving framework**. You can extend it by describing what you want in markdown, and Minions will analyze, plan, generate code, and test automatically.
 
-### Evolution Phases
+### How to Extend Minions
 
-| Phase | Description |
-|-------|-------------|
-| 1 | **Analysis** - Vision Agent parses evolution plan, Architect designs blueprint |
-| 2 | **Decomposition** - Breaks features into Epics → Stories → Tasks |
-| 3 | **Code Generation** - Writer agents generate code from work items |
-| 4 | **Test & Fix** - Runs build and test cycles, applies fixes |
+**Step 1: Write your evolution plan**
 
-### Running Evolution
+Create or edit `minions-self-evolution-plan.md`:
 
-```bash
-# Run full evolution with git commits after each phase
-node evolve.js
+```markdown
+# My Evolution Plan
 
-# Run without git commits
-node evolve.js --no-commit
+## Features
 
-# Start from a specific phase
-node evolve.js --phase=2
+### New Agent: Email Notifier
+Create an agent that sends email notifications when builds fail.
+- Should integrate with SendGrid API
+- Support HTML templates
+- Rate limiting to prevent spam
 
-# Dry run (show what would happen without executing)
-node evolve.js --dry-run
+### Enhancement: Better Logging
+Add structured JSON logging with correlation IDs.
+- Log levels: debug, info, warn, error
+- Include timestamp, agent name, event type
 
-# Continue even if a phase fails
-node evolve.js --continue-on-error
+## Requirements
+- Must be backwards compatible
+- Include unit tests for all new code
+- Follow existing code patterns
 ```
 
-### CLI Options
+**Step 2: Run evolution**
 
-| Option | Description |
-|--------|-------------|
-| `--no-commit` | Skip automatic git commits after each phase |
-| `--phase=N` | Start from phase N (1-4) |
-| `--dry-run` | Show what would be executed without running |
-| `--continue-on-error` | Don't stop if a phase fails |
+```bash
+node evolve.js
+```
 
-### Evolution Input
+**Step 3: Review the commits**
 
-The evolution process reads from `minions-self-evolution-plan.md` in the project root. This markdown file describes:
-
-- Features to implement
-- Requirements and constraints
-- Architecture decisions
-- Priority ordering
-
-The Vision Agent parses this document to extract actionable work items.
-
-### Git Integration
-
-When running with automatic commits (default), each phase creates a commit:
-
+Each phase auto-commits its changes:
 ```
 feat(evolution): Phase 1 - Analysis complete
 feat(evolution): Phase 2 - Feature decomposition complete
 feat(evolution): Phase 3 - Code generation complete
 feat(evolution): Phase 4 - Test and fix cycle complete
 ```
+
+### Evolution Phases
+
+| Phase | What Happens |
+|-------|--------------|
+| 1 | Vision Agent reads your plan, Architect creates blueprint |
+| 2 | Features decomposed into Epics → Stories → Tasks |
+| 3 | Writer agents generate code in `generated/` folder |
+| 4 | Tests run, failures auto-fixed via autonomous loop |
+
+### CLI Options
+
+```bash
+node evolve.js                     # Full evolution with commits
+node evolve.js --no-commit         # Skip git commits
+node evolve.js --phase=2           # Start from phase 2
+node evolve.js --dry-run           # Preview without executing
+node evolve.js --continue-on-error # Don't stop on failures
+```
+
+### Tips for Writing Evolution Plans
+
+- **Be specific** - "Add rate limiting" is better than "improve performance"
+- **Include acceptance criteria** - What does "done" look like?
+- **Reference existing patterns** - "Similar to TesterAgent" helps the generator
+- **List dependencies** - If feature B needs feature A, say so
 
 ## Configuration
 
