@@ -709,42 +709,30 @@ Minions can evolve itself through an automated multi-phase pipeline that analyze
 
 ### Evolution Phases
 
-| Phase | Script | Description |
-|-------|--------|-------------|
-| 1 | `evolve.js` | **Analysis** - Vision Agent parses evolution plan, Architect designs blueprint, Planner creates execution roadmap |
-| 2 | `evolve-phase2.js` | **Decomposition** - Breaks features into Epics → Stories → Tasks with acceptance criteria |
-| 3 | `evolve-phase3.js` | **Code Generation** - Generates code from work items using writer agents |
-| 4 | `evolve-phase4.js` | **Test & Fix** - Runs build and test cycles, applies fixes using autonomous loop |
+| Phase | Description |
+|-------|-------------|
+| 1 | **Analysis** - Vision Agent parses evolution plan, Architect designs blueprint |
+| 2 | **Decomposition** - Breaks features into Epics → Stories → Tasks |
+| 3 | **Code Generation** - Writer agents generate code from work items |
+| 4 | **Test & Fix** - Runs build and test cycles, applies fixes |
 
-### Running Evolution Manually
-
-```bash
-# Run each phase individually
-node evolve.js          # Phase 1: Analysis
-node evolve-phase2.js   # Phase 2: Decomposition
-node evolve-phase3.js   # Phase 3: Code Generation
-node evolve-phase4.js   # Phase 4: Test & Fix
-```
-
-### Automated Evolution Pipeline
-
-Use `evolve-auto.js` to run all phases automatically with optional git commits:
+### Running Evolution
 
 ```bash
-# Run full automated evolution with git commits after each phase
-node evolve-auto.js
+# Run full evolution with git commits after each phase
+node evolve.js
 
 # Run without git commits
-node evolve-auto.js --no-commit
+node evolve.js --no-commit
 
 # Start from a specific phase
-node evolve-auto.js --phase=2
+node evolve.js --phase=2
 
 # Dry run (show what would happen without executing)
-node evolve-auto.js --dry-run
+node evolve.js --dry-run
 
 # Continue even if a phase fails
-node evolve-auto.js --continue-on-error
+node evolve.js --continue-on-error
 ```
 
 ### CLI Options

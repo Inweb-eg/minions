@@ -822,50 +822,32 @@ node cli/index.js generate flutter widget --name MyWidget --config minions.confi
 
 Minions includes a self-evolution capability that allows the framework to improve itself through an automated multi-phase pipeline.
 
-### Evolution Phases Overview
+### Evolution Phases
 
-| Phase | Script | What It Does |
-|-------|--------|--------------|
-| 1 | `evolve.js` | Vision Agent parses evolution plan, Architect designs blueprint, Planner creates roadmap |
-| 2 | `evolve-phase2.js` | Decomposes features into Epics → Stories → Tasks with acceptance criteria |
-| 3 | `evolve-phase3.js` | Generates code from work items using writer agents |
-| 4 | `evolve-phase4.js` | Runs build and test cycles, applies fixes via autonomous loop |
+| Phase | What It Does |
+|-------|--------------|
+| 1 | Vision Agent parses evolution plan, Architect designs blueprint |
+| 2 | Decomposes features into Epics → Stories → Tasks with acceptance criteria |
+| 3 | Generates code from work items using writer agents |
+| 4 | Runs build and test cycles, applies fixes via autonomous loop |
 
-### Running Individual Phases
-
-```bash
-# Phase 1: Analysis
-node evolve.js
-
-# Phase 2: Feature Decomposition
-node evolve-phase2.js
-
-# Phase 3: Code Generation
-node evolve-phase3.js
-
-# Phase 4: Test & Fix Cycle
-node evolve-phase4.js
-```
-
-### Automated Pipeline
-
-Use `evolve-auto.js` to run all phases with automatic git commits:
+### Running Evolution
 
 ```bash
 # Run full evolution with auto-commits
-node evolve-auto.js
+node evolve.js
 
 # Skip git commits
-node evolve-auto.js --no-commit
+node evolve.js --no-commit
 
 # Start from a specific phase
-node evolve-auto.js --phase=3
+node evolve.js --phase=3
 
 # Preview without executing
-node evolve-auto.js --dry-run
+node evolve.js --dry-run
 
 # Continue past failures
-node evolve-auto.js --continue-on-error
+node evolve.js --continue-on-error
 ```
 
 ### Evolution Input File
@@ -920,8 +902,8 @@ Add structured logging with log levels and JSON output.
 Track execution times and memory usage per agent.
 EOF
 
-# 2. Run the automated evolution
-node evolve-auto.js
+# 2. Run the evolution
+node evolve.js
 
 # 3. Review the commits
 git log --oneline -5
