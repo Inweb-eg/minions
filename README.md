@@ -29,6 +29,7 @@ Minions is an event-driven framework for building and orchestrating multiple AI 
 - **Checkpoint & Rollback** - Git-aware checkpointing for safe failure recovery
 - **Built-in Skills** - Auto-fixer, code review, security scanning, dependency analysis, test generation
 - **Specialized Agents** - Pre-built agents for testing, Docker, GitHub, codebase analysis, and documentation
+- **Self-Evolution** - Automated pipeline to evolve the framework itself through analysis, planning, code generation, and testing
 
 ## Architecture
 
@@ -700,6 +701,81 @@ minions/
     ├── getting-started.md
     ├── creating-agents.md
     └── skills-guide.md
+```
+
+## Self-Evolution
+
+Minions can evolve itself through an automated multi-phase pipeline that analyzes plans, decomposes features, generates code, and runs test cycles.
+
+### Evolution Phases
+
+| Phase | Script | Description |
+|-------|--------|-------------|
+| 1 | `evolve.js` | **Analysis** - Vision Agent parses evolution plan, Architect designs blueprint, Planner creates execution roadmap |
+| 2 | `evolve-phase2.js` | **Decomposition** - Breaks features into Epics → Stories → Tasks with acceptance criteria |
+| 3 | `evolve-phase3.js` | **Code Generation** - Generates code from work items using writer agents |
+| 4 | `evolve-phase4.js` | **Test & Fix** - Runs build and test cycles, applies fixes using autonomous loop |
+
+### Running Evolution Manually
+
+```bash
+# Run each phase individually
+node evolve.js          # Phase 1: Analysis
+node evolve-phase2.js   # Phase 2: Decomposition
+node evolve-phase3.js   # Phase 3: Code Generation
+node evolve-phase4.js   # Phase 4: Test & Fix
+```
+
+### Automated Evolution Pipeline
+
+Use `evolve-auto.js` to run all phases automatically with optional git commits:
+
+```bash
+# Run full automated evolution with git commits after each phase
+node evolve-auto.js
+
+# Run without git commits
+node evolve-auto.js --no-commit
+
+# Start from a specific phase
+node evolve-auto.js --phase=2
+
+# Dry run (show what would happen without executing)
+node evolve-auto.js --dry-run
+
+# Continue even if a phase fails
+node evolve-auto.js --continue-on-error
+```
+
+### CLI Options
+
+| Option | Description |
+|--------|-------------|
+| `--no-commit` | Skip automatic git commits after each phase |
+| `--phase=N` | Start from phase N (1-4) |
+| `--dry-run` | Show what would be executed without running |
+| `--continue-on-error` | Don't stop if a phase fails |
+
+### Evolution Input
+
+The evolution process reads from `minions-self-evolution-plan.md` in the project root. This markdown file describes:
+
+- Features to implement
+- Requirements and constraints
+- Architecture decisions
+- Priority ordering
+
+The Vision Agent parses this document to extract actionable work items.
+
+### Git Integration
+
+When running with automatic commits (default), each phase creates a commit:
+
+```
+feat(evolution): Phase 1 - Analysis complete
+feat(evolution): Phase 2 - Feature decomposition complete
+feat(evolution): Phase 3 - Code generation complete
+feat(evolution): Phase 4 - Test and fix cycle complete
 ```
 
 ## Configuration

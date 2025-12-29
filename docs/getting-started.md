@@ -15,6 +15,7 @@ A step-by-step guide to get up and running with the Minions framework.
 - [Phase 1-3: Strategic Planning Agents](#phase-1-3-strategic-planning-agents)
 - [Code Writer Agents](#code-writer-agents)
 - [CLI Usage](#cli-usage)
+- [Self-Evolution Pipeline](#self-evolution-pipeline)
 - [Next Steps](#next-steps)
 
 ---
@@ -813,6 +814,117 @@ Then run:
 
 ```bash
 node cli/index.js generate flutter widget --name MyWidget --config minions.config.json
+```
+
+---
+
+## Self-Evolution Pipeline
+
+Minions includes a self-evolution capability that allows the framework to improve itself through an automated multi-phase pipeline.
+
+### Evolution Phases Overview
+
+| Phase | Script | What It Does |
+|-------|--------|--------------|
+| 1 | `evolve.js` | Vision Agent parses evolution plan, Architect designs blueprint, Planner creates roadmap |
+| 2 | `evolve-phase2.js` | Decomposes features into Epics → Stories → Tasks with acceptance criteria |
+| 3 | `evolve-phase3.js` | Generates code from work items using writer agents |
+| 4 | `evolve-phase4.js` | Runs build and test cycles, applies fixes via autonomous loop |
+
+### Running Individual Phases
+
+```bash
+# Phase 1: Analysis
+node evolve.js
+
+# Phase 2: Feature Decomposition
+node evolve-phase2.js
+
+# Phase 3: Code Generation
+node evolve-phase3.js
+
+# Phase 4: Test & Fix Cycle
+node evolve-phase4.js
+```
+
+### Automated Pipeline
+
+Use `evolve-auto.js` to run all phases with automatic git commits:
+
+```bash
+# Run full evolution with auto-commits
+node evolve-auto.js
+
+# Skip git commits
+node evolve-auto.js --no-commit
+
+# Start from a specific phase
+node evolve-auto.js --phase=3
+
+# Preview without executing
+node evolve-auto.js --dry-run
+
+# Continue past failures
+node evolve-auto.js --continue-on-error
+```
+
+### Evolution Input File
+
+Create `minions-self-evolution-plan.md` in the project root:
+
+```markdown
+# Evolution Plan
+
+## Features
+
+### Feature 1: New Capability
+Description of what to build...
+
+### Feature 2: Enhancement
+Description of improvement...
+
+## Requirements
+- Must be backwards compatible
+- Must include tests
+```
+
+The Vision Agent parses this document and extracts:
+- Features to implement
+- Requirements and constraints
+- Priority ordering
+
+### Git Integration
+
+With auto-commits enabled (default), each phase commits its changes:
+
+```
+feat(evolution): Phase 1 - Analysis complete
+feat(evolution): Phase 2 - Feature decomposition complete
+feat(evolution): Phase 3 - Code generation complete
+feat(evolution): Phase 4 - Test and fix cycle complete
+```
+
+### Example: Running a Full Evolution
+
+```bash
+# 1. Create your evolution plan
+cat > minions-self-evolution-plan.md << 'EOF'
+# Minions Evolution Plan
+
+## Features
+
+### Enhanced Logging
+Add structured logging with log levels and JSON output.
+
+### Performance Metrics
+Track execution times and memory usage per agent.
+EOF
+
+# 2. Run the automated evolution
+node evolve-auto.js
+
+# 3. Review the commits
+git log --oneline -5
 ```
 
 ---
