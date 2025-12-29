@@ -501,48 +501,7 @@
         "type": "CORE",
         "status": "planned",
         "source": "Phase 1: Self-Analysis & Discovery (Week 1)",
-        "isFromTitle": true,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-title-section-19-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify data flows correctly between systems",
-            "format": "given_when_then",
-            "given": "the external service is available",
-            "when": "the 2: code self-examination integration is triggered",
-            "then": "data should be exchanged correctly",
-            "description": "Given the external service is available, when the 2: code self-examination integration is triggered, then data should be exchanged correctly",
-            "itemId": "feature-title-section-19",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.348Z"
-          },
-          {
-            "id": "ac-feature-title-section-19-2",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "Simulate service failure and verify fallback behavior",
-            "format": "given_when_then",
-            "given": "the external service is unavailable",
-            "when": "the 2: code self-examination integration is triggered",
-            "then": "the system should handle the failure gracefully",
-            "description": "Given the external service is unavailable, when the 2: code self-examination integration is triggered, then the system should handle the failure gracefully",
-            "itemId": "feature-title-section-19",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.348Z"
-          },
-          {
-            "id": "ac-feature-title-section-19-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The 2: Code Self-Examination should handle errors gracefully",
-            "itemId": "feature-title-section-19",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.348Z"
-          }
-        ]
+        "isFromTitle": true
       },
       {
         "id": "feature-title-section-20",
@@ -551,62 +510,7 @@
         "type": "CORE",
         "status": "planned",
         "source": "Phase 1: Self-Analysis & Discovery (Week 1)",
-        "isFromTitle": true,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-title-section-20-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify the expected outcome occurs",
-            "format": "given_when_then",
-            "given": "a user with appropriate permissions",
-            "when": "they attempt to 4: dream mode exploration",
-            "then": "the action should complete successfully",
-            "description": "Given a user with appropriate permissions, when they attempt to 4: dream mode exploration, then the action should complete successfully",
-            "itemId": "feature-title-section-20",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.398Z"
-          },
-          {
-            "id": "ac-feature-title-section-20-2",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify data flows correctly between systems",
-            "format": "given_when_then",
-            "given": "the external service is available",
-            "when": "the 4: dream mode exploration integration is triggered",
-            "then": "data should be exchanged correctly",
-            "description": "Given the external service is available, when the 4: dream mode exploration integration is triggered, then data should be exchanged correctly",
-            "itemId": "feature-title-section-20",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.398Z"
-          },
-          {
-            "id": "ac-feature-title-section-20-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "Simulate service failure and verify fallback behavior",
-            "format": "given_when_then",
-            "given": "the external service is unavailable",
-            "when": "the 4: dream mode exploration integration is triggered",
-            "then": "the system should handle the failure gracefully",
-            "description": "Given the external service is unavailable, when the 4: dream mode exploration integration is triggered, then the system should handle the failure gracefully",
-            "itemId": "feature-title-section-20",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.398Z"
-          },
-          {
-            "id": "ac-feature-title-section-20-4",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The 4: Dream Mode Exploration should handle errors gracefully",
-            "itemId": "feature-title-section-20",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.398Z"
-          }
-        ]
+        "isFromTitle": true
       },
       {
         "id": "feature-title-section-21",
@@ -615,48 +519,7 @@
         "type": "CORE",
         "status": "planned",
         "source": "Phase 1: Self-Analysis & Discovery (Week 1)",
-        "isFromTitle": true,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-title-section-21-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify data flows correctly between systems",
-            "format": "given_when_then",
-            "given": "the external service is available",
-            "when": "the collective intelligence gathering integration is triggered",
-            "then": "data should be exchanged correctly",
-            "description": "Given the external service is available, when the collective intelligence gathering integration is triggered, then data should be exchanged correctly",
-            "itemId": "feature-title-section-21",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.434Z"
-          },
-          {
-            "id": "ac-feature-title-section-21-2",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "Simulate service failure and verify fallback behavior",
-            "format": "given_when_then",
-            "given": "the external service is unavailable",
-            "when": "the collective intelligence gathering integration is triggered",
-            "then": "the system should handle the failure gracefully",
-            "description": "Given the external service is unavailable, when the collective intelligence gathering integration is triggered, then the system should handle the failure gracefully",
-            "itemId": "feature-title-section-21",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.434Z"
-          },
-          {
-            "id": "ac-feature-title-section-21-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The Collective Intelligence Gathering should handle errors gracefully",
-            "itemId": "feature-title-section-21",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.434Z"
-          }
-        ]
+        "isFromTitle": true
       },
       {
         "id": "feature-title-section-23",
@@ -665,48 +528,7 @@
         "type": "CORE",
         "status": "planned",
         "source": "Phase 2: Evolution Design & Planning (Week 2)",
-        "isFromTitle": true,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-title-section-23-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify data flows correctly between systems",
-            "format": "given_when_then",
-            "given": "the external service is available",
-            "when": "the 2: variant generation integration is triggered",
-            "then": "data should be exchanged correctly",
-            "description": "Given the external service is available, when the 2: variant generation integration is triggered, then data should be exchanged correctly",
-            "itemId": "feature-title-section-23",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.470Z"
-          },
-          {
-            "id": "ac-feature-title-section-23-2",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "Simulate service failure and verify fallback behavior",
-            "format": "given_when_then",
-            "given": "the external service is unavailable",
-            "when": "the 2: variant generation integration is triggered",
-            "then": "the system should handle the failure gracefully",
-            "description": "Given the external service is unavailable, when the 2: variant generation integration is triggered, then the system should handle the failure gracefully",
-            "itemId": "feature-title-section-23",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.470Z"
-          },
-          {
-            "id": "ac-feature-title-section-23-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The 2: Variant Generation should handle errors gracefully",
-            "itemId": "feature-title-section-23",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.470Z"
-          }
-        ]
+        "isFromTitle": true
       },
       {
         "id": "feature-title-section-24",
@@ -715,48 +537,7 @@
         "type": "CORE",
         "status": "planned",
         "source": "Phase 2: Evolution Design & Planning (Week 2)",
-        "isFromTitle": true,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-title-section-24-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify data flows correctly between systems",
-            "format": "given_when_then",
-            "given": "the external service is available",
-            "when": "the 4: democratic voting integration is triggered",
-            "then": "data should be exchanged correctly",
-            "description": "Given the external service is available, when the 4: democratic voting integration is triggered, then data should be exchanged correctly",
-            "itemId": "feature-title-section-24",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.494Z"
-          },
-          {
-            "id": "ac-feature-title-section-24-2",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "Simulate service failure and verify fallback behavior",
-            "format": "given_when_then",
-            "given": "the external service is unavailable",
-            "when": "the 4: democratic voting integration is triggered",
-            "then": "the system should handle the failure gracefully",
-            "description": "Given the external service is unavailable, when the 4: democratic voting integration is triggered, then the system should handle the failure gracefully",
-            "itemId": "feature-title-section-24",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.494Z"
-          },
-          {
-            "id": "ac-feature-title-section-24-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The 4: Democratic Voting should handle errors gracefully",
-            "itemId": "feature-title-section-24",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.494Z"
-          }
-        ]
+        "isFromTitle": true
       },
       {
         "id": "feature-title-section-25",
@@ -765,48 +546,7 @@
         "type": "CORE",
         "status": "planned",
         "source": "Phase 2: Evolution Design & Planning (Week 2)",
-        "isFromTitle": true,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-title-section-25-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify data flows correctly between systems",
-            "format": "given_when_then",
-            "given": "the external service is available",
-            "when": "the genetic merging integration is triggered",
-            "then": "data should be exchanged correctly",
-            "description": "Given the external service is available, when the genetic merging integration is triggered, then data should be exchanged correctly",
-            "itemId": "feature-title-section-25",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.518Z"
-          },
-          {
-            "id": "ac-feature-title-section-25-2",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "Simulate service failure and verify fallback behavior",
-            "format": "given_when_then",
-            "given": "the external service is unavailable",
-            "when": "the genetic merging integration is triggered",
-            "then": "the system should handle the failure gracefully",
-            "description": "Given the external service is unavailable, when the genetic merging integration is triggered, then the system should handle the failure gracefully",
-            "itemId": "feature-title-section-25",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.518Z"
-          },
-          {
-            "id": "ac-feature-title-section-25-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The Genetic Merging should handle errors gracefully",
-            "itemId": "feature-title-section-25",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.518Z"
-          }
-        ]
+        "isFromTitle": true
       },
       {
         "id": "feature-title-section-27",
@@ -815,48 +555,7 @@
         "type": "CORE",
         "status": "planned",
         "source": "Phase 3: Building Minions v3.0 (Week 3)",
-        "isFromTitle": true,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-title-section-27-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify data flows correctly between systems",
-            "format": "given_when_then",
-            "given": "the external service is available",
-            "when": "the 2: core system rewrite integration is triggered",
-            "then": "data should be exchanged correctly",
-            "description": "Given the external service is available, when the 2: core system rewrite integration is triggered, then data should be exchanged correctly",
-            "itemId": "feature-title-section-27",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.576Z"
-          },
-          {
-            "id": "ac-feature-title-section-27-2",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "Simulate service failure and verify fallback behavior",
-            "format": "given_when_then",
-            "given": "the external service is unavailable",
-            "when": "the 2: core system rewrite integration is triggered",
-            "then": "the system should handle the failure gracefully",
-            "description": "Given the external service is unavailable, when the 2: core system rewrite integration is triggered, then the system should handle the failure gracefully",
-            "itemId": "feature-title-section-27",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.577Z"
-          },
-          {
-            "id": "ac-feature-title-section-27-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The 2: Core System Rewrite should handle errors gracefully",
-            "itemId": "feature-title-section-27",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.577Z"
-          }
-        ]
+        "isFromTitle": true
       },
       {
         "id": "feature-title-section-28",
@@ -865,48 +564,7 @@
         "type": "CORE",
         "status": "planned",
         "source": "Phase 3: Building Minions v3.0 (Week 3)",
-        "isFromTitle": true,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-title-section-28-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify data flows correctly between systems",
-            "format": "given_when_then",
-            "given": "the external service is available",
-            "when": "the 4: department evolution integration is triggered",
-            "then": "data should be exchanged correctly",
-            "description": "Given the external service is available, when the 4: department evolution integration is triggered, then data should be exchanged correctly",
-            "itemId": "feature-title-section-28",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.646Z"
-          },
-          {
-            "id": "ac-feature-title-section-28-2",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "Simulate service failure and verify fallback behavior",
-            "format": "given_when_then",
-            "given": "the external service is unavailable",
-            "when": "the 4: department evolution integration is triggered",
-            "then": "the system should handle the failure gracefully",
-            "description": "Given the external service is unavailable, when the 4: department evolution integration is triggered, then the system should handle the failure gracefully",
-            "itemId": "feature-title-section-28",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.646Z"
-          },
-          {
-            "id": "ac-feature-title-section-28-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The 4: Department Evolution should handle errors gracefully",
-            "itemId": "feature-title-section-28",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.646Z"
-          }
-        ]
+        "isFromTitle": true
       },
       {
         "id": "feature-title-section-29",
@@ -915,59 +573,7 @@
         "type": "INTEGRATION",
         "status": "planned",
         "source": "Phase 3: Building Minions v3.0 (Week 3)",
-        "isFromTitle": true,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-title-section-29-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify data flows correctly between systems",
-            "format": "given_when_then",
-            "given": "the external service is available",
-            "when": "the integration & assembly integration is triggered",
-            "then": "data should be exchanged correctly",
-            "description": "Given the external service is available, when the integration & assembly integration is triggered, then data should be exchanged correctly",
-            "itemId": "feature-title-section-29",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.683Z"
-          },
-          {
-            "id": "ac-feature-title-section-29-2",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "Simulate service failure and verify fallback behavior",
-            "format": "given_when_then",
-            "given": "the external service is unavailable",
-            "when": "the integration & assembly integration is triggered",
-            "then": "the system should handle the failure gracefully",
-            "description": "Given the external service is unavailable, when the integration & assembly integration is triggered, then the system should handle the failure gracefully",
-            "itemId": "feature-title-section-29",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.683Z"
-          },
-          {
-            "id": "ac-feature-title-section-29-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The Integration & Assembly should handle errors gracefully",
-            "itemId": "feature-title-section-29",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.683Z"
-          },
-          {
-            "id": "ac-feature-title-section-29-4",
-            "category": "usability",
-            "priority": "should",
-            "testable": "User can complete the action without additional guidance",
-            "format": "checklist",
-            "description": "The Integration & Assembly should be intuitive and easy to use",
-            "itemId": "feature-title-section-29",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.683Z"
-          }
-        ]
+        "isFromTitle": true
       },
       {
         "id": "feature-title-section-31",
@@ -976,48 +582,7 @@
         "type": "INFRASTRUCTURE",
         "status": "planned",
         "source": "Phase 4: Testing & Validation (Week 4)",
-        "isFromTitle": true,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-title-section-31-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify data flows correctly between systems",
-            "format": "given_when_then",
-            "given": "the external service is available",
-            "when": "the 2: consciousness testing integration is triggered",
-            "then": "data should be exchanged correctly",
-            "description": "Given the external service is available, when the 2: consciousness testing integration is triggered, then data should be exchanged correctly",
-            "itemId": "feature-title-section-31",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.717Z"
-          },
-          {
-            "id": "ac-feature-title-section-31-2",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "Simulate service failure and verify fallback behavior",
-            "format": "given_when_then",
-            "given": "the external service is unavailable",
-            "when": "the 2: consciousness testing integration is triggered",
-            "then": "the system should handle the failure gracefully",
-            "description": "Given the external service is unavailable, when the 2: consciousness testing integration is triggered, then the system should handle the failure gracefully",
-            "itemId": "feature-title-section-31",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.717Z"
-          },
-          {
-            "id": "ac-feature-title-section-31-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The 2: Consciousness Testing should handle errors gracefully",
-            "itemId": "feature-title-section-31",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.717Z"
-          }
-        ]
+        "isFromTitle": true
       },
       {
         "id": "feature-title-section-32",
@@ -1026,59 +591,7 @@
         "type": "CORE",
         "status": "planned",
         "source": "Phase 4: Testing & Validation (Week 4)",
-        "isFromTitle": true,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-title-section-32-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify data flows correctly between systems",
-            "format": "given_when_then",
-            "given": "the external service is available",
-            "when": "the 4: performance validation integration is triggered",
-            "then": "data should be exchanged correctly",
-            "description": "Given the external service is available, when the 4: performance validation integration is triggered, then data should be exchanged correctly",
-            "itemId": "feature-title-section-32",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.743Z"
-          },
-          {
-            "id": "ac-feature-title-section-32-2",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "Simulate service failure and verify fallback behavior",
-            "format": "given_when_then",
-            "given": "the external service is unavailable",
-            "when": "the 4: performance validation integration is triggered",
-            "then": "the system should handle the failure gracefully",
-            "description": "Given the external service is unavailable, when the 4: performance validation integration is triggered, then the system should handle the failure gracefully",
-            "itemId": "feature-title-section-32",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.743Z"
-          },
-          {
-            "id": "ac-feature-title-section-32-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The 4: Performance Validation should handle errors gracefully",
-            "itemId": "feature-title-section-32",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.743Z"
-          },
-          {
-            "id": "ac-feature-title-section-32-4",
-            "category": "usability",
-            "priority": "should",
-            "testable": "User can complete the action without additional guidance",
-            "format": "checklist",
-            "description": "The 4: Performance Validation should be intuitive and easy to use",
-            "itemId": "feature-title-section-32",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.743Z"
-          }
-        ]
+        "isFromTitle": true
       },
       {
         "id": "feature-title-section-33",
@@ -1087,48 +600,7 @@
         "type": "CORE",
         "status": "planned",
         "source": "Phase 4: Testing & Validation (Week 4)",
-        "isFromTitle": true,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-title-section-33-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify data flows correctly between systems",
-            "format": "given_when_then",
-            "given": "the external service is available",
-            "when": "the final certification integration is triggered",
-            "then": "data should be exchanged correctly",
-            "description": "Given the external service is available, when the final certification integration is triggered, then data should be exchanged correctly",
-            "itemId": "feature-title-section-33",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.768Z"
-          },
-          {
-            "id": "ac-feature-title-section-33-2",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "Simulate service failure and verify fallback behavior",
-            "format": "given_when_then",
-            "given": "the external service is unavailable",
-            "when": "the final certification integration is triggered",
-            "then": "the system should handle the failure gracefully",
-            "description": "Given the external service is unavailable, when the final certification integration is triggered, then the system should handle the failure gracefully",
-            "itemId": "feature-title-section-33",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.768Z"
-          },
-          {
-            "id": "ac-feature-title-section-33-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The Final Certification should handle errors gracefully",
-            "itemId": "feature-title-section-33",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.768Z"
-          }
-        ]
+        "isFromTitle": true
       },
       {
         "id": "feature-section-35-0",
@@ -1137,42 +609,7 @@
         "type": "CORE",
         "status": "planned",
         "source": "Quantitative Metrics",
-        "isFromOverview": false,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-section-35-0-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify the feature works according to requirements",
-            "format": "checklist",
-            "description": "Metric should function as specified",
-            "itemId": "feature-section-35-0",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.790Z"
-          },
-          {
-            "id": "ac-feature-section-35-0-2",
-            "category": "functional",
-            "priority": "should",
-            "testable": "Verify appropriate feedback is shown to user",
-            "format": "checklist",
-            "description": "Metric should provide feedback on success/failure",
-            "itemId": "feature-section-35-0",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.790Z"
-          },
-          {
-            "id": "ac-feature-section-35-0-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The Metric should handle errors gracefully",
-            "itemId": "feature-section-35-0",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.790Z"
-          }
-        ]
+        "isFromOverview": false
       },
       {
         "id": "feature-section-35-1",
@@ -1181,42 +618,7 @@
         "type": "CORE",
         "status": "planned",
         "source": "Quantitative Metrics",
-        "isFromOverview": false,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-section-35-1-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify the feature works according to requirements",
-            "format": "checklist",
-            "description": "Code Generation Speed should function as specified",
-            "itemId": "feature-section-35-1",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.811Z"
-          },
-          {
-            "id": "ac-feature-section-35-1-2",
-            "category": "functional",
-            "priority": "should",
-            "testable": "Verify appropriate feedback is shown to user",
-            "format": "checklist",
-            "description": "Code Generation Speed should provide feedback on success/failure",
-            "itemId": "feature-section-35-1",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.811Z"
-          },
-          {
-            "id": "ac-feature-section-35-1-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The Code Generation Speed should handle errors gracefully",
-            "itemId": "feature-section-35-1",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.811Z"
-          }
-        ]
+        "isFromOverview": false
       },
       {
         "id": "feature-section-35-2",
@@ -1225,42 +627,7 @@
         "type": "CORE",
         "status": "planned",
         "source": "Quantitative Metrics",
-        "isFromOverview": false,
-        "acceptanceCriteria": [
-          {
-            "id": "ac-feature-section-35-2-1",
-            "category": "functional",
-            "priority": "must",
-            "testable": "Verify the feature works according to requirements",
-            "format": "checklist",
-            "description": "Bug Prediction Accuracy should function as specified",
-            "itemId": "feature-section-35-2",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.833Z"
-          },
-          {
-            "id": "ac-feature-section-35-2-2",
-            "category": "functional",
-            "priority": "should",
-            "testable": "Verify appropriate feedback is shown to user",
-            "format": "checklist",
-            "description": "Bug Prediction Accuracy should provide feedback on success/failure",
-            "itemId": "feature-section-35-2",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.833Z"
-          },
-          {
-            "id": "ac-feature-section-35-2-3",
-            "category": "error_handling",
-            "priority": "should",
-            "testable": "User receives meaningful error messages and system recovers gracefully",
-            "format": "checklist",
-            "description": "The Bug Prediction Accuracy should handle errors gracefully",
-            "itemId": "feature-section-35-2",
-            "itemType": "feature",
-            "generatedAt": "2025-12-29T00:00:27.833Z"
-          }
-        ]
+        "isFromOverview": false
       },
       {
         "id": "feature-section-35-3",
@@ -1571,10 +938,10 @@
         "code": "if (consciousness === false) {\n  bob.hugTeddy();\n  kevin.eatBanana();\n  stuart.playGuitar();\n  // Consciousness usually returns\n}\n\nif (fluffiness < 10) {\n  agnes.scream(\"IT'S NOT FLUFFY ENOUGH!\");\n  agnes.addMoreFluffiness();\n}\n\nif (bananas === 0) {\n  // CRITICAL ERROR\n  // All Minions panic\n  // System automatically orders more bananas\n}"
       }
     ],
-    "parsedAt": "2025-12-29T00:00:26.991Z",
+    "parsedAt": "2025-12-29T00:03:15.375Z",
     "implicitRequirements": [
       {
-        "id": "implicit-api-1766966426989",
+        "id": "implicit-api-1766966595374",
         "category": "api",
         "type": "CORE",
         "confidence": 0.7,
@@ -1583,10 +950,10 @@
           "response"
         ],
         "recommendation": "Document API endpoints and data contracts clearly.",
-        "detectedAt": "2025-12-29T00:00:26.989Z"
+        "detectedAt": "2025-12-29T00:03:15.374Z"
       },
       {
-        "id": "implicit-realtime-1766966426989",
+        "id": "implicit-realtime-1766966595374",
         "category": "realtime",
         "type": "ENHANCEMENT",
         "confidence": 0.7,
@@ -1595,10 +962,10 @@
           "live"
         ],
         "recommendation": "Specify real-time requirements including expected latency and protocols.",
-        "detectedAt": "2025-12-29T00:00:26.989Z"
+        "detectedAt": "2025-12-29T00:03:15.374Z"
       },
       {
-        "id": "implicit-deployment-1766966426990",
+        "id": "implicit-deployment-1766966595375",
         "category": "deployment",
         "type": "INFRASTRUCTURE",
         "confidence": 0.7,
@@ -1607,10 +974,10 @@
           "Production"
         ],
         "recommendation": "Document deployment requirements and infrastructure needs.",
-        "detectedAt": "2025-12-29T00:00:26.990Z"
+        "detectedAt": "2025-12-29T00:03:15.375Z"
       },
       {
-        "id": "implicit-monitoring-1766966426991",
+        "id": "implicit-monitoring-1766966595375",
         "category": "monitoring",
         "type": "INFRASTRUCTURE",
         "confidence": 0.95,
@@ -1621,7 +988,7 @@
           "healthCheck"
         ],
         "recommendation": "Specify observability requirements including logging, metrics, and alerting.",
-        "detectedAt": "2025-12-29T00:00:26.991Z"
+        "detectedAt": "2025-12-29T00:03:15.375Z"
       }
     ]
   },
@@ -1633,48 +1000,7 @@
       "type": "CORE",
       "status": "planned",
       "source": "Phase 1: Self-Analysis & Discovery (Week 1)",
-      "isFromTitle": true,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-title-section-19-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify data flows correctly between systems",
-          "format": "given_when_then",
-          "given": "the external service is available",
-          "when": "the 2: code self-examination integration is triggered",
-          "then": "data should be exchanged correctly",
-          "description": "Given the external service is available, when the 2: code self-examination integration is triggered, then data should be exchanged correctly",
-          "itemId": "feature-title-section-19",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.348Z"
-        },
-        {
-          "id": "ac-feature-title-section-19-2",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "Simulate service failure and verify fallback behavior",
-          "format": "given_when_then",
-          "given": "the external service is unavailable",
-          "when": "the 2: code self-examination integration is triggered",
-          "then": "the system should handle the failure gracefully",
-          "description": "Given the external service is unavailable, when the 2: code self-examination integration is triggered, then the system should handle the failure gracefully",
-          "itemId": "feature-title-section-19",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.348Z"
-        },
-        {
-          "id": "ac-feature-title-section-19-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The 2: Code Self-Examination should handle errors gracefully",
-          "itemId": "feature-title-section-19",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.348Z"
-        }
-      ]
+      "isFromTitle": true
     },
     {
       "id": "feature-title-section-20",
@@ -1683,62 +1009,7 @@
       "type": "CORE",
       "status": "planned",
       "source": "Phase 1: Self-Analysis & Discovery (Week 1)",
-      "isFromTitle": true,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-title-section-20-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify the expected outcome occurs",
-          "format": "given_when_then",
-          "given": "a user with appropriate permissions",
-          "when": "they attempt to 4: dream mode exploration",
-          "then": "the action should complete successfully",
-          "description": "Given a user with appropriate permissions, when they attempt to 4: dream mode exploration, then the action should complete successfully",
-          "itemId": "feature-title-section-20",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.398Z"
-        },
-        {
-          "id": "ac-feature-title-section-20-2",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify data flows correctly between systems",
-          "format": "given_when_then",
-          "given": "the external service is available",
-          "when": "the 4: dream mode exploration integration is triggered",
-          "then": "data should be exchanged correctly",
-          "description": "Given the external service is available, when the 4: dream mode exploration integration is triggered, then data should be exchanged correctly",
-          "itemId": "feature-title-section-20",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.398Z"
-        },
-        {
-          "id": "ac-feature-title-section-20-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "Simulate service failure and verify fallback behavior",
-          "format": "given_when_then",
-          "given": "the external service is unavailable",
-          "when": "the 4: dream mode exploration integration is triggered",
-          "then": "the system should handle the failure gracefully",
-          "description": "Given the external service is unavailable, when the 4: dream mode exploration integration is triggered, then the system should handle the failure gracefully",
-          "itemId": "feature-title-section-20",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.398Z"
-        },
-        {
-          "id": "ac-feature-title-section-20-4",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The 4: Dream Mode Exploration should handle errors gracefully",
-          "itemId": "feature-title-section-20",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.398Z"
-        }
-      ]
+      "isFromTitle": true
     },
     {
       "id": "feature-title-section-21",
@@ -1747,48 +1018,7 @@
       "type": "CORE",
       "status": "planned",
       "source": "Phase 1: Self-Analysis & Discovery (Week 1)",
-      "isFromTitle": true,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-title-section-21-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify data flows correctly between systems",
-          "format": "given_when_then",
-          "given": "the external service is available",
-          "when": "the collective intelligence gathering integration is triggered",
-          "then": "data should be exchanged correctly",
-          "description": "Given the external service is available, when the collective intelligence gathering integration is triggered, then data should be exchanged correctly",
-          "itemId": "feature-title-section-21",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.434Z"
-        },
-        {
-          "id": "ac-feature-title-section-21-2",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "Simulate service failure and verify fallback behavior",
-          "format": "given_when_then",
-          "given": "the external service is unavailable",
-          "when": "the collective intelligence gathering integration is triggered",
-          "then": "the system should handle the failure gracefully",
-          "description": "Given the external service is unavailable, when the collective intelligence gathering integration is triggered, then the system should handle the failure gracefully",
-          "itemId": "feature-title-section-21",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.434Z"
-        },
-        {
-          "id": "ac-feature-title-section-21-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The Collective Intelligence Gathering should handle errors gracefully",
-          "itemId": "feature-title-section-21",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.434Z"
-        }
-      ]
+      "isFromTitle": true
     },
     {
       "id": "feature-title-section-23",
@@ -1797,48 +1027,7 @@
       "type": "CORE",
       "status": "planned",
       "source": "Phase 2: Evolution Design & Planning (Week 2)",
-      "isFromTitle": true,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-title-section-23-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify data flows correctly between systems",
-          "format": "given_when_then",
-          "given": "the external service is available",
-          "when": "the 2: variant generation integration is triggered",
-          "then": "data should be exchanged correctly",
-          "description": "Given the external service is available, when the 2: variant generation integration is triggered, then data should be exchanged correctly",
-          "itemId": "feature-title-section-23",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.470Z"
-        },
-        {
-          "id": "ac-feature-title-section-23-2",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "Simulate service failure and verify fallback behavior",
-          "format": "given_when_then",
-          "given": "the external service is unavailable",
-          "when": "the 2: variant generation integration is triggered",
-          "then": "the system should handle the failure gracefully",
-          "description": "Given the external service is unavailable, when the 2: variant generation integration is triggered, then the system should handle the failure gracefully",
-          "itemId": "feature-title-section-23",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.470Z"
-        },
-        {
-          "id": "ac-feature-title-section-23-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The 2: Variant Generation should handle errors gracefully",
-          "itemId": "feature-title-section-23",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.470Z"
-        }
-      ]
+      "isFromTitle": true
     },
     {
       "id": "feature-title-section-24",
@@ -1847,48 +1036,7 @@
       "type": "CORE",
       "status": "planned",
       "source": "Phase 2: Evolution Design & Planning (Week 2)",
-      "isFromTitle": true,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-title-section-24-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify data flows correctly between systems",
-          "format": "given_when_then",
-          "given": "the external service is available",
-          "when": "the 4: democratic voting integration is triggered",
-          "then": "data should be exchanged correctly",
-          "description": "Given the external service is available, when the 4: democratic voting integration is triggered, then data should be exchanged correctly",
-          "itemId": "feature-title-section-24",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.494Z"
-        },
-        {
-          "id": "ac-feature-title-section-24-2",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "Simulate service failure and verify fallback behavior",
-          "format": "given_when_then",
-          "given": "the external service is unavailable",
-          "when": "the 4: democratic voting integration is triggered",
-          "then": "the system should handle the failure gracefully",
-          "description": "Given the external service is unavailable, when the 4: democratic voting integration is triggered, then the system should handle the failure gracefully",
-          "itemId": "feature-title-section-24",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.494Z"
-        },
-        {
-          "id": "ac-feature-title-section-24-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The 4: Democratic Voting should handle errors gracefully",
-          "itemId": "feature-title-section-24",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.494Z"
-        }
-      ]
+      "isFromTitle": true
     },
     {
       "id": "feature-title-section-25",
@@ -1897,48 +1045,7 @@
       "type": "CORE",
       "status": "planned",
       "source": "Phase 2: Evolution Design & Planning (Week 2)",
-      "isFromTitle": true,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-title-section-25-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify data flows correctly between systems",
-          "format": "given_when_then",
-          "given": "the external service is available",
-          "when": "the genetic merging integration is triggered",
-          "then": "data should be exchanged correctly",
-          "description": "Given the external service is available, when the genetic merging integration is triggered, then data should be exchanged correctly",
-          "itemId": "feature-title-section-25",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.518Z"
-        },
-        {
-          "id": "ac-feature-title-section-25-2",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "Simulate service failure and verify fallback behavior",
-          "format": "given_when_then",
-          "given": "the external service is unavailable",
-          "when": "the genetic merging integration is triggered",
-          "then": "the system should handle the failure gracefully",
-          "description": "Given the external service is unavailable, when the genetic merging integration is triggered, then the system should handle the failure gracefully",
-          "itemId": "feature-title-section-25",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.518Z"
-        },
-        {
-          "id": "ac-feature-title-section-25-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The Genetic Merging should handle errors gracefully",
-          "itemId": "feature-title-section-25",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.518Z"
-        }
-      ]
+      "isFromTitle": true
     },
     {
       "id": "feature-title-section-27",
@@ -1947,48 +1054,7 @@
       "type": "CORE",
       "status": "planned",
       "source": "Phase 3: Building Minions v3.0 (Week 3)",
-      "isFromTitle": true,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-title-section-27-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify data flows correctly between systems",
-          "format": "given_when_then",
-          "given": "the external service is available",
-          "when": "the 2: core system rewrite integration is triggered",
-          "then": "data should be exchanged correctly",
-          "description": "Given the external service is available, when the 2: core system rewrite integration is triggered, then data should be exchanged correctly",
-          "itemId": "feature-title-section-27",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.576Z"
-        },
-        {
-          "id": "ac-feature-title-section-27-2",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "Simulate service failure and verify fallback behavior",
-          "format": "given_when_then",
-          "given": "the external service is unavailable",
-          "when": "the 2: core system rewrite integration is triggered",
-          "then": "the system should handle the failure gracefully",
-          "description": "Given the external service is unavailable, when the 2: core system rewrite integration is triggered, then the system should handle the failure gracefully",
-          "itemId": "feature-title-section-27",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.577Z"
-        },
-        {
-          "id": "ac-feature-title-section-27-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The 2: Core System Rewrite should handle errors gracefully",
-          "itemId": "feature-title-section-27",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.577Z"
-        }
-      ]
+      "isFromTitle": true
     },
     {
       "id": "feature-title-section-28",
@@ -1997,48 +1063,7 @@
       "type": "CORE",
       "status": "planned",
       "source": "Phase 3: Building Minions v3.0 (Week 3)",
-      "isFromTitle": true,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-title-section-28-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify data flows correctly between systems",
-          "format": "given_when_then",
-          "given": "the external service is available",
-          "when": "the 4: department evolution integration is triggered",
-          "then": "data should be exchanged correctly",
-          "description": "Given the external service is available, when the 4: department evolution integration is triggered, then data should be exchanged correctly",
-          "itemId": "feature-title-section-28",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.646Z"
-        },
-        {
-          "id": "ac-feature-title-section-28-2",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "Simulate service failure and verify fallback behavior",
-          "format": "given_when_then",
-          "given": "the external service is unavailable",
-          "when": "the 4: department evolution integration is triggered",
-          "then": "the system should handle the failure gracefully",
-          "description": "Given the external service is unavailable, when the 4: department evolution integration is triggered, then the system should handle the failure gracefully",
-          "itemId": "feature-title-section-28",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.646Z"
-        },
-        {
-          "id": "ac-feature-title-section-28-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The 4: Department Evolution should handle errors gracefully",
-          "itemId": "feature-title-section-28",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.646Z"
-        }
-      ]
+      "isFromTitle": true
     },
     {
       "id": "feature-title-section-29",
@@ -2047,59 +1072,7 @@
       "type": "INTEGRATION",
       "status": "planned",
       "source": "Phase 3: Building Minions v3.0 (Week 3)",
-      "isFromTitle": true,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-title-section-29-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify data flows correctly between systems",
-          "format": "given_when_then",
-          "given": "the external service is available",
-          "when": "the integration & assembly integration is triggered",
-          "then": "data should be exchanged correctly",
-          "description": "Given the external service is available, when the integration & assembly integration is triggered, then data should be exchanged correctly",
-          "itemId": "feature-title-section-29",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.683Z"
-        },
-        {
-          "id": "ac-feature-title-section-29-2",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "Simulate service failure and verify fallback behavior",
-          "format": "given_when_then",
-          "given": "the external service is unavailable",
-          "when": "the integration & assembly integration is triggered",
-          "then": "the system should handle the failure gracefully",
-          "description": "Given the external service is unavailable, when the integration & assembly integration is triggered, then the system should handle the failure gracefully",
-          "itemId": "feature-title-section-29",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.683Z"
-        },
-        {
-          "id": "ac-feature-title-section-29-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The Integration & Assembly should handle errors gracefully",
-          "itemId": "feature-title-section-29",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.683Z"
-        },
-        {
-          "id": "ac-feature-title-section-29-4",
-          "category": "usability",
-          "priority": "should",
-          "testable": "User can complete the action without additional guidance",
-          "format": "checklist",
-          "description": "The Integration & Assembly should be intuitive and easy to use",
-          "itemId": "feature-title-section-29",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.683Z"
-        }
-      ]
+      "isFromTitle": true
     },
     {
       "id": "feature-title-section-31",
@@ -2108,48 +1081,7 @@
       "type": "INFRASTRUCTURE",
       "status": "planned",
       "source": "Phase 4: Testing & Validation (Week 4)",
-      "isFromTitle": true,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-title-section-31-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify data flows correctly between systems",
-          "format": "given_when_then",
-          "given": "the external service is available",
-          "when": "the 2: consciousness testing integration is triggered",
-          "then": "data should be exchanged correctly",
-          "description": "Given the external service is available, when the 2: consciousness testing integration is triggered, then data should be exchanged correctly",
-          "itemId": "feature-title-section-31",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.717Z"
-        },
-        {
-          "id": "ac-feature-title-section-31-2",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "Simulate service failure and verify fallback behavior",
-          "format": "given_when_then",
-          "given": "the external service is unavailable",
-          "when": "the 2: consciousness testing integration is triggered",
-          "then": "the system should handle the failure gracefully",
-          "description": "Given the external service is unavailable, when the 2: consciousness testing integration is triggered, then the system should handle the failure gracefully",
-          "itemId": "feature-title-section-31",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.717Z"
-        },
-        {
-          "id": "ac-feature-title-section-31-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The 2: Consciousness Testing should handle errors gracefully",
-          "itemId": "feature-title-section-31",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.717Z"
-        }
-      ]
+      "isFromTitle": true
     },
     {
       "id": "feature-title-section-32",
@@ -2158,59 +1090,7 @@
       "type": "CORE",
       "status": "planned",
       "source": "Phase 4: Testing & Validation (Week 4)",
-      "isFromTitle": true,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-title-section-32-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify data flows correctly between systems",
-          "format": "given_when_then",
-          "given": "the external service is available",
-          "when": "the 4: performance validation integration is triggered",
-          "then": "data should be exchanged correctly",
-          "description": "Given the external service is available, when the 4: performance validation integration is triggered, then data should be exchanged correctly",
-          "itemId": "feature-title-section-32",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.743Z"
-        },
-        {
-          "id": "ac-feature-title-section-32-2",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "Simulate service failure and verify fallback behavior",
-          "format": "given_when_then",
-          "given": "the external service is unavailable",
-          "when": "the 4: performance validation integration is triggered",
-          "then": "the system should handle the failure gracefully",
-          "description": "Given the external service is unavailable, when the 4: performance validation integration is triggered, then the system should handle the failure gracefully",
-          "itemId": "feature-title-section-32",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.743Z"
-        },
-        {
-          "id": "ac-feature-title-section-32-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The 4: Performance Validation should handle errors gracefully",
-          "itemId": "feature-title-section-32",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.743Z"
-        },
-        {
-          "id": "ac-feature-title-section-32-4",
-          "category": "usability",
-          "priority": "should",
-          "testable": "User can complete the action without additional guidance",
-          "format": "checklist",
-          "description": "The 4: Performance Validation should be intuitive and easy to use",
-          "itemId": "feature-title-section-32",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.743Z"
-        }
-      ]
+      "isFromTitle": true
     },
     {
       "id": "feature-title-section-33",
@@ -2219,48 +1099,7 @@
       "type": "CORE",
       "status": "planned",
       "source": "Phase 4: Testing & Validation (Week 4)",
-      "isFromTitle": true,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-title-section-33-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify data flows correctly between systems",
-          "format": "given_when_then",
-          "given": "the external service is available",
-          "when": "the final certification integration is triggered",
-          "then": "data should be exchanged correctly",
-          "description": "Given the external service is available, when the final certification integration is triggered, then data should be exchanged correctly",
-          "itemId": "feature-title-section-33",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.768Z"
-        },
-        {
-          "id": "ac-feature-title-section-33-2",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "Simulate service failure and verify fallback behavior",
-          "format": "given_when_then",
-          "given": "the external service is unavailable",
-          "when": "the final certification integration is triggered",
-          "then": "the system should handle the failure gracefully",
-          "description": "Given the external service is unavailable, when the final certification integration is triggered, then the system should handle the failure gracefully",
-          "itemId": "feature-title-section-33",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.768Z"
-        },
-        {
-          "id": "ac-feature-title-section-33-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The Final Certification should handle errors gracefully",
-          "itemId": "feature-title-section-33",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.768Z"
-        }
-      ]
+      "isFromTitle": true
     },
     {
       "id": "feature-section-35-0",
@@ -2269,42 +1108,7 @@
       "type": "CORE",
       "status": "planned",
       "source": "Quantitative Metrics",
-      "isFromOverview": false,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-section-35-0-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify the feature works according to requirements",
-          "format": "checklist",
-          "description": "Metric should function as specified",
-          "itemId": "feature-section-35-0",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.790Z"
-        },
-        {
-          "id": "ac-feature-section-35-0-2",
-          "category": "functional",
-          "priority": "should",
-          "testable": "Verify appropriate feedback is shown to user",
-          "format": "checklist",
-          "description": "Metric should provide feedback on success/failure",
-          "itemId": "feature-section-35-0",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.790Z"
-        },
-        {
-          "id": "ac-feature-section-35-0-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The Metric should handle errors gracefully",
-          "itemId": "feature-section-35-0",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.790Z"
-        }
-      ]
+      "isFromOverview": false
     },
     {
       "id": "feature-section-35-1",
@@ -2313,42 +1117,7 @@
       "type": "CORE",
       "status": "planned",
       "source": "Quantitative Metrics",
-      "isFromOverview": false,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-section-35-1-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify the feature works according to requirements",
-          "format": "checklist",
-          "description": "Code Generation Speed should function as specified",
-          "itemId": "feature-section-35-1",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.811Z"
-        },
-        {
-          "id": "ac-feature-section-35-1-2",
-          "category": "functional",
-          "priority": "should",
-          "testable": "Verify appropriate feedback is shown to user",
-          "format": "checklist",
-          "description": "Code Generation Speed should provide feedback on success/failure",
-          "itemId": "feature-section-35-1",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.811Z"
-        },
-        {
-          "id": "ac-feature-section-35-1-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The Code Generation Speed should handle errors gracefully",
-          "itemId": "feature-section-35-1",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.811Z"
-        }
-      ]
+      "isFromOverview": false
     },
     {
       "id": "feature-section-35-2",
@@ -2357,42 +1126,7 @@
       "type": "CORE",
       "status": "planned",
       "source": "Quantitative Metrics",
-      "isFromOverview": false,
-      "acceptanceCriteria": [
-        {
-          "id": "ac-feature-section-35-2-1",
-          "category": "functional",
-          "priority": "must",
-          "testable": "Verify the feature works according to requirements",
-          "format": "checklist",
-          "description": "Bug Prediction Accuracy should function as specified",
-          "itemId": "feature-section-35-2",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.833Z"
-        },
-        {
-          "id": "ac-feature-section-35-2-2",
-          "category": "functional",
-          "priority": "should",
-          "testable": "Verify appropriate feedback is shown to user",
-          "format": "checklist",
-          "description": "Bug Prediction Accuracy should provide feedback on success/failure",
-          "itemId": "feature-section-35-2",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.833Z"
-        },
-        {
-          "id": "ac-feature-section-35-2-3",
-          "category": "error_handling",
-          "priority": "should",
-          "testable": "User receives meaningful error messages and system recovers gracefully",
-          "format": "checklist",
-          "description": "The Bug Prediction Accuracy should handle errors gracefully",
-          "itemId": "feature-section-35-2",
-          "itemType": "feature",
-          "generatedAt": "2025-12-29T00:00:27.833Z"
-        }
-      ]
+      "isFromOverview": false
     },
     {
       "id": "feature-section-35-3",
@@ -17254,13 +15988,13 @@
     }
   ],
   "metrics": {
-    "readmesParsed": 3,
-    "featuresExtracted": 123,
+    "readmesParsed": 4,
+    "featuresExtracted": 164,
     "epicsCreated": 45,
     "storiesCreated": 144,
     "tasksCreated": 660,
     "acceptanceCriteriaGenerated": 144,
-    "implicitRequirementsDetected": 12
+    "implicitRequirementsDetected": 16
   },
   "productState": {
     "features": [
@@ -23008,7 +21742,7 @@
         "progress": 0
       }
     },
-    "lastUpdated": "2025-12-29T00:00:27.834Z"
+    "lastUpdated": "2025-12-29T00:03:15.376Z"
   },
-  "savedAt": "2025-12-29T00:00:27.834Z"
+  "savedAt": "2025-12-29T00:03:15.376Z"
 }
