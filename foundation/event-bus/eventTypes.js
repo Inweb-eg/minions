@@ -139,6 +139,97 @@ export const SystemEvents = {
   METRICS_COLLECTED: 'system:metrics:collected'
 };
 
+// Database Events (Dave)
+export const DatabaseEvents = {
+  // Schema operations
+  SCHEMA_DESIGNED: 'database:schema:designed',
+  SCHEMA_VALIDATED: 'database:schema:validated',
+  SCHEMA_UPDATED: 'database:schema:updated',
+
+  // Migration operations
+  MIGRATION_CREATED: 'database:migration:created',
+  MIGRATION_STARTED: 'database:migration:started',
+  MIGRATION_COMPLETED: 'database:migration:completed',
+  MIGRATION_FAILED: 'database:migration:failed',
+  MIGRATION_ROLLED_BACK: 'database:migration:rolledback',
+
+  // Query operations
+  QUERY_OPTIMIZED: 'database:query:optimized',
+  QUERY_ANALYZED: 'database:query:analyzed',
+  SLOW_QUERY_DETECTED: 'database:query:slow',
+
+  // Relationship operations
+  RELATIONSHIP_MAPPED: 'database:relationship:mapped',
+  RELATIONSHIP_VALIDATED: 'database:relationship:validated',
+
+  // General
+  DATABASE_ERROR: 'database:error'
+};
+
+// Performance Events (Kevin)
+export const PerformanceEvents = {
+  // Profiling
+  PROFILE_STARTED: 'performance:profile:started',
+  PROFILE_COMPLETED: 'performance:profile:completed',
+  HOTSPOT_DETECTED: 'performance:hotspot:detected',
+
+  // Benchmarking
+  BENCHMARK_STARTED: 'performance:benchmark:started',
+  BENCHMARK_COMPLETED: 'performance:benchmark:completed',
+  BENCHMARK_FAILED: 'performance:benchmark:failed',
+  REGRESSION_DETECTED: 'performance:regression:detected',
+
+  // Memory analysis
+  MEMORY_ANALYZED: 'performance:memory:analyzed',
+  MEMORY_LEAK_DETECTED: 'performance:memory:leak',
+  MEMORY_THRESHOLD_EXCEEDED: 'performance:memory:threshold',
+
+  // Bottleneck detection
+  BOTTLENECK_DETECTED: 'performance:bottleneck:detected',
+  BOTTLENECK_RESOLVED: 'performance:bottleneck:resolved',
+
+  // Load testing
+  LOAD_TEST_STARTED: 'performance:loadtest:started',
+  LOAD_TEST_COMPLETED: 'performance:loadtest:completed',
+  THRESHOLD_EXCEEDED: 'performance:threshold:exceeded',
+
+  // General
+  PERFORMANCE_ERROR: 'performance:error'
+};
+
+// Notification Events (Stuart - future)
+export const NotificationEvents = {
+  NOTIFICATION_QUEUED: 'notification:queued',
+  NOTIFICATION_SENT: 'notification:sent',
+  NOTIFICATION_FAILED: 'notification:failed',
+  WEBHOOK_TRIGGERED: 'notification:webhook:triggered',
+  WEBHOOK_FAILED: 'notification:webhook:failed',
+  CHANNEL_CONFIGURED: 'notification:channel:configured'
+};
+
+// Infrastructure Events
+export const InfrastructureEvents = {
+  // Rate limiting
+  RATE_LIMIT_EXCEEDED: 'infra:ratelimit:exceeded',
+  RATE_LIMIT_WARNING: 'infra:ratelimit:warning',
+
+  // Circuit breaker
+  CIRCUIT_OPENED: 'infra:circuit:opened',
+  CIRCUIT_CLOSED: 'infra:circuit:closed',
+  CIRCUIT_HALF_OPEN: 'infra:circuit:halfopen',
+
+  // State persistence
+  STATE_PERSISTED: 'infra:state:persisted',
+  STATE_RESTORED: 'infra:state:restored',
+  STATE_CORRUPTED: 'infra:state:corrupted',
+
+  // Authentication
+  AUTH_SUCCESS: 'infra:auth:success',
+  AUTH_FAILED: 'infra:auth:failed',
+  TOKEN_EXPIRED: 'infra:auth:token:expired',
+  TOKEN_REFRESHED: 'infra:auth:token:refreshed'
+};
+
 // Aggregate all event types
 export const EventTypes = {
   ...AgentEvents,
@@ -150,7 +241,11 @@ export const EventTypes = {
   ...GruEvents,
   ...PlannerEvents,
   ...OrchestratorEvents,
-  ...SystemEvents
+  ...SystemEvents,
+  ...DatabaseEvents,
+  ...PerformanceEvents,
+  ...NotificationEvents,
+  ...InfrastructureEvents
 };
 
 export default EventTypes;

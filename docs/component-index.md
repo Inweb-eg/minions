@@ -84,6 +84,58 @@ AgentState = {
 | **ASTParser** | `foundation/parsers/ASTParser.js` | `getASTParser()` | JavaScript/TypeScript parsing |
 | **BaseAnalyzer** | `foundation/analyzers/BaseAnalyzer.js` | - | Abstract analyzer base class |
 
+### Resilience
+
+| Component | File | Singleton | Purpose |
+|-----------|------|-----------|---------|
+| **RateLimiter** | `foundation/resilience/RateLimiter.js` | `getRateLimiter()` | Token bucket rate limiting |
+| **CircuitBreaker** | `foundation/resilience/CircuitBreaker.js` | `getCircuitBreaker(name)` | Circuit breaker pattern |
+| **CircuitBreakerRegistry** | `foundation/resilience/CircuitBreaker.js` | `getCircuitBreakerRegistry()` | Manages multiple circuit breakers |
+
+**Key Methods:**
+```javascript
+// Rate Limiter
+rateLimiter.check(key, tokens)    // Returns { allowed, remaining, retryAfter }
+rateLimiter.acquire(key, tokens, maxWait)  // Async, waits if needed
+rateLimiter.configure(key, { limit, window })
+rateLimiter.getMetrics()
+
+// Circuit Breaker
+circuitBreaker.execute(fn, fallback)  // Executes with circuit protection
+circuitBreaker.getStatus()
+circuitBreaker.forceState(state)  // CLOSED, OPEN, HALF_OPEN
+```
+
+### Advanced Persistence
+
+| Component | File | Singleton | Purpose |
+|-----------|------|-----------|---------|
+| **StatePersistence** | `foundation/persistence/StatePersistence.js` | `getStatePersistence()` | Auto-save, snapshots, recovery |
+
+**Key Methods:**
+```javascript
+statePersistence.registerStateHandler(name, { save, restore })
+statePersistence.saveState(namespace, key, value)
+statePersistence.restoreState(namespace, key)
+statePersistence.createSnapshot(name)
+statePersistence.restoreFromSnapshot(filename)
+```
+
+### Authentication
+
+| Component | File | Singleton | Purpose |
+|-----------|------|-----------|---------|
+| **AuthManager** | `foundation/auth/AuthManager.js` | `getAuthManager()` | API keys, sessions, JWT |
+
+**Key Methods:**
+```javascript
+authManager.generateApiKey(name, permissions)
+authManager.createSession(userId, permissions)
+authManager.generateToken(payload, expiresIn)
+authManager.authenticate(credentials)
+authManager.middleware({ requiredLevel })  // Express middleware
+```
+
 ### Utilities
 
 | Component | File | Purpose |
@@ -136,6 +188,8 @@ orchestrator.getStatus()
 | **ProjectManagerAgent** | Silas | `agents/project-manager-agent/` | Project registry & scanning |
 | **ProjectCompletionAgent** | Lucy | `agents/project-completion-agent/` | Gap detection & completion loops |
 | **SecurityRiskAgent** | Tom | `agents/security-risk-agent/` | Security & risk management |
+| **DatabaseAgent** | Dave | `agents/database-agent/` | Schema design & migrations |
+| **PerformanceAgent** | Kevin | `agents/performance-agent/` | Profiling & benchmarking |
 
 ### Strategic Planning
 
@@ -178,6 +232,44 @@ orchestrator.getStatus()
 | `RiskTracker.js` | Risk register management |
 | `AuditLogger.js` | Security audit trail |
 | `OpsValidator.js` | Deployment validation |
+
+### Dave Components
+
+| Component | Purpose |
+|-----------|---------|
+| `SchemaDesigner.js` | Schema design, validation, export (SQL/Prisma/TypeORM) |
+| `MigrationManager.js` | Migration creation, execution, rollback |
+| `QueryAnalyzer.js` | Query optimization, index suggestions |
+| `RelationshipMapper.js` | Relationship mapping, ERD generation |
+
+**Key Methods:**
+```javascript
+databaseAgent.designSchema(requirements)
+databaseAgent.createMigration(options)
+databaseAgent.runMigrations()
+databaseAgent.analyzeQuery(query)
+databaseAgent.mapRelationships()
+databaseAgent.exportSchema('prisma')
+```
+
+### Kevin Components
+
+| Component | Purpose |
+|-----------|---------|
+| `Profiler.js` | CPU profiling, hotspot detection |
+| `BenchmarkRunner.js` | Benchmark execution, regression detection |
+| `MemoryAnalyzer.js` | Memory analysis, leak detection |
+| `LoadTester.js` | Load testing, throughput measurement |
+
+**Key Methods:**
+```javascript
+performanceAgent.profile(options)
+performanceAgent.runBenchmarks()
+performanceAgent.analyzeMemory()
+performanceAgent.runLoadTest({ concurrency: 10, duration: 10000 })
+performanceAgent.detectBottlenecks()
+performanceAgent.setThresholds({ cpu: 80, memory: 85, responseTime: 2000 })
+```
 
 ---
 
@@ -310,6 +402,39 @@ SystemEvents = {
 }
 ```
 
+### Database (Dave)
+```javascript
+DatabaseEvents = {
+  SCHEMA_DESIGNED, SCHEMA_VALIDATED, SCHEMA_UPDATED,
+  MIGRATION_CREATED, MIGRATION_STARTED, MIGRATION_COMPLETED,
+  MIGRATION_FAILED, MIGRATION_ROLLED_BACK,
+  QUERY_OPTIMIZED, QUERY_ANALYZED, SLOW_QUERY_DETECTED,
+  RELATIONSHIP_MAPPED, RELATIONSHIP_VALIDATED, DATABASE_ERROR
+}
+```
+
+### Performance (Kevin)
+```javascript
+PerformanceEvents = {
+  PROFILE_STARTED, PROFILE_COMPLETED, HOTSPOT_DETECTED,
+  BENCHMARK_STARTED, BENCHMARK_COMPLETED, BENCHMARK_FAILED, REGRESSION_DETECTED,
+  MEMORY_ANALYZED, MEMORY_LEAK_DETECTED, MEMORY_THRESHOLD_EXCEEDED,
+  BOTTLENECK_DETECTED, BOTTLENECK_RESOLVED,
+  LOAD_TEST_STARTED, LOAD_TEST_COMPLETED, THRESHOLD_EXCEEDED,
+  PERFORMANCE_ERROR
+}
+```
+
+### Infrastructure
+```javascript
+InfrastructureEvents = {
+  RATE_LIMIT_EXCEEDED, RATE_LIMIT_WARNING,
+  CIRCUIT_OPENED, CIRCUIT_CLOSED, CIRCUIT_HALF_OPEN,
+  STATE_PERSISTED, STATE_RESTORED, STATE_CORRUPTED,
+  AUTH_SUCCESS, AUTH_FAILED, TOKEN_EXPIRED, TOKEN_REFRESHED
+}
+```
+
 ---
 
 ## Quick Start
@@ -351,6 +476,9 @@ minions/
 │   ├── alerting/
 │   ├── rollback-manager/
 │   ├── memory-store/     # Persistence + decisions
+│   ├── persistence/      # Advanced state persistence
+│   ├── resilience/       # Rate limiting, circuit breaker
+│   ├── auth/             # Authentication system
 │   ├── state-machine/
 │   ├── parsers/          # AST parsing
 │   ├── analyzers/        # Base analyzer
@@ -362,6 +490,8 @@ minions/
 │   ├── project-manager-agent/  # Silas
 │   ├── project-completion-agent/ # Lucy
 │   ├── security-risk-agent/    # Tom
+│   ├── database-agent/   # Dave - Database operations
+│   ├── performance-agent/# Kevin - Performance analysis
 │   ├── vision-agent/     # Product owner
 │   ├── planner-agent/    # Execution engine
 │   └── skills/           # Reusable capabilities
