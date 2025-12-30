@@ -1,0 +1,36 @@
+{
+  "id": "4071518f81ae1aca",
+  "type": "teaching_curriculum",
+  "content": {
+    "id": "curr_1767105588734_student",
+    "fromAgent": "teacher",
+    "toAgent": "student",
+    "skills": [
+      "basic"
+    ]
+  },
+  "metadata": {
+    "curriculumId": "curr_1767105588734_student",
+    "fromAgent": "teacher",
+    "toAgent": "student",
+    "createdAt": 1767105588734
+  },
+  "tags": [
+    "curriculum",
+    "student"
+  ],
+  "quality": "trusted",
+  "vector": {
+    "curr_1767105588734_student": 1,
+    "fromagent": 1,
+    "teacher": 1,
+    "toagent": 1,
+    "student": 1,
+    "skills": 1,
+    "basic": 1
+  },
+  "createdAt": 1767105588734,
+  "lastAccessed": 1767105588734,
+  "accessCount": 1,
+  "usefulness": 0
+}

@@ -1,0 +1,75 @@
+{
+  "id": "24a9461f81aef300",
+  "type": "rl_policy",
+  "content": {
+    "qTable": [
+      {
+        "state": "s1",
+        "actions": [
+          [
+            "a1",
+            0.6513215599000001
+          ]
+        ]
+      }
+    ],
+    "actionSuccesses": [
+      [
+        "a1",
+        {
+          "successes": 35,
+          "failures": 1
+        }
+      ]
+    ],
+    "explorationRate": 0.19022202609315436,
+    "stats": {
+      "totalUpdates": 10,
+      "averageReward": 1,
+      "explorationActions": 0,
+      "exploitationActions": 0,
+      "lastSaveTime": 0
+    },
+    "config": {
+      "learningRate": 0.1,
+      "discountFactor": 0.95,
+      "minExploration": 0.05
+    },
+    "savedAt": 1767105503494
+  },
+  "metadata": {
+    "updatedAt": 1767105503494
+  },
+  "tags": [
+    "rl-policy",
+    null
+  ],
+  "quality": "experimental",
+  "vector": {
+    "qtable": 1,
+    "state": 1,
+    "actions": 1,
+    "6513215599000001": 1,
+    "actionsuccesses": 1,
+    "successes": 1,
+    "failures": 1,
+    "explorationrate": 1,
+    "19022202609315436": 1,
+    "stats": 1,
+    "totalupdates": 1,
+    "averagereward": 1,
+    "explorationactions": 1,
+    "exploitationactions": 1,
+    "lastsavetime": 1,
+    "config": 1,
+    "learningrate": 1,
+    "discountfactor": 1,
+    "minexploration": 1,
+    "savedat": 1,
+    "1767105503494": 1
+  },
+  "createdAt": 1767105503494,
+  "lastAccessed": 1767105503494,
+  "accessCount": 1,
+  "usefulness": 0
+}

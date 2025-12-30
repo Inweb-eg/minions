@@ -732,12 +732,88 @@ class KnowledgeBrain {
   }
 
   getLearnedSkills(options = {}) {
-    const skills = Array.from(this.knowledge.values()).filter(item => item.type === KNOWLEDGE_TYPES.LEARNED_SKILL);
-    return options.minConfidence ? skills.filter(s => (s.metadata?.confidence || 0) >= options.minConfidence) : skills;
+    const items = Array.from(this.knowledge.values()).filter(item => item.type === KNOWLEDGE_TYPES.LEARNED_SKILL);
+    let skills = items.map(item => ({
+      ...item.content,
+      metadata: { ...item.content.metadata, ...item.metadata, activations: item.metadata?.activations || 0, successes: item.metadata?.successes || 0, successRate: item.metadata?.successRate || 0 }
+    }));
+    if (options.minConfidence) {
+      skills = skills.filter(s => (s.metadata?.confidence || 0) >= options.minConfidence);
+    }
+    return skills;
+  }
+
+  async getLearnedSkillById(skillId) {
+    for (const item of this.knowledge.values()) {
+      if (item.type === KNOWLEDGE_TYPES.LEARNED_SKILL && item.metadata?.skillId === skillId) {
+        return {
+          ...item.content,
+          metadata: { ...item.content.metadata, ...item.metadata, activations: item.metadata?.activations || 0, successes: item.metadata?.successes || 0, successRate: item.metadata?.successRate || 0 }
+        };
+      }
+    }
+    return null;
+  }
+
+  async updateSkillActivation(skillId, success) {
+    for (const [id, item] of this.knowledge) {
+      if (item.type === KNOWLEDGE_TYPES.LEARNED_SKILL && item.metadata?.skillId === skillId) {
+        item.metadata.activations = (item.metadata.activations || 0) + 1;
+        if (success) {
+          item.metadata.successes = (item.metadata.successes || 0) + 1;
+        }
+        item.metadata.successRate = item.metadata.successes / item.metadata.activations;
+        if (item.metadata.activations >= 10 && item.metadata.successRate >= 0.7) {
+          if (item.quality === QUALITY_LEVELS.EXPERIMENTAL) {
+            item.quality = QUALITY_LEVELS.COMMUNITY;
+          }
+        }
+        if (this.config.enablePersistence) {
+          await this.persistItem(item);
+        }
+        return;
+      }
+    }
   }
 
   async storeRLPolicy(policy) {
-    return await this.learn({ type: KNOWLEDGE_TYPES.RL_POLICY, content: policy, quality: QUALITY_LEVELS.EXPERIMENTAL, tags: ['rl-policy', policy.state], metadata: { state: policy.state, qValues: policy.qValues, updatedAt: Date.now() } });
+    const singletonId = 'rl-policy-singleton';
+    const existing = this.knowledge.get(singletonId);
+    if (existing) {
+      existing.content = policy;
+      existing.metadata.updatedAt = Date.now();
+      existing.metadata.updates = (existing.metadata.updates || 1) + 1;
+      existing.lastAccessed = Date.now();
+      existing.accessCount++;
+      if (this.config.enablePersistence) {
+        await this.persistItem(existing);
+      }
+      return existing;
+    }
+    const item = {
+      id: singletonId,
+      type: KNOWLEDGE_TYPES.RL_POLICY,
+      content: policy,
+      metadata: { updatedAt: Date.now(), updates: 1 },
+      tags: ['rl-policy'],
+      quality: QUALITY_LEVELS.VERIFIED,
+      vector: this.generateVector(JSON.stringify(policy)),
+      createdAt: Date.now(),
+      lastAccessed: Date.now(),
+      accessCount: 1,
+      usefulness: 0
+    };
+    this.knowledge.set(singletonId, item);
+    this.indexVector(singletonId, item.vector);
+    if (this.config.enableGraphRelations) {
+      this.relationships.nodes.set(singletonId, item);
+    }
+    if (this.config.enablePersistence) {
+      await this.persistItem(item);
+    }
+    this.stats.totalItems++;
+    this.stats.byType[KNOWLEDGE_TYPES.RL_POLICY] = (this.stats.byType[KNOWLEDGE_TYPES.RL_POLICY] || 0) + 1;
+    return item;
   }
 
   getRLPolicy(state) {
@@ -746,10 +822,11 @@ class KnowledgeBrain {
   }
 
   async loadRLPolicy() {
-    const policies = Array.from(this.knowledge.values()).filter(item => item.type === KNOWLEDGE_TYPES.RL_POLICY);
-    if (policies.length === 0) return null;
-    const latest = policies.sort((a, b) => (b.metadata?.updatedAt || 0) - (a.metadata?.updatedAt || 0))[0];
-    return latest?.content || null;
+    const item = this.knowledge.get('rl-policy-singleton');
+    if (!item) return null;
+    item.lastAccessed = Date.now();
+    item.accessCount++;
+    return item.content;
   }
 
   async storeExperience(exp) {
@@ -762,6 +839,38 @@ class KnowledgeBrain {
 
   async storeSkillTestResult(result) {
     return await this.learn({ type: KNOWLEDGE_TYPES.SKILL_TEST_RESULT, content: result, quality: result.passed ? QUALITY_LEVELS.VERIFIED : QUALITY_LEVELS.EXPERIMENTAL, tags: ['skill-test', result.skillId, result.passed ? 'passed' : 'failed'], metadata: { skillId: result.skillId, testId: result.testId, passed: result.passed, timestamp: Date.now() } });
+  }
+
+  async storeTestResult(testResult) {
+    return await this.learn({
+      type: KNOWLEDGE_TYPES.SKILL_TEST_RESULT,
+      content: testResult,
+      quality: QUALITY_LEVELS.VERIFIED,
+      tags: ['ab-test', testResult.winner, testResult.controlSkill?.name, testResult.treatmentSkill?.name].filter(Boolean),
+      metadata: {
+        testId: testResult.id,
+        winner: testResult.winner,
+        significance: testResult.significance,
+        controlSkill: testResult.controlSkill?.name,
+        treatmentSkill: testResult.treatmentSkill?.name,
+        timestamp: Date.now()
+      }
+    });
+  }
+
+  async getTestResultsForSkill(skillName) {
+    return Array.from(this.knowledge.values()).filter(item =>
+      item.type === KNOWLEDGE_TYPES.SKILL_TEST_RESULT &&
+      (item.metadata?.controlSkill === skillName || item.metadata?.treatmentSkill === skillName || item.tags?.includes(skillName))
+    );
+  }
+
+  async getSuccessfulSkills(minSuccessRate = 0.7, minActivations = 5) {
+    const skills = this.getLearnedSkills();
+    return skills.filter(skill =>
+      (skill.metadata?.activations || 0) >= minActivations &&
+      (skill.metadata?.successRate || 0) >= minSuccessRate
+    );
   }
 
   async storeMasteryRecord(agentId, skillId, mastery) {
@@ -779,13 +888,48 @@ class KnowledgeBrain {
     const items = Array.from(this.knowledge.values());
     const learnedSkills = items.filter(i => i.type === KNOWLEDGE_TYPES.LEARNED_SKILL);
     const experiences = items.filter(i => i.type === KNOWLEDGE_TYPES.EXPERIENCE);
-    const policies = items.filter(i => i.type === KNOWLEDGE_TYPES.RL_POLICY);
     const testResults = items.filter(i => i.type === KNOWLEDGE_TYPES.SKILL_TEST_RESULT);
-    return { learnedSkillCount: learnedSkills.length, totalSkillActivations: learnedSkills.reduce((sum, s) => sum + (s.accessCount || 0), 0), experienceCount: experiences.length, policyCount: policies.length, testResultCount: testResults.length, passedTestCount: testResults.filter(t => t.metadata?.passed).length };
+    const hasRLPolicy = this.knowledge.has('rl-policy-singleton');
+    let totalActivations = 0;
+    let totalSuccesses = 0;
+    const byQuality = { experimental: 0, community: 0, trusted: 0, verified: 0 };
+    for (const skill of learnedSkills) {
+      totalActivations += skill.metadata?.activations || 0;
+      totalSuccesses += skill.metadata?.successes || 0;
+      if (skill.quality === QUALITY_LEVELS.EXPERIMENTAL) byQuality.experimental++;
+      else if (skill.quality === QUALITY_LEVELS.COMMUNITY) byQuality.community++;
+      else if (skill.quality === QUALITY_LEVELS.TRUSTED) byQuality.trusted++;
+      else if (skill.quality === QUALITY_LEVELS.VERIFIED) byQuality.verified++;
+    }
+    const overallSuccessRate = totalActivations > 0 ? totalSuccesses / totalActivations : 0;
+    return {
+      learnedSkillCount: learnedSkills.length,
+      totalSkillActivations: totalActivations,
+      overallSuccessRate,
+      hasRLPolicy,
+      byQuality,
+      experienceCount: experiences.length,
+      policyCount: hasRLPolicy ? 1 : 0,
+      testResultCount: testResults.length,
+      passedTestCount: testResults.filter(t => t.metadata?.passed).length
+    };
   }
 
   async storeTeachingCurriculum(curriculum) {
-    return await this.learn({ type: KNOWLEDGE_TYPES.TEACHING_CURRICULUM, content: curriculum, quality: QUALITY_LEVELS.TRUSTED, tags: ['curriculum', curriculum.targetSkill, curriculum.toAgent].filter(Boolean), metadata: { curriculumId: curriculum.id, targetSkill: curriculum.targetSkill, fromAgent: curriculum.fromAgent, toAgent: curriculum.toAgent, createdAt: Date.now() } });
+    return await this.learn({
+      type: KNOWLEDGE_TYPES.TEACHING_CURRICULUM,
+      content: curriculum,
+      quality: QUALITY_LEVELS.TRUSTED,
+      tags: ['teaching', 'curriculum', curriculum.fromAgent, curriculum.toAgent, curriculum.targetSkill].filter(Boolean),
+      metadata: {
+        curriculumId: curriculum.id,
+        targetSkill: curriculum.targetSkill,
+        fromAgent: curriculum.fromAgent,
+        toAgent: curriculum.toAgent,
+        skillCount: curriculum.skills?.length || 0,
+        createdAt: Date.now()
+      }
+    });
   }
 }
 
