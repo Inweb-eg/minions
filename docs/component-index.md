@@ -232,8 +232,34 @@ await gru.start();
 - `/api/conversations` - CRUD for conversation history
 - `/api/conversations/grouped` - Conversations grouped by project
 - `/api/projects/discover` - Discover projects in Docker mount
-- `/api/learning/*` - Learning system stats, skills, policy, events
-- `/evolve` - Learning system monitoring dashboard
+- `/evolve` - Learning Control Center dashboard
+
+**Learning System API (Read):**
+- `GET /api/learning/stats` - Learning statistics
+- `GET /api/learning/skills` - List learned skills
+- `GET /api/learning/policy` - RL policy Q-values
+- `GET /api/learning/patterns` - Detected patterns
+- `GET /api/learning/teaching` - Teaching sessions
+- `GET /api/learning/tests` - A/B test results
+- `GET /api/learning/events` - Learning event log
+- `GET /api/learning/plans` - Learning plans
+
+**Learning Control API (Write):**
+- `POST /api/learning/rl/exploration` - Set exploration rate (0-1)
+- `POST /api/learning/rl/reset` - Reset RL policy
+- `POST /api/learning/skills/generate` - Generate skill from pattern
+- `POST /api/learning/skills/:id/approve` - Approve canary skill
+- `POST /api/learning/skills/:id/reject` - Reject canary skill
+- `POST /api/learning/skills/:id/toggle` - Enable/disable skill
+- `POST /api/learning/tests/start` - Start A/B test
+- `POST /api/learning/tests/:id/cancel` - Cancel A/B test
+- `POST /api/learning/teaching/start` - Start teaching session
+- `POST /api/learning/teaching/:id/validate` - Validate session
+- `POST /api/learning/mastery` - Update mastery level
+- `POST /api/learning/plans` - Create learning plan
+- `PUT /api/learning/plans/:id` - Update learning plan
+- `DELETE /api/learning/plans/:id` - Delete learning plan
+- `POST /api/learning/plans/:id/execute` - Execute learning plan
 
 ### Silas Components
 

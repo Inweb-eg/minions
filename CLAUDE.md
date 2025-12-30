@@ -84,10 +84,11 @@ Detailed documentation is available in the `docs/` folder:
 - Web interface coordinator at `http://localhost:2505`
 - Conversational AI powered by Ollama (deepseek-coder:6.7b) or Gemini fallback
 - General chat support (not limited to project topics)
-- Learning system monitoring dashboard at `/evolve`
+- Learning Control Center at `/evolve` with interactive controls
 - Components: `WebServer.js`, `ConversationEngine.js`, `ConversationStore.js`, `OllamaAdapter.js`, `ProjectIntake.js`, `StatusTracker.js`
 - Singletons: `getGruAgent()`, `getConversationStore()`
 - Start with: `node index.js --gru` or Docker: `docker compose up -d`
+- Learning Control API: RL policy, skills, A/B tests, teaching sessions, learning plans
 
 **Dr. Nefario Agent** (`agents/nefario-agent/`):
 - Claude Code adapter for AI-powered code generation
