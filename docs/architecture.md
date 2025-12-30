@@ -5,6 +5,7 @@ Deep dive into the Minions framework architecture.
 ## Table of Contents
 
 - [Design Principles](#design-principles)
+- [Agent Directory](#agent-directory)
 - [Component Architecture](#component-architecture)
 - [Client Interface System](#client-interface-system)
   - [Gru Agent](#gru-agent)
@@ -82,6 +83,68 @@ This ensures:
 ```
 
 Each layer only depends on layers below it.
+
+---
+
+## Agent Directory
+
+Quick reference of all Minions agents organized by function.
+
+### Client Interface Agents
+
+| Agent | Codename | Mission |
+|-------|----------|---------|
+| **Gru Agent** | Gru | Web interface coordinator providing conversational AI, project intake, and dashboard monitoring. |
+| **Dr. Nefario Agent** | Nefario | Claude Code adapter bridging AI-powered code generation with the Minions framework. |
+| **Project Manager** | Silas | Manages external project connections, framework detection, and project scanning. |
+| **Project Completion** | Lucy | Autonomous completion loops detecting gaps and driving projects to done state. |
+| **Security & Risk** | Tom | Security scanning, vulnerability detection, risk tracking, and threat modeling (STRIDE). |
+
+### Planning & Architecture Agents
+
+| Agent | Codename | Mission |
+|-------|----------|---------|
+| **Vision Agent** | — | Analyzes project requirements and creates high-level technical vision documents. |
+| **Architect Agent** | — | Designs system architecture, component relationships, and technical specifications. |
+| **Planner Agent** | — | Breaks down architecture into executable task plans with dependencies. |
+
+### Code Writer Agents
+
+| Agent | Codename | Mission |
+|-------|----------|---------|
+| **Backend Writer** | — | Generates server-side code including APIs, services, and business logic. |
+| **Frontend Writer** | — | Creates client-side UI components, state management, and user interactions. |
+| **Flutter Writer** | — | Produces cross-platform mobile applications using Flutter/Dart. |
+
+### Specialized Agents
+
+| Agent | Codename | Mission |
+|-------|----------|---------|
+| **Tester Agent** | — | Runs test suites, generates test cases, and validates code quality. |
+| **Docker Agent** | — | Manages containerization, Dockerfile generation, and compose configurations. |
+| **GitHub Agent** | — | Handles Git operations, PR creation, and repository management. |
+| **Codebase Analyzer** | — | Scans codebases to extract structure, patterns, and dependency maps. |
+| **Document Agent** | — | Generates documentation, READMEs, and API references from code. |
+| **Database Agent** | Dave | Database schema design, migration generation, and query optimization. |
+| **Performance Agent** | Kevin | Performance profiling, bottleneck detection, and optimization recommendations. |
+
+### Evolution & Learning Agents
+
+| Agent | Codename | Mission |
+|-------|----------|---------|
+| **Pattern Detector** | — | Identifies recurring patterns in agent behavior for skill extraction. |
+| **Skill Synthesizer** | — | Generates reusable skills from detected patterns using LLM synthesis. |
+| **RL Policy** | — | Reinforcement learning policy for action selection and strategy optimization. |
+| **A/B Tester** | — | Compares skill variants to determine optimal implementations. |
+| **Cross-Agent Teacher** | — | Transfers learned skills between agents with mastery tracking. |
+
+### Core Infrastructure
+
+| Component | Mission |
+|-----------|---------|
+| **Manager Agent** | Orchestrates agent execution with dependency resolution and concurrency control. |
+| **Autonomous Loop** | Manages test-fix-verify cycles triggered by failure events. |
+| **Skills System** | Reusable capabilities (AutoFixer, CodeReviewer, SecurityScanner, etc.). |
 
 ---
 
