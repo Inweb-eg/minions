@@ -779,7 +779,7 @@
 
     // Handle WebSocket messages
     function handleWebSocketMessage(message) {
-      if (message.type === 'minion:chatter') {
+      if (message.type === 'minions:chatter') {
         addMessage(message.payload);
       }
     }

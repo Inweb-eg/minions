@@ -18,7 +18,7 @@ import ConversationEngine from './ConversationEngine.js';
 import ProjectIntake from './ProjectIntake.js';
 import StatusTracker, { Phase } from './StatusTracker.js';
 import { getConversationStore } from './ConversationStore.js';
-import MinionTranslator from './MinionTranslator.js';
+import { getMinionTranslator, MinionTranslator } from './MinionTranslator.js';
 
 // Agent States
 export const AgentState = {
@@ -79,7 +79,7 @@ export class GruAgent extends EventEmitter {
     this.projectIntake = new ProjectIntake(this.config);
     this.statusTracker = new StatusTracker(this.config);
     this.conversationStore = getConversationStore(this.config);
-    this.minionTranslator = new MinionTranslator(this.config);
+    this.minionTranslator = getMinionTranslator(this.config);
 
     // External agent references (set via setAgents)
     this.silas = null; // ProjectManagerAgent
@@ -152,7 +152,7 @@ export class GruAgent extends EventEmitter {
       // Wire up chatter events to WebSocket broadcast
       this.minionTranslator.on('chatter', (chatter) => {
         this.webServer.broadcast({
-          type: 'minion:chatter',
+          type: 'minions:chatter',
           payload: chatter
         });
       });
@@ -1134,25 +1134,53 @@ export class GruAgent extends EventEmitter {
 
     // ============ Minion Chatter API Handlers ============
 
-    this.webServer.on('api:minions:chatter:history', async ({ limit, callback }) => {
-      const history = this.minionTranslator.getHistory(limit);
-      callback({ success: true, chatter: history });
+    this.webServer.on('api:minions:chatter:history', ({ limit, callback }) => {
+      if (!this.minionTranslator) {
+        callback({ success: false, error: 'Minion chatter not initialized' });
+        return;
+      }
+      try {
+        const history = this.minionTranslator.getHistory(limit);
+        callback({ success: true, chatter: history });
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
     });
 
-    this.webServer.on('api:minions:personalities', async ({ callback }) => {
-      const personalities = MinionTranslator.getPersonalities();
-      callback({ success: true, personalities });
+    this.webServer.on('api:minions:personalities', ({ callback }) => {
+      try {
+        const personalities = MinionTranslator.getPersonalities();
+        callback({ success: true, personalities });
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
     });
 
-    this.webServer.on('api:minions:chatter:toggle', async ({ enabled, callback }) => {
-      this.minionTranslator.setEnabled(enabled);
-      this._recordLearningEvent('control:chatter:toggle', { enabled });
-      callback({ success: true, enabled: this.minionTranslator.isEnabled() });
+    this.webServer.on('api:minions:chatter:toggle', ({ enabled, callback }) => {
+      if (!this.minionTranslator) {
+        callback({ success: false, error: 'Minion chatter not initialized' });
+        return;
+      }
+      try {
+        this.minionTranslator.setEnabled(enabled);
+        this._recordLearningEvent('control:chatter:toggle', { enabled });
+        callback({ success: true, enabled: this.minionTranslator.isEnabled() });
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
     });
 
-    this.webServer.on('api:minions:chatter:clear', async ({ callback }) => {
-      this.minionTranslator.clearHistory();
-      callback({ success: true });
+    this.webServer.on('api:minions:chatter:clear', ({ callback }) => {
+      if (!this.minionTranslator) {
+        callback({ success: false, error: 'Minion chatter not initialized' });
+        return;
+      }
+      try {
+        this.minionTranslator.clearHistory();
+        callback({ success: true });
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
     });
   }
 

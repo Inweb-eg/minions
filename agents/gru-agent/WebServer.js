@@ -391,6 +391,9 @@ export class WebServer extends EventEmitter {
     // Toggle chatter on/off
     this.app.post('/api/minions/chatter/toggle', (req, res) => {
       const { enabled } = req.body;
+      if (typeof enabled !== 'boolean') {
+        return res.status(400).json({ success: false, error: 'enabled must be a boolean' });
+      }
       this.emit('api:minions:chatter:toggle', { enabled, callback: (data) => res.json(data) });
     });
 

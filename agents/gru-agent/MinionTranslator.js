@@ -250,7 +250,7 @@ export class MinionTranslator extends EventEmitter {
     };
 
     this.ollamaAdapter = null;
-    this.eventBus = null;
+    this.eventBus = getEventBus(); // Get EventBus immediately in constructor
     this.chatterHistory = [];
     this.isInitialized = false;
     this.pendingEvents = [];
@@ -265,7 +265,6 @@ export class MinionTranslator extends EventEmitter {
     if (this.isInitialized) return;
 
     this.ollamaAdapter = ollamaAdapter;
-    this.eventBus = getEventBus();
 
     // Subscribe to all events
     this.eventBus.subscribeToAll('MinionTranslator', (event) => {
@@ -571,6 +570,31 @@ Generate a short, funny, in-character reaction. Keep it to 1-2 sentences.`;
     }
     this.removeAllListeners();
     this.isInitialized = false;
+  }
+}
+
+// Singleton instance
+let instance = null;
+
+/**
+ * Get singleton MinionTranslator instance
+ * @param {object} config - Configuration options
+ * @returns {MinionTranslator}
+ */
+export function getMinionTranslator(config = {}) {
+  if (!instance) {
+    instance = new MinionTranslator(config);
+  }
+  return instance;
+}
+
+/**
+ * Reset singleton (for testing)
+ */
+export function resetMinionTranslator() {
+  if (instance) {
+    instance.shutdown();
+    instance = null;
   }
 }
 

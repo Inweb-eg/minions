@@ -286,7 +286,7 @@ class GruDashboard {
         // Heartbeat response
         break;
 
-      case 'minion:chatter':
+      case 'minions:chatter':
         // Forward to minion chatter widget
         if (window.handleMinionChatter) {
           window.handleMinionChatter(message.payload);
