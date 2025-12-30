@@ -1,0 +1,51 @@
+{
+  "id": "1eb2ccec6add5f69",
+  "type": "experience",
+  "content": {
+    "agentId": "agent",
+    "skillId": "shutdown_skill",
+    "mastery": {
+      "level": "master",
+      "successRate": 1,
+      "activations": 1,
+      "lastUpdated": 1767106339583,
+      "isCreator": true,
+      "successCount": 1
+    }
+  },
+  "metadata": {
+    "type": "mastery",
+    "agentId": "agent",
+    "skillId": "shutdown_skill",
+    "level": "master",
+    "successRate": 1,
+    "activations": 1
+  },
+  "tags": [
+    "mastery",
+    "agent",
+    "shutdown_skill",
+    "master"
+  ],
+  "quality": "experimental",
+  "vector": {
+    "agentid": 1,
+    "agent": 1,
+    "skillid": 1,
+    "shutdown_skill": 1,
+    "mastery": 1,
+    "level": 1,
+    "master": 1,
+    "successrate": 1,
+    "activations": 1,
+    "lastupdated": 1,
+    "1767106339583": 1,
+    "iscreator": 1,
+    "true": 1,
+    "successcount": 1
+  },
+  "createdAt": 1767106339584,
+  "lastAccessed": 1767106339584,
+  "accessCount": 1,
+  "usefulness": 0
+}

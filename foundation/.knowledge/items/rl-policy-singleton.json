@@ -28,18 +28,18 @@
       "averageReward": 1,
       "explorationActions": 0,
       "exploitationActions": 0,
-      "lastSaveTime": 1767106221519
+      "lastSaveTime": 1767106881992
     },
     "config": {
       "learningRate": 0.1,
       "discountFactor": 0.95,
       "minExploration": 0.05
     },
-    "savedAt": 1767106281578
+    "savedAt": 1767106942050
   },
   "metadata": {
-    "savedAt": 1767106281578,
-    "updates": 147
+    "savedAt": 1767106942050,
+    "updates": 158
   },
   "tags": [
     "reinforcement-learning",
@@ -48,7 +48,7 @@
   "quality": "verified",
   "vector": {},
   "createdAt": 1767097805150,
-  "lastAccessed": 1767106281578,
-  "accessCount": 218,
+  "lastAccessed": 1767106942050,
+  "accessCount": 229,
   "usefulness": 0
 }

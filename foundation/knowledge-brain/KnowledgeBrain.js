@@ -731,7 +731,7 @@ class KnowledgeBrain {
     return await this.learn({ type: KNOWLEDGE_TYPES.LEARNED_SKILL, content: skill, quality: QUALITY_LEVELS.EXPERIMENTAL, tags: ['generated-skill', skill.sourcePattern, skill.name].filter(Boolean), metadata: { skillId: skill.id, skillName: skill.name, sourcePattern: skill.sourcePattern, confidence: skill.metadata?.confidence } });
   }
 
-  getLearnedSkills(options = {}) {
+  async getLearnedSkills(options = {}) {
     const items = Array.from(this.knowledge.values()).filter(item => item.type === KNOWLEDGE_TYPES.LEARNED_SKILL);
     let skills = items.map(item => ({
       ...item.content,
@@ -837,6 +837,10 @@ class KnowledgeBrain {
     return Array.from(this.knowledge.values()).filter(item => item.type === KNOWLEDGE_TYPES.EXPERIENCE && item.metadata?.pattern === pattern);
   }
 
+  async queryByType(type) {
+    return Array.from(this.knowledge.values()).filter(item => item.type === type);
+  }
+
   async storeSkillTestResult(result) {
     return await this.learn({ type: KNOWLEDGE_TYPES.SKILL_TEST_RESULT, content: result, quality: result.passed ? QUALITY_LEVELS.VERIFIED : QUALITY_LEVELS.EXPERIMENTAL, tags: ['skill-test', result.skillId, result.passed ? 'passed' : 'failed'], metadata: { skillId: result.skillId, testId: result.testId, passed: result.passed, timestamp: Date.now() } });
   }
@@ -866,7 +870,7 @@ class KnowledgeBrain {
   }
 
   async getSuccessfulSkills(minSuccessRate = 0.7, minActivations = 5) {
-    const skills = this.getLearnedSkills();
+    const skills = await this.getLearnedSkills();
     return skills.filter(skill =>
       (skill.metadata?.activations || 0) >= minActivations &&
       (skill.metadata?.successRate || 0) >= minSuccessRate
