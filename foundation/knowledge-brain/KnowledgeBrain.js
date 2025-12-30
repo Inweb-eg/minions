@@ -745,6 +745,13 @@ class KnowledgeBrain {
     return null;
   }
 
+  async loadRLPolicy() {
+    const policies = Array.from(this.knowledge.values()).filter(item => item.type === KNOWLEDGE_TYPES.RL_POLICY);
+    if (policies.length === 0) return null;
+    const latest = policies.sort((a, b) => (b.metadata?.updatedAt || 0) - (a.metadata?.updatedAt || 0))[0];
+    return latest?.content || null;
+  }
+
   async storeExperience(exp) {
     return await this.learn({ type: KNOWLEDGE_TYPES.EXPERIENCE, content: exp, quality: QUALITY_LEVELS.EXPERIMENTAL, tags: ['experience', exp.pattern].filter(Boolean), metadata: { pattern: exp.pattern, outcome: exp.outcome, reward: exp.reward, timestamp: Date.now() } });
   }
