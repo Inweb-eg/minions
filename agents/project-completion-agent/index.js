@@ -14,6 +14,7 @@ import { createLogger } from '../../foundation/common/logger.js';
 import { getEventBus } from '../../foundation/event-bus/AgentEventBus.js';
 import { EventTypes } from '../../foundation/event-bus/eventTypes.js';
 import { getPlanExecutor } from '../nefario-agent/PlanExecutor.js';
+import { getDecisionLogger, DecisionType, DecisionOutcome } from '../../foundation/memory-store/DecisionLogger.js';
 
 import GapDetector from './GapDetector.js';
 import CompletionTracker from './CompletionTracker.js';
@@ -80,6 +81,9 @@ export class ProjectCompletionAgent extends EventEmitter {
     // PlanExecutor for gap resolution (lazy-loaded)
     this._planExecutor = null;
 
+    // DecisionLogger for tracking completion decisions
+    this.decisionLogger = null;
+
     // Current project being completed
     this.currentProject = null;
     this.gaps = [];
@@ -111,6 +115,10 @@ export class ProjectCompletionAgent extends EventEmitter {
 
       await this._ensureDirectories();
       await this._loadExistingState();
+
+      // Initialize DecisionLogger for tracking completion decisions
+      this.decisionLogger = getDecisionLogger();
+      await this.decisionLogger.initialize();
 
       // Wire up sub-components
       this.loop.on('iteration:started', (data) => {
@@ -409,6 +417,27 @@ export class ProjectCompletionAgent extends EventEmitter {
       const gapsToResolve = prioritizedGaps.slice(0, 3);
       const tasks = gapsToResolve.map((gap, i) => this._gapToTask(gap, i));
 
+      // Log gap resolution decision
+      let resolutionDecisionId = null;
+      if (this.decisionLogger) {
+        resolutionDecisionId = await this.decisionLogger.logDecision({
+          agent: 'ProjectCompletionAgent',
+          type: DecisionType.FIX_STRATEGY,
+          context: {
+            project: this.currentProject.name,
+            iteration,
+            totalGaps: this.gaps.length,
+            gapsToResolve: gapsToResolve.length
+          },
+          decision: {
+            action: 'resolve_gaps',
+            gaps: gapsToResolve.map(g => ({ id: g.id, type: g.type, priority: g.priority })),
+            taskCount: tasks.length
+          },
+          reasoning: `Iteration ${iteration}: Resolving ${gapsToResolve.length} gaps out of ${this.gaps.length} total. Gap types: ${gapsToResolve.map(g => g.type).join(', ')}`
+        });
+      }
+
       // Create a mini-plan for this iteration
       const iterationPlan = {
         id: `completion-${Date.now()}-iter-${iteration}`,
@@ -461,6 +490,7 @@ export class ProjectCompletionAgent extends EventEmitter {
         this.state = AgentState.VERIFYING;
 
         // Mark resolved gaps
+        let resolvedCount = 0;
         for (const gap of gapsToResolve) {
           if (executionResult.taskResults[gap.id]?.success) {
             await this.completionTracker.updateProgress(this.currentProject.name, {
@@ -469,6 +499,7 @@ export class ProjectCompletionAgent extends EventEmitter {
             });
 
             this.metrics.gapsResolved++;
+            resolvedCount++;
             this.emit(CompletionEvents.GAP_RESOLVED, { gap });
 
             if (this.eventBus) {
@@ -477,9 +508,32 @@ export class ProjectCompletionAgent extends EventEmitter {
           }
         }
 
+        // Update decision outcome
+        if (this.decisionLogger && resolutionDecisionId) {
+          await this.decisionLogger.updateOutcome(
+            resolutionDecisionId,
+            resolvedCount === gapsToResolve.length ? DecisionOutcome.SUCCESS :
+            resolvedCount > 0 ? DecisionOutcome.PARTIAL_SUCCESS : DecisionOutcome.FAILED,
+            {
+              resolvedCount,
+              totalAttempted: gapsToResolve.length,
+              iteration
+            }
+          );
+        }
+
       } catch (error) {
         this.logger.error(`Execution error: ${error.message}`);
         this.metrics.errorsCount++;
+
+        // Update decision outcome on error
+        if (this.decisionLogger && resolutionDecisionId) {
+          await this.decisionLogger.updateOutcome(
+            resolutionDecisionId,
+            DecisionOutcome.FAILED,
+            { error: error.message, iteration }
+          );
+        }
 
         // Continue to next iteration despite errors
       }

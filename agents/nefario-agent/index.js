@@ -14,6 +14,7 @@ import EventEmitter from 'events';
 import { createLogger } from '../../foundation/common/logger.js';
 import OllamaAdapter from '../gru-agent/OllamaAdapter.js';
 import { getPlanExecutor } from './PlanExecutor.js';
+import { getDecisionLogger, DecisionType, DecisionOutcome } from '../../foundation/memory-store/DecisionLogger.js';
 
 // Agent States
 export const NefarioState = {
@@ -124,6 +125,9 @@ export class NefarioAgent extends EventEmitter {
 
     // PlanExecutor for bridging plans to execution
     this.planExecutor = null;
+
+    // DecisionLogger for tracking all planning decisions
+    this.decisionLogger = null;
   }
 
   /**
@@ -155,6 +159,10 @@ export class NefarioAgent extends EventEmitter {
       // Initialize PlanExecutor and wire up code generator
       this.planExecutor = getPlanExecutor(this.config.executorConfig || {});
       this.planExecutor.setCodeGenerator(this.aiAdapter);
+
+      // Initialize DecisionLogger for tracking planning decisions
+      this.decisionLogger = getDecisionLogger();
+      await this.decisionLogger.initialize();
 
       this.isInitialized = true;
       this.state = NefarioState.IDLE;
@@ -200,6 +208,26 @@ export class NefarioAgent extends EventEmitter {
       this.currentPlan = minionsPlan;
       this.state = NefarioState.COMPLETE;
 
+      // Log the planning decision
+      if (this.decisionLogger) {
+        await this.decisionLogger.logDecision({
+          agent: 'NefarioAgent',
+          type: DecisionType.TASK_BREAKDOWN,
+          context: {
+            projectName: projectInfo.name,
+            projectType: projectInfo.type,
+            features: projectInfo.features?.length || 0
+          },
+          decision: {
+            planId: minionsPlan.id,
+            taskCount: minionsPlan.tasks.length,
+            phases: Object.keys(minionsPlan.phases || {}),
+            technologies: minionsPlan.metadata?.technologies
+          },
+          reasoning: `Generated plan with ${minionsPlan.tasks.length} tasks across ${Object.keys(minionsPlan.phases || {}).length} phases for project "${projectInfo.name || 'unnamed'}"`
+        });
+      }
+
       this.logger.info(`Plan generated with ${minionsPlan.tasks.length} tasks`);
       this.emit('plan:generated', { plan: minionsPlan });
 
@@ -234,6 +262,26 @@ export class NefarioAgent extends EventEmitter {
     this.logger.info(`Executing plan: ${targetPlan.id}`);
     this.emit('plan:executing', { planId: targetPlan.id });
 
+    // Log execution decision
+    let executionDecisionId = null;
+    if (this.decisionLogger) {
+      executionDecisionId = await this.decisionLogger.logDecision({
+        agent: 'NefarioAgent',
+        type: DecisionType.PRIORITIZATION,
+        context: {
+          planId: targetPlan.id,
+          taskCount: targetPlan.tasks?.length || 0,
+          hasContext: Object.keys(context).length > 0
+        },
+        decision: {
+          action: 'execute_plan',
+          planId: targetPlan.id,
+          strategy: 'dependency_based'
+        },
+        reasoning: `Executing plan ${targetPlan.id} with ${targetPlan.tasks?.length || 0} tasks using dependency-based execution strategy`
+      });
+    }
+
     try {
       // Build context from plan metadata if not provided
       const executionContext = {
@@ -248,11 +296,33 @@ export class NefarioAgent extends EventEmitter {
       // Execute via PlanExecutor
       const result = await this.planExecutor.executePlan(targetPlan, executionContext);
 
+      // Update decision outcome
+      if (this.decisionLogger && executionDecisionId) {
+        await this.decisionLogger.updateOutcome(
+          executionDecisionId,
+          result.success ? DecisionOutcome.SUCCESS : DecisionOutcome.PARTIAL_SUCCESS,
+          {
+            tasksCompleted: result.tasksCompleted,
+            tasksFailed: result.tasksFailed,
+            duration: result.duration
+          }
+        );
+      }
+
       this.logger.info(`Plan execution completed: ${result.success ? 'SUCCESS' : 'FAILED'}`);
       this.emit('plan:executed', { planId: targetPlan.id, result });
 
       return result;
     } catch (error) {
+      // Update decision outcome on failure
+      if (this.decisionLogger && executionDecisionId) {
+        await this.decisionLogger.updateOutcome(
+          executionDecisionId,
+          DecisionOutcome.FAILED,
+          { error: error.message }
+        );
+      }
+
       this.logger.error(`Plan execution failed: ${error.message}`);
       this.emit('plan:execution:failed', { planId: targetPlan.id, error: error.message });
       throw error;
