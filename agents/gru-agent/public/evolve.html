@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Evolve - Minions Self-Learning Dashboard</title>
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-blue: #3b82f6;
+      --accent-green: #22c55e;
+      --accent-yellow: #eab308;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+      --border-color: #475569;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: var(--bg-secondary);
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header h1 span {
+      color: var(--accent-purple);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+    }
+
+    .nav-links a:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .nav-links a.active {
+      background: var(--accent-blue);
+      color: white;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-secondary);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .stat-card .label {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+
+    .stat-card .trend {
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .stat-card .trend.up { color: var(--accent-green); }
+    .stat-card .trend.down { color: var(--accent-red); }
+
+    .section {
+      background: var(--bg-secondary);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border-color);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-header h2 {
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge {
+      background: var(--bg-tertiary);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+    }
+
+    .badge.active { background: var(--accent-green); color: white; }
+    .badge.pending { background: var(--accent-yellow); color: black; }
+    .badge.error { background: var(--accent-red); color: white; }
+
+    .two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    @media (max-width: 1024px) {
+      .two-column {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Skills List */
+    .skill-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .skill-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .skill-item:last-child {
+      border-bottom: none;
+    }
+
+    .skill-info {
+      flex: 1;
+    }
+
+    .skill-name {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .skill-meta {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+    }
+
+    .skill-stats {
+      text-align: right;
+    }
+
+    .skill-stats .success-rate {
+      font-weight: bold;
+      font-size: 1.125rem;
+    }
+
+    .skill-stats .activations {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+    }
+
+    /* Event Log */
+    .event-log {
+      max-height: 500px;
+      overflow-y: auto;
+      font-family: 'Consolas', 'Monaco', monospace;
+      font-size: 0.75rem;
+    }
+
+    .event-entry {
+      padding: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      gap: 1rem;
+    }
+
+    .event-entry:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .event-time {
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .event-type {
+      padding: 0.125rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.625rem;
+      white-space: nowrap;
+    }
+
+    .event-type.pattern { background: var(--accent-blue); }
+    .event-type.skill { background: var(--accent-purple); }
+    .event-type.reward { background: var(--accent-green); }
+    .event-type.test { background: var(--accent-yellow); color: black; }
+    .event-type.error { background: var(--accent-red); }
+    .event-type.teaching { background: #ec4899; }
+
+    .event-message {
+      flex: 1;
+      word-break: break-word;
+    }
+
+    /* Policy Visualization */
+    .policy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 0.5rem;
+    }
+
+    .policy-state {
+      background: var(--bg-tertiary);
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+    }
+
+    .policy-state .state-name {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .policy-state .action {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.625rem;
+      padding: 0.25rem 0;
+    }
+
+    .policy-state .action-name {
+      color: var(--text-primary);
+    }
+
+    .policy-state .q-value {
+      color: var(--accent-blue);
+      font-weight: bold;
+    }
+
+    /* Teaching Progress */
+    .teaching-item {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .teaching-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .teaching-skill {
+      font-weight: 600;
+    }
+
+    .teaching-agents {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+    }
+
+    .progress-bar {
+      background: var(--bg-tertiary);
+      border-radius: 0.25rem;
+      height: 0.5rem;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      background: var(--accent-green);
+      height: 100%;
+      transition: width 0.3s;
+    }
+
+    /* Test Results */
+    .test-result {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .test-competitors {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .test-competitor {
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      font-size: 0.75rem;
+    }
+
+    .test-competitor.winner {
+      background: var(--accent-green);
+      color: white;
+    }
+
+    .test-competitor.loser {
+      background: var(--bg-tertiary);
+    }
+
+    .test-significance {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-secondary);
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    /* Refresh Button */
+    .refresh-btn {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .refresh-btn:hover {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    .refresh-btn.loading {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    /* Status Indicator */
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .status-dot.disconnected {
+      background: var(--accent-red);
+      animation: none;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1><span>M</span> Minions <span>Evolve</span></h1>
+    <nav class="nav-links">
+      <a href="/">Chat</a>
+      <a href="/evolve" class="active">Evolve</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Learned Skills</div>
+        <div class="value" id="skillCount">0</div>
+        <div class="trend up" id="skillTrend"></div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Total Activations</div>
+        <div class="value" id="activationCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Success Rate</div>
+        <div class="value" id="successRate">0%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">RL Policy</div>
+        <div class="value" id="policyStatus">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Experience Count</div>
+        <div class="value" id="experienceCount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">A/B Tests</div>
+        <div class="value" id="testCount">0</div>
+      </div>
+    </div>
+
+    <div class="two-column">
+      <!-- Left Column -->
+      <div>
+        <!-- Learned Skills -->
+        <div class="section">
+          <div class="section-header">
+            <h2>Learned Skills</h2>
+            <button class="refresh-btn" onclick="refreshSkills()">Refresh</button>
+          </div>
+          <div class="skill-list" id="skillList">
+            <div class="empty-state">
+              <p>No skills learned yet</p>
+              <p style="font-size: 0.75rem; margin-top: 0.5rem;">Skills are generated from detected patterns</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- RL Policy -->
+        <div class="section">
+          <div class="section-header">
+            <h2>RL Policy (Q-Values)</h2>
+            <span class="badge" id="policyBadge">Not Loaded</span>
+          </div>
+          <div class="policy-grid" id="policyGrid">
+            <div class="empty-state">
+              <p>No policy trained yet</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div>
+        <!-- Event Log -->
+        <div class="section">
+          <div class="section-header">
+            <h2>Learning Events</h2>
+            <div class="status-indicator">
+              <span class="status-dot" id="statusDot"></span>
+              <span id="statusText">Monitoring</span>
+            </div>
+          </div>
+          <div class="event-log" id="eventLog">
+            <div class="empty-state">
+              <p>Waiting for learning events...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- A/B Test Results -->
+        <div class="section">
+          <div class="section-header">
+            <h2>A/B Test Results</h2>
+          </div>
+          <div id="testResults">
+            <div class="empty-state">
+              <p>No A/B tests completed yet</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Teaching Sessions -->
+        <div class="section">
+          <div class="section-header">
+            <h2>Cross-Agent Teaching</h2>
+          </div>
+          <div id="teachingSessions">
+            <div class="empty-state">
+              <p>No active teaching sessions</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let ws = null;
+    let isConnected = false;
+    let eventHistory = [];
+    const MAX_EVENTS = 200;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      connectWebSocket();
+      loadInitialData();
+      setInterval(loadStats, 30000); // Refresh stats every 30s
+    });
+
+    // WebSocket connection for real-time events
+    function connectWebSocket() {
+      ws = new WebSocket(`ws://${window.location.host}`);
+
+      ws.onopen = () => {
+        isConnected = true;
+        document.getElementById('statusDot').classList.remove('disconnected');
+        document.getElementById('statusText').textContent = 'Connected';
+      };
+
+      ws.onclose = () => {
+        isConnected = false;
+        document.getElementById('statusDot').classList.add('disconnected');
+        document.getElementById('statusText').textContent = 'Disconnected';
+        setTimeout(connectWebSocket, 3000);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          handleRealtimeEvent(data);
+        } catch (e) {
+          console.error('Failed to parse message:', e);
+        }
+      };
+    }
+
+    // Handle real-time events
+    function handleRealtimeEvent(data) {
+      // Check if it's a learning-related event
+      if (data.type && data.type.startsWith('learning:')) {
+        addEventToLog(data);
+
+        // Refresh relevant sections
+        if (data.type === 'learning:skill:generated' || data.type === 'learning:skill:deployed') {
+          refreshSkills();
+        } else if (data.type === 'learning:policy:updated') {
+          loadPolicy();
+        }
+      }
+    }
+
+    // Add event to log
+    function addEventToLog(event) {
+      eventHistory.unshift({
+        time: new Date().toISOString(),
+        type: event.type,
+        data: event.data || event
+      });
+
+      if (eventHistory.length > MAX_EVENTS) {
+        eventHistory.pop();
+      }
+
+      renderEventLog();
+    }
+
+    // Load initial data
+    async function loadInitialData() {
+      await Promise.all([
+        loadStats(),
+        loadSkills(),
+        loadPolicy(),
+        loadEvents(),
+        loadTestResults(),
+        loadTeaching()
+      ]);
+    }
+
+    // Load stats
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/learning/stats');
+        const stats = await res.json();
+
+        document.getElementById('skillCount').textContent = stats.learnedSkillCount || 0;
+        document.getElementById('activationCount').textContent = stats.totalSkillActivations || 0;
+        document.getElementById('successRate').textContent =
+          ((stats.overallSuccessRate || 0) * 100).toFixed(1) + '%';
+        document.getElementById('policyStatus').textContent = stats.hasRLPolicy ? 'Active' : 'None';
+        document.getElementById('experienceCount').textContent = stats.experienceCount || 0;
+        document.getElementById('testCount').textContent = stats.testResultCount || 0;
+      } catch (e) {
+        console.error('Failed to load stats:', e);
+      }
+    }
+
+    // Load skills
+    async function loadSkills() {
+      try {
+        const res = await fetch('/api/learning/skills');
+        const skills = await res.json();
+
+        const container = document.getElementById('skillList');
+
+        if (!skills || skills.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <p>No skills learned yet</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = skills.map(skill => `
+          <div class="skill-item">
+            <div class="skill-info">
+              <div class="skill-name">${escapeHtml(skill.name || skill.id)}</div>
+              <div class="skill-meta">
+                Pattern: ${escapeHtml(skill.sourcePattern || 'unknown')} |
+                Quality: ${skill.metadata?.quality || 'experimental'}
+              </div>
+            </div>
+            <div class="skill-stats">
+              <div class="success-rate">${((skill.metadata?.successRate || 0) * 100).toFixed(0)}%</div>
+              <div class="activations">${skill.metadata?.activations || 0} activations</div>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        console.error('Failed to load skills:', e);
+      }
+    }
+
+    function refreshSkills() {
+      loadSkills();
+      loadStats();
+    }
+
+    // Load policy
+    async function loadPolicy() {
+      try {
+        const res = await fetch('/api/learning/policy');
+        const policy = await res.json();
+
+        const container = document.getElementById('policyGrid');
+        const badge = document.getElementById('policyBadge');
+
+        if (!policy || !policy.qTable || Object.keys(policy.qTable).length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <p>No policy trained yet</p>
+            </div>
+          `;
+          badge.textContent = 'Not Loaded';
+          badge.className = 'badge';
+          return;
+        }
+
+        badge.textContent = `${Object.keys(policy.qTable).length} states`;
+        badge.className = 'badge active';
+
+        const states = Object.entries(policy.qTable).slice(0, 12);
+        container.innerHTML = states.map(([state, actions]) => `
+          <div class="policy-state">
+            <div class="state-name">${escapeHtml(state)}</div>
+            ${Object.entries(actions).map(([action, value]) => `
+              <div class="action">
+                <span class="action-name">${escapeHtml(action)}</span>
+                <span class="q-value">${value.toFixed(2)}</span>
+              </div>
+            `).join('')}
+          </div>
+        `).join('');
+      } catch (e) {
+        console.error('Failed to load policy:', e);
+      }
+    }
+
+    // Load events
+    async function loadEvents() {
+      try {
+        const res = await fetch('/api/learning/events?limit=100');
+        const events = await res.json();
+
+        if (events && events.length > 0) {
+          eventHistory = events.map(e => ({
+            time: e.timestamp,
+            type: e.type,
+            data: e.data
+          }));
+          renderEventLog();
+        }
+      } catch (e) {
+        console.error('Failed to load events:', e);
+      }
+    }
+
+    // Render event log
+    function renderEventLog() {
+      const container = document.getElementById('eventLog');
+
+      if (eventHistory.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p>Waiting for learning events...</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = eventHistory.slice(0, 100).map(event => {
+        const time = new Date(event.time).toLocaleTimeString();
+        const typeClass = getEventTypeClass(event.type);
+        const typeName = event.type.replace('learning:', '').replace(':', ' ');
+        const message = formatEventMessage(event);
+
+        return `
+          <div class="event-entry">
+            <span class="event-time">${time}</span>
+            <span class="event-type ${typeClass}">${typeName}</span>
+            <span class="event-message">${escapeHtml(message)}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getEventTypeClass(type) {
+      if (type.includes('pattern')) return 'pattern';
+      if (type.includes('skill')) return 'skill';
+      if (type.includes('reward')) return 'reward';
+      if (type.includes('test') || type.includes('abtest')) return 'test';
+      if (type.includes('error')) return 'error';
+      if (type.includes('teaching') || type.includes('mastery')) return 'teaching';
+      return '';
+    }
+
+    function formatEventMessage(event) {
+      const data = event.data || {};
+      if (data.skillName) return `Skill: ${data.skillName}`;
+      if (data.pattern) return `Pattern: ${data.pattern}`;
+      if (data.agent) return `Agent: ${data.agent}`;
+      if (data.message) return data.message;
+      return JSON.stringify(data).substring(0, 100);
+    }
+
+    // Load test results
+    async function loadTestResults() {
+      try {
+        const res = await fetch('/api/learning/tests');
+        const tests = await res.json();
+
+        const container = document.getElementById('testResults');
+
+        if (!tests || tests.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <p>No A/B tests completed yet</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = tests.slice(0, 10).map(test => `
+          <div class="test-result">
+            <div class="test-competitors">
+              <span class="test-competitor ${test.winner === 'control' ? 'winner' : 'loser'}">
+                ${escapeHtml(test.controlSkill?.name || 'Control')}
+              </span>
+              <span>vs</span>
+              <span class="test-competitor ${test.winner === 'treatment' ? 'winner' : 'loser'}">
+                ${escapeHtml(test.treatmentSkill?.name || 'Treatment')}
+              </span>
+            </div>
+            <div class="test-significance">
+              p=${(test.significance || 0).toFixed(3)}
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        console.error('Failed to load test results:', e);
+      }
+    }
+
+    // Load teaching sessions
+    async function loadTeaching() {
+      try {
+        const res = await fetch('/api/learning/teaching');
+        const teaching = await res.json();
+
+        const container = document.getElementById('teachingSessions');
+
+        if (!teaching || (!teaching.activeSessions?.length && !teaching.stats)) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <p>No active teaching sessions</p>
+            </div>
+          `;
+          return;
+        }
+
+        if (teaching.activeSessions && teaching.activeSessions.length > 0) {
+          container.innerHTML = teaching.activeSessions.map(session => `
+            <div class="teaching-item">
+              <div class="teaching-header">
+                <span class="teaching-skill">${escapeHtml(session.skill || 'Unknown')}</span>
+                <span class="badge ${session.status === 'active' ? 'active' : ''}">${session.status}</span>
+              </div>
+              <div class="teaching-agents">
+                ${escapeHtml(session.teacher || '?')} teaching ${escapeHtml(session.learner || '?')}
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${session.progress || 0}%"></div>
+              </div>
+            </div>
+          `).join('');
+        } else if (teaching.stats) {
+          container.innerHTML = `
+            <div class="teaching-item">
+              <div class="teaching-header">
+                <span>Teaching Statistics</span>
+              </div>
+              <div class="teaching-agents">
+                Skills shared: ${teaching.stats.skillsShared || 0} |
+                Curriculums: ${teaching.stats.curriculumsCreated || 0}
+              </div>
+            </div>
+          `;
+        }
+      } catch (e) {
+        console.error('Failed to load teaching:', e);
+      }
+    }
+
+    // Utility
+    function escapeHtml(text) {
+      if (typeof text !== 'string') return String(text);
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

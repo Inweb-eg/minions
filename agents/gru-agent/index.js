@@ -17,6 +17,7 @@ import WebServer from './WebServer.js';
 import ConversationEngine from './ConversationEngine.js';
 import ProjectIntake from './ProjectIntake.js';
 import StatusTracker, { Phase } from './StatusTracker.js';
+import { getConversationStore } from './ConversationStore.js';
 
 // Agent States
 export const AgentState = {
@@ -76,17 +77,24 @@ export class GruAgent extends EventEmitter {
     this.conversation = new ConversationEngine(this.config);
     this.projectIntake = new ProjectIntake(this.config);
     this.statusTracker = new StatusTracker(this.config);
+    this.conversationStore = getConversationStore(this.config);
 
     // External agent references (set via setAgents)
     this.silas = null; // ProjectManagerAgent
     this.lucy = null;  // ProjectCompletionAgent
     this.nefario = null; // NefarioAgent (Dr. Nefario)
 
+    // Learning system reference (set via setLearningSystem)
+    this.knowledgeBrain = null;
+    this.learningEventLog = [];
+
     // Current state
     this.currentPlan = null;
     this.currentProject = null;
+    this.currentConversationId = null;
 
     this._setupInternalHandlers();
+    this._setupAPIHandlers();
   }
 
   /**
@@ -133,6 +141,9 @@ export class GruAgent extends EventEmitter {
       // Initialize conversation engine (checks AI availability)
       await this.conversation.initialize();
 
+      // Initialize conversation store
+      await this.conversationStore.initialize();
+
       this.state = AgentState.IDLE;
       this.emit('initialized', { agent: this.name, alias: this.alias });
 
@@ -143,6 +154,60 @@ export class GruAgent extends EventEmitter {
       this.emit('error', { agent: this.name, error: error.message });
       throw error;
     }
+  }
+
+  /**
+   * Set learning system reference
+   * @param {object} knowledgeBrain - KnowledgeBrain instance
+   */
+  setLearningSystem(knowledgeBrain) {
+    this.knowledgeBrain = knowledgeBrain;
+    this._subscribeLearningEvents();
+    this.logger.info('Learning system connected');
+  }
+
+  /**
+   * Subscribe to learning system events
+   * @private
+   */
+  _subscribeLearningEvents() {
+    if (!this.knowledgeBrain) return;
+
+    const eventTypes = [
+      'pattern:detected', 'pattern:consolidated',
+      'skill:generated', 'skill:deployed', 'skill:activated',
+      'reward:recorded', 'policy:updated',
+      'abtest:started', 'abtest:completed',
+      'teaching:started', 'teaching:completed', 'mastery:achieved'
+    ];
+
+    for (const eventType of eventTypes) {
+      this.knowledgeBrain.on?.(eventType, (data) => {
+        this._recordLearningEvent(`learning:${eventType}`, data);
+      });
+    }
+  }
+
+  /**
+   * Record a learning event
+   * @private
+   */
+  _recordLearningEvent(type, data) {
+    const event = {
+      type,
+      data,
+      timestamp: new Date().toISOString()
+    };
+
+    this.learningEventLog.unshift(event);
+
+    // Keep only last 500 events
+    if (this.learningEventLog.length > 500) {
+      this.learningEventLog = this.learningEventLog.slice(0, 500);
+    }
+
+    // Broadcast to connected clients
+    this.webServer.broadcast({ type, data });
   }
 
   /**
@@ -602,6 +667,161 @@ export class GruAgent extends EventEmitter {
   }
 
   /**
+   * Setup API handlers for WebServer events
+   * @private
+   */
+  _setupAPIHandlers() {
+    // ============ Conversation API Handlers ============
+
+    this.webServer.on('api:conversations:list', async ({ callback }) => {
+      const conversations = this.conversationStore.getAll();
+      callback(conversations);
+    });
+
+    this.webServer.on('api:conversations:grouped', async ({ callback }) => {
+      const grouped = this.conversationStore.getGroupedByProject();
+      callback(grouped);
+    });
+
+    this.webServer.on('api:conversations:create', async ({ projectName, title, callback }) => {
+      const conversation = await this.conversationStore.create({ projectName, title });
+      callback(conversation);
+    });
+
+    this.webServer.on('api:conversations:get', async ({ id, callback }) => {
+      const conversation = this.conversationStore.get(id);
+      callback(conversation);
+    });
+
+    this.webServer.on('api:conversations:update', async ({ id, updates, callback }) => {
+      // Handle message appending
+      if (updates.messages && Array.isArray(updates.messages)) {
+        for (const msg of updates.messages) {
+          await this.conversationStore.addMessage(id, msg);
+        }
+        const updated = this.conversationStore.get(id);
+        callback(updated);
+      } else {
+        const updated = await this.conversationStore.update(id, updates);
+        callback(updated);
+      }
+    });
+
+    this.webServer.on('api:conversations:delete', async ({ id, callback }) => {
+      const success = await this.conversationStore.delete(id);
+      callback(success);
+    });
+
+    // ============ Project Discovery API Handlers ============
+
+    this.webServer.on('api:projects:discover', async ({ callback }) => {
+      try {
+        const projects = await this.projectIntake.discoverProjects();
+        callback(projects);
+      } catch (error) {
+        this.logger.error(`Project discovery failed: ${error.message}`);
+        callback([]);
+      }
+    });
+
+    // ============ Learning System API Handlers ============
+
+    this.webServer.on('api:learning:stats', ({ callback }) => {
+      if (!this.knowledgeBrain) {
+        callback({ error: 'Learning system not connected' });
+        return;
+      }
+
+      try {
+        const stats = this.knowledgeBrain.getStats?.() || {};
+        callback(stats);
+      } catch (error) {
+        callback({ error: error.message });
+      }
+    });
+
+    this.webServer.on('api:learning:skills', ({ callback }) => {
+      if (!this.knowledgeBrain) {
+        callback([]);
+        return;
+      }
+
+      try {
+        const skillLibrary = this.knowledgeBrain.skillLibrary;
+        const skills = skillLibrary?.getAllSkills?.() || [];
+        callback(skills);
+      } catch (error) {
+        callback([]);
+      }
+    });
+
+    this.webServer.on('api:learning:policy', ({ callback }) => {
+      if (!this.knowledgeBrain) {
+        callback({ qTable: {} });
+        return;
+      }
+
+      try {
+        const rlPolicy = this.knowledgeBrain.rlPolicy;
+        const policy = rlPolicy?.getPolicy?.() || { qTable: {} };
+        callback(policy);
+      } catch (error) {
+        callback({ qTable: {} });
+      }
+    });
+
+    this.webServer.on('api:learning:patterns', ({ callback }) => {
+      if (!this.knowledgeBrain) {
+        callback([]);
+        return;
+      }
+
+      try {
+        const patternMiner = this.knowledgeBrain.patternMiner;
+        const patterns = patternMiner?.getPatterns?.() || [];
+        callback(patterns);
+      } catch (error) {
+        callback([]);
+      }
+    });
+
+    this.webServer.on('api:learning:teaching', ({ callback }) => {
+      if (!this.knowledgeBrain) {
+        callback({ activeSessions: [], stats: null });
+        return;
+      }
+
+      try {
+        const teacher = this.knowledgeBrain.crossAgentTeacher;
+        const stats = teacher?.getTeachingStats?.() || null;
+        callback({ activeSessions: [], stats });
+      } catch (error) {
+        callback({ activeSessions: [], stats: null });
+      }
+    });
+
+    this.webServer.on('api:learning:tests', ({ callback }) => {
+      if (!this.knowledgeBrain) {
+        callback([]);
+        return;
+      }
+
+      try {
+        const abTester = this.knowledgeBrain.abTester;
+        const results = abTester?.getResults?.() || [];
+        callback(results);
+      } catch (error) {
+        callback([]);
+      }
+    });
+
+    this.webServer.on('api:learning:events', ({ limit, callback }) => {
+      const events = this.learningEventLog.slice(0, limit || 100);
+      callback(events);
+    });
+  }
+
+  /**
    * Shutdown the agent
    */
   async shutdown() {
@@ -612,6 +832,7 @@ export class GruAgent extends EventEmitter {
     await this.conversation.shutdown();
     await this.projectIntake.shutdown();
     await this.statusTracker.shutdown();
+    await this.conversationStore.shutdown();
 
     this.emit('shutdown', { agent: this.name });
     this.removeAllListeners();
@@ -648,5 +869,6 @@ export { WebServer };
 export { ConversationEngine };
 export { ProjectIntake };
 export { StatusTracker, Phase };
+export { getConversationStore } from './ConversationStore.js';
 
 export default GruAgent;

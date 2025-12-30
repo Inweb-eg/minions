@@ -15,6 +15,10 @@ class GruDashboard {
     this.maxReconnectAttempts = 5;
     this.reconnectDelay = 2000;
 
+    // Conversation management
+    this.conversations = {};
+    this.currentConversationId = null;
+
     this.init();
   }
 
@@ -95,6 +99,12 @@ class GruDashboard {
     // Welcome screen
     this.newProjectBtn.addEventListener('click', () => this.startNewProject());
     this.existingProjectBtn.addEventListener('click', () => this.startExistingProject());
+
+    // General chat button
+    const generalChatBtn = document.getElementById('generalChatBtn');
+    if (generalChatBtn) {
+      generalChatBtn.addEventListener('click', () => this.startGeneralChat());
+    }
 
     // Chat
     this.sendBtn.addEventListener('click', () => this.sendMessage());
@@ -629,11 +639,174 @@ class GruDashboard {
     div.textContent = text;
     return div.innerHTML;
   }
+
+  // ==================== Conversation Management ====================
+
+  /**
+   * Load all conversations from server
+   */
+  async loadConversations() {
+    try {
+      const res = await fetch('/api/conversations/grouped');
+      this.conversations = await res.json();
+      this.renderConversationList();
+    } catch (error) {
+      console.error('Failed to load conversations:', error);
+    }
+  }
+
+  /**
+   * Render conversation list in sidebar
+   */
+  renderConversationList() {
+    const container = document.getElementById('conversationList');
+    if (!container) return;
+
+    if (Object.keys(this.conversations).length === 0) {
+      container.innerHTML = '<div class="empty-list">No conversations yet</div>';
+      return;
+    }
+
+    let html = '';
+    for (const [project, convs] of Object.entries(this.conversations)) {
+      html += `<div class="conv-group">
+        <div class="conv-group-header">${this.escapeHtml(project)}</div>
+        ${convs.map(c => `
+          <div class="conv-item ${c.id === this.currentConversationId ? 'active' : ''}"
+               data-id="${c.id}" onclick="gruDashboard.loadConversation('${c.id}')">
+            <span class="conv-title">${this.escapeHtml(c.title)}</span>
+            <span class="conv-meta">${c.messageCount || 0} msgs</span>
+          </div>
+        `).join('')}
+      </div>`;
+    }
+
+    container.innerHTML = html;
+  }
+
+  /**
+   * Create a new conversation
+   */
+  async createNewConversation(projectName = 'General') {
+    try {
+      const res = await fetch('/api/conversations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectName, title: 'New Conversation' })
+      });
+      const conv = await res.json();
+      this.currentConversationId = conv.id;
+      await this.loadConversations();
+      return conv;
+    } catch (error) {
+      console.error('Failed to create conversation:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Load a specific conversation
+   */
+  async loadConversation(id) {
+    try {
+      const res = await fetch(`/api/conversations/${id}`);
+      const conv = await res.json();
+
+      this.currentConversationId = id;
+      this.clearChat();
+
+      // Restore messages
+      for (const msg of conv.messages || []) {
+        this.addMessage(msg.role === 'user' ? 'user' : 'gru', msg.content);
+      }
+
+      this.chatTitle.textContent = conv.title || 'Chat';
+      this.showScreen('chat');
+      this.renderConversationList();
+    } catch (error) {
+      console.error('Failed to load conversation:', error);
+    }
+  }
+
+  /**
+   * Save message to current conversation
+   */
+  async saveMessageToConversation(role, content) {
+    if (!this.currentConversationId) return;
+
+    try {
+      await fetch(`/api/conversations/${this.currentConversationId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: [{ role, content }]
+        })
+      });
+    } catch (error) {
+      console.error('Failed to save message:', error);
+    }
+  }
+
+  /**
+   * Delete a conversation
+   */
+  async deleteConversation(id) {
+    if (!confirm('Delete this conversation?')) return;
+
+    try {
+      await fetch(`/api/conversations/${id}`, { method: 'DELETE' });
+      if (this.currentConversationId === id) {
+        this.currentConversationId = null;
+        this.showScreen('welcome');
+      }
+      await this.loadConversations();
+    } catch (error) {
+      console.error('Failed to delete conversation:', error);
+    }
+  }
+
+  /**
+   * Discover available projects
+   */
+  async discoverProjects() {
+    try {
+      const res = await fetch('/api/projects/discover');
+      return await res.json();
+    } catch (error) {
+      console.error('Failed to discover projects:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Start general chat (not project-specific)
+   */
+  async startGeneralChat() {
+    const conv = await this.createNewConversation('General');
+    if (conv) {
+      this.projectType = 'general';
+      this.chatTitle.textContent = 'General Chat';
+      this.chatPhase.textContent = 'Chat';
+      this.showScreen('chat');
+      this.clearChat();
+
+      // Get greeting
+      this.showTypingIndicator();
+      this.send('chat:general', { message: '/start', conversationId: conv.id });
+    }
+  }
 }
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   window.gruDashboard = new GruDashboard();
+
+  // Load conversations after connection
+  setTimeout(() => {
+    if (window.gruDashboard.isConnected) {
+      window.gruDashboard.loadConversations();
+    }
+  }, 1000);
 });
 
 // Heartbeat to keep connection alive

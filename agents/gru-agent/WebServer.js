@@ -133,6 +133,90 @@ export class WebServer extends EventEmitter {
       res.json({ received: true, message: 'Processing...' });
     });
 
+    // ============ Conversation CRUD API ============
+
+    // List all conversations
+    this.app.get('/api/conversations', (req, res) => {
+      this.emit('api:conversations:list', { callback: (data) => res.json(data) });
+    });
+
+    // Get conversations grouped by project
+    this.app.get('/api/conversations/grouped', (req, res) => {
+      this.emit('api:conversations:grouped', { callback: (data) => res.json(data) });
+    });
+
+    // Create new conversation
+    this.app.post('/api/conversations', (req, res) => {
+      const { projectName, title } = req.body;
+      this.emit('api:conversations:create', {
+        projectName,
+        title,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    // Get single conversation
+    this.app.get('/api/conversations/:id', (req, res) => {
+      this.emit('api:conversations:get', {
+        id: req.params.id,
+        callback: (data) => data ? res.json(data) : res.status(404).json({ error: 'Not found' })
+      });
+    });
+
+    // Update conversation
+    this.app.put('/api/conversations/:id', (req, res) => {
+      this.emit('api:conversations:update', {
+        id: req.params.id,
+        updates: req.body,
+        callback: (data) => data ? res.json(data) : res.status(404).json({ error: 'Not found' })
+      });
+    });
+
+    // Delete conversation
+    this.app.delete('/api/conversations/:id', (req, res) => {
+      this.emit('api:conversations:delete', {
+        id: req.params.id,
+        callback: (success) => res.json({ success })
+      });
+    });
+
+    // ============ Project Discovery API ============
+
+    this.app.get('/api/projects/discover', (req, res) => {
+      this.emit('api:projects:discover', { callback: (data) => res.json(data) });
+    });
+
+    // ============ Learning System API ============
+
+    this.app.get('/api/learning/stats', (req, res) => {
+      this.emit('api:learning:stats', { callback: (data) => res.json(data) });
+    });
+
+    this.app.get('/api/learning/skills', (req, res) => {
+      this.emit('api:learning:skills', { callback: (data) => res.json(data) });
+    });
+
+    this.app.get('/api/learning/policy', (req, res) => {
+      this.emit('api:learning:policy', { callback: (data) => res.json(data) });
+    });
+
+    this.app.get('/api/learning/patterns', (req, res) => {
+      this.emit('api:learning:patterns', { callback: (data) => res.json(data) });
+    });
+
+    this.app.get('/api/learning/teaching', (req, res) => {
+      this.emit('api:learning:teaching', { callback: (data) => res.json(data) });
+    });
+
+    this.app.get('/api/learning/tests', (req, res) => {
+      this.emit('api:learning:tests', { callback: (data) => res.json(data) });
+    });
+
+    this.app.get('/api/learning/events', (req, res) => {
+      const limit = parseInt(req.query.limit) || 100;
+      this.emit('api:learning:events', { limit, callback: (data) => res.json(data) });
+    });
+
     // Serve index.html for all other routes (SPA support)
     this.app.get('*', (req, res) => {
       res.sendFile(path.join(this.config.publicDir, 'index.html'));
@@ -238,6 +322,57 @@ export class WebServer extends EventEmitter {
 
       case 'ping':
         this.sendToClient(clientId, { type: 'pong' });
+        break;
+
+      // Conversation management via WebSocket
+      case 'conversations:list':
+        this.emit('api:conversations:list', {
+          callback: (data) => this.sendToClient(clientId, { type: 'conversations:list', data })
+        });
+        break;
+
+      case 'conversations:create':
+        this.emit('api:conversations:create', {
+          ...payload,
+          callback: (data) => this.sendToClient(clientId, { type: 'conversations:created', data })
+        });
+        break;
+
+      case 'conversations:get':
+        this.emit('api:conversations:get', {
+          id: payload.id,
+          callback: (data) => this.sendToClient(clientId, { type: 'conversations:data', data })
+        });
+        break;
+
+      case 'conversations:update':
+        this.emit('api:conversations:update', {
+          id: payload.id,
+          updates: payload,
+          callback: (data) => this.sendToClient(clientId, { type: 'conversations:updated', data })
+        });
+        break;
+
+      case 'conversations:delete':
+        this.emit('api:conversations:delete', {
+          id: payload.id,
+          callback: (success) => this.sendToClient(clientId, { type: 'conversations:deleted', id: payload.id, success })
+        });
+        break;
+
+      case 'projects:discover':
+        this.emit('api:projects:discover', {
+          callback: (data) => this.sendToClient(clientId, { type: 'projects:discovered', data })
+        });
+        break;
+
+      case 'chat:general':
+        this.emit('chat:message', {
+          clientId,
+          message: payload.message,
+          conversationId: payload.conversationId,
+          source: 'websocket'
+        });
         break;
 
       default:

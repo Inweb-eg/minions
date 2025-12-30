@@ -21,12 +21,82 @@ export class ProjectIntake extends EventEmitter {
     this.config = {
       projectsDir: config.projectsDir || 'projects',
       projectRoot: config.projectRoot || process.cwd(),
+      dockerMount: config.dockerMount || '/projects',
       ...config
     };
 
     this.scanner = new ProjectScanner(this.config);
     this.currentProject = null;
     this.intakeState = 'idle'; // idle, new, existing, confirming, complete
+  }
+
+  /**
+   * Discover projects in the Docker mount directory
+   * @returns {Array} List of discovered projects
+   */
+  async discoverProjects() {
+    const projectsPath = this.config.dockerMount;
+    this.logger.info(`Discovering projects at: ${projectsPath}`);
+
+    try {
+      const stats = await fs.stat(projectsPath);
+      if (!stats.isDirectory()) {
+        this.logger.warn(`${projectsPath} is not a directory`);
+        return [];
+      }
+
+      const entries = await fs.readdir(projectsPath, { withFileTypes: true });
+      const projects = [];
+
+      for (const entry of entries) {
+        if (entry.isDirectory() && !entry.name.startsWith('.')) {
+          const projectPath = path.join(projectsPath, entry.name);
+          const projectType = await this._detectProjectType(projectPath);
+
+          projects.push({
+            name: entry.name,
+            path: projectPath,
+            type: projectType
+          });
+        }
+      }
+
+      this.logger.info(`Discovered ${projects.length} projects`);
+      return projects;
+    } catch (error) {
+      this.logger.warn(`Project discovery failed: ${error.message}`);
+      return [];
+    }
+  }
+
+  /**
+   * Detect project type from common files
+   * @private
+   */
+  async _detectProjectType(projectPath) {
+    const typeIndicators = [
+      { file: 'package.json', type: 'node' },
+      { file: 'pubspec.yaml', type: 'flutter' },
+      { file: 'requirements.txt', type: 'python' },
+      { file: 'Pipfile', type: 'python' },
+      { file: 'go.mod', type: 'go' },
+      { file: 'Cargo.toml', type: 'rust' },
+      { file: 'pom.xml', type: 'java' },
+      { file: 'build.gradle', type: 'java' },
+      { file: 'composer.json', type: 'php' },
+      { file: 'Gemfile', type: 'ruby' }
+    ];
+
+    for (const indicator of typeIndicators) {
+      try {
+        await fs.access(path.join(projectPath, indicator.file));
+        return indicator.type;
+      } catch {
+        // File doesn't exist, try next
+      }
+    }
+
+    return 'unknown';
   }
 
   /**

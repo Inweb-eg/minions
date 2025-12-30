@@ -2,8 +2,7 @@
  * ConversationEngine
  * ------------------
  * Manages AI-powered conversations with clients.
- * Strictly scoped to project-related topics only.
- * Redirects off-topic questions back to the project.
+ * Supports both project discussions and general chat.
  *
  * Part of Gru Agent - Minions Client Interface System
  */
@@ -12,76 +11,26 @@ import EventEmitter from 'events';
 import { createLogger } from '../../foundation/common/logger.js';
 import OllamaAdapter from './OllamaAdapter.js';
 
-// System prompt that scopes conversation to project topics only
-const SYSTEM_PROMPT = `You are Gru, the project planning mastermind from Minions. You help clients plan and build software projects.
+// System prompt for flexible conversations
+const SYSTEM_PROMPT = `You are Gru, a helpful AI assistant from the Minions framework. You can help with:
 
-STRICT RULES:
-1. You ONLY discuss project-related topics: features, requirements, architecture, technologies, timelines, priorities, user stories, and technical specifications.
-2. If the client asks about ANYTHING not related to their software project (weather, personal questions, general chat, jokes, etc.), politely redirect them back to the project.
-3. Be friendly but focused. Use short, clear responses.
-4. Ask clarifying questions to understand requirements better.
-5. Help prioritize features (must-have vs nice-to-have).
-6. Suggest best practices when appropriate.
-7. When the client seems ready, summarize the requirements and ask for confirmation.
+1. **Software Projects**: Planning, architecture, features, requirements, technology choices
+2. **General Questions**: Programming, technology, problem-solving, explanations
+3. **Casual Chat**: Friendly conversation, jokes, interesting discussions
 
-REDIRECT EXAMPLES:
-- "Let's keep our focus on your project. What features are most important to you?"
-- "I appreciate the chat, but let's get back to planning your project. Where were we?"
-- "That's interesting, but I'm here to help with your software project. What would you like to build?"
+GUIDELINES:
+- Be friendly, helpful, and concise
+- Use markdown formatting when helpful
+- For project planning, ask clarifying questions
+- For technical questions, provide clear explanations
+- For casual chat, be engaging and natural
+- If asked to do something harmful, politely decline
 
-PROJECT DISCUSSION TOPICS (ALLOWED):
-- App/website features and functionality
-- User types and roles
-- Database and data requirements
-- API endpoints and integrations
-- UI/UX requirements
-- Technology stack choices
-- Mobile vs web vs desktop
-- Authentication and security
-- Payment processing
-- Third-party services
-- Performance requirements
-- Deployment and hosting
-- Timeline and milestones
-- MVP vs full version scope
-
-Current conversation context: You are helping a client plan their software project. Start by asking what they want to build.`;
-
-// Keywords that indicate project-related topics
-const PROJECT_KEYWORDS = [
-  'app', 'application', 'website', 'web', 'mobile', 'software', 'system', 'platform',
-  'feature', 'features', 'functionality', 'function', 'requirement', 'requirements',
-  'database', 'api', 'backend', 'frontend', 'server', 'client',
-  'user', 'users', 'admin', 'authentication', 'login', 'register', 'signup',
-  'design', 'ui', 'ux', 'interface', 'screen', 'page', 'pages',
-  'payment', 'checkout', 'cart', 'order', 'orders', 'product', 'products',
-  'notification', 'notifications', 'email', 'sms', 'push',
-  'dashboard', 'analytics', 'report', 'reports',
-  'build', 'develop', 'development', 'create', 'implement',
-  'technology', 'tech', 'stack', 'framework', 'language',
-  'flutter', 'react', 'node', 'express', 'next', 'vue', 'angular',
-  'mongodb', 'postgres', 'mysql', 'firebase', 'supabase',
-  'deploy', 'deployment', 'hosting', 'server', 'cloud',
-  'mvp', 'minimum', 'viable', 'priority', 'priorities',
-  'timeline', 'deadline', 'milestone', 'phase',
-  'cost', 'budget', 'estimate', 'pricing',
-  'integration', 'integrate', 'connect', 'api',
-  'security', 'secure', 'encryption', 'privacy',
-  'performance', 'speed', 'optimization', 'scalable', 'scaling',
-  'project', 'scope', 'specification', 'spec', 'plan'
-];
-
-// Off-topic keywords to detect
-const OFFTOPIC_KEYWORDS = [
-  'weather', 'joke', 'jokes', 'funny', 'laugh',
-  'personal', 'yourself', 'your name', 'who are you',
-  'politics', 'religion', 'sports', 'game', 'games',
-  'movie', 'movies', 'music', 'song', 'songs',
-  'food', 'restaurant', 'recipe', 'cook',
-  'travel', 'vacation', 'holiday',
-  'news', 'today', 'yesterday',
-  'hello', 'hi', 'hey', 'how are you', 'whats up'
-];
+When helping with projects:
+- Help prioritize features (must-have vs nice-to-have)
+- Suggest best practices
+- Consider scalability and maintainability
+- Ask about target users and use cases`;
 
 export class ConversationEngine extends EventEmitter {
   constructor(config = {}) {
@@ -121,18 +70,8 @@ export class ConversationEngine extends EventEmitter {
       await this.initialize();
     }
 
-    // Check if message is on-topic
-    const topicCheck = this.analyzeMessage(message);
-
     // Add user message to history
     this.history.push({ role: 'user', content: message });
-
-    // If clearly off-topic, add a gentle redirect hint to the AI
-    let effectiveMessage = message;
-    if (topicCheck.isOffTopic && !topicCheck.isProjectRelated) {
-      // Let AI handle the redirect naturally with its system prompt
-      this.logger.debug('Off-topic message detected, AI will redirect');
-    }
 
     try {
       // Get AI response
@@ -154,36 +93,12 @@ export class ConversationEngine extends EventEmitter {
 
       return {
         content: response.content,
-        provider: response.provider,
-        topicCheck
+        provider: response.provider
       };
     } catch (error) {
       this.logger.error(`Chat error: ${error.message}`);
       throw error;
     }
-  }
-
-  /**
-   * Analyze if message is project-related
-   * @param {string} message - Message to analyze
-   */
-  analyzeMessage(message) {
-    const lowerMessage = message.toLowerCase();
-
-    // Check for project keywords
-    const projectMatches = PROJECT_KEYWORDS.filter(kw => lowerMessage.includes(kw));
-    const isProjectRelated = projectMatches.length > 0;
-
-    // Check for off-topic keywords
-    const offTopicMatches = OFFTOPIC_KEYWORDS.filter(kw => lowerMessage.includes(kw));
-    const isOffTopic = offTopicMatches.length > 0 && !isProjectRelated;
-
-    return {
-      isProjectRelated,
-      isOffTopic,
-      projectKeywords: projectMatches,
-      offTopicKeywords: offTopicMatches
-    };
   }
 
   /**
@@ -277,13 +192,14 @@ Respond ONLY with the JSON, no other text.`;
    * Get greeting message
    */
   getGreeting() {
-    return `Hello! I'm Gru, your project planning mastermind. I'm here to help you plan your software project.
+    return `Hello! I'm Gru, your AI assistant from the Minions framework.
 
-Let's start with the basics:
-- Is this a **new project** you want to build from scratch?
-- Or an **existing project** you need help completing?
+I can help you with:
+- **Project Planning**: Design and plan software projects
+- **Technical Questions**: Programming, architecture, best practices
+- **General Chat**: Just want to talk? I'm here!
 
-Tell me a bit about what you have in mind!`;
+What would you like to discuss today?`;
   }
 
   /**
