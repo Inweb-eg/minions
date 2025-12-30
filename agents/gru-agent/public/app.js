@@ -286,6 +286,13 @@ class GruDashboard {
         // Heartbeat response
         break;
 
+      case 'minion:chatter':
+        // Forward to minion chatter widget
+        if (window.handleMinionChatter) {
+          window.handleMinionChatter(message.payload);
+        }
+        break;
+
       default:
         console.log('Unknown message type:', message.type);
     }

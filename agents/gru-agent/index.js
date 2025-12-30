@@ -18,6 +18,7 @@ import ConversationEngine from './ConversationEngine.js';
 import ProjectIntake from './ProjectIntake.js';
 import StatusTracker, { Phase } from './StatusTracker.js';
 import { getConversationStore } from './ConversationStore.js';
+import MinionTranslator from './MinionTranslator.js';
 
 // Agent States
 export const AgentState = {
@@ -78,6 +79,7 @@ export class GruAgent extends EventEmitter {
     this.projectIntake = new ProjectIntake(this.config);
     this.statusTracker = new StatusTracker(this.config);
     this.conversationStore = getConversationStore(this.config);
+    this.minionTranslator = new MinionTranslator(this.config);
 
     // External agent references (set via setAgents)
     this.silas = null; // ProjectManagerAgent
@@ -143,6 +145,17 @@ export class GruAgent extends EventEmitter {
 
       // Initialize conversation store
       await this.conversationStore.initialize();
+
+      // Initialize MinionTranslator with the OllamaAdapter from ConversationEngine
+      await this.minionTranslator.initialize(this.conversation.adapter);
+
+      // Wire up chatter events to WebSocket broadcast
+      this.minionTranslator.on('chatter', (chatter) => {
+        this.webServer.broadcast({
+          type: 'minion:chatter',
+          payload: chatter
+        });
+      });
 
       this.state = AgentState.IDLE;
       this.emit('initialized', { agent: this.name, alias: this.alias });
@@ -1118,6 +1131,29 @@ export class GruAgent extends EventEmitter {
         callback({ success: false, error: error.message });
       }
     });
+
+    // ============ Minion Chatter API Handlers ============
+
+    this.webServer.on('api:minions:chatter:history', async ({ limit, callback }) => {
+      const history = this.minionTranslator.getHistory(limit);
+      callback({ success: true, chatter: history });
+    });
+
+    this.webServer.on('api:minions:personalities', async ({ callback }) => {
+      const personalities = MinionTranslator.getPersonalities();
+      callback({ success: true, personalities });
+    });
+
+    this.webServer.on('api:minions:chatter:toggle', async ({ enabled, callback }) => {
+      this.minionTranslator.setEnabled(enabled);
+      this._recordLearningEvent('control:chatter:toggle', { enabled });
+      callback({ success: true, enabled: this.minionTranslator.isEnabled() });
+    });
+
+    this.webServer.on('api:minions:chatter:clear', async ({ callback }) => {
+      this.minionTranslator.clearHistory();
+      callback({ success: true });
+    });
   }
 
   /**
@@ -1132,6 +1168,7 @@ export class GruAgent extends EventEmitter {
     await this.projectIntake.shutdown();
     await this.statusTracker.shutdown();
     await this.conversationStore.shutdown();
+    await this.minionTranslator.shutdown();
 
     this.emit('shutdown', { agent: this.name });
     this.removeAllListeners();

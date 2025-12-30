@@ -15,6 +15,7 @@
         <span class="logo-text">Minions</span>
       </div>
       <nav class="header-nav">
+        <a href="/minions" class="nav-link">Minions</a>
         <a href="/evolve" class="nav-link">Learning</a>
       </nav>
       <div class="status-indicator" id="connectionStatus">
@@ -198,6 +199,290 @@
       </div>
     </div>
   </div>
+
+  <!-- Floating Minion Chatter Button -->
+  <button class="minion-float-btn" id="minionChatterBtn" onclick="toggleMinionWidget()" title="Minion Chatter">
+    🍌
+    <span class="minion-badge" id="minionBadge">0</span>
+  </button>
+
+  <!-- Floating Minion Chatter Widget -->
+  <div class="minion-widget hidden" id="minionWidget">
+    <div class="minion-widget-header">
+      <span>🍌 Minion Chatter</span>
+      <div class="minion-widget-controls">
+        <a href="/minions" class="minion-expand-link" title="Open Full View">↗</a>
+        <button class="minion-close-btn" onclick="toggleMinionWidget()">×</button>
+      </div>
+    </div>
+    <div class="minion-widget-messages" id="minionWidgetMessages">
+      <div class="minion-empty">
+        <span>🤫</span>
+        <p>Waiting for minions to chat...</p>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* Floating Minion Button */
+    .minion-float-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffd93d 0%, #ffb300 100%);
+      border: none;
+      cursor: pointer;
+      font-size: 1.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(255, 217, 61, 0.4);
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+
+    .minion-float-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 30px rgba(255, 217, 61, 0.6);
+    }
+
+    .minion-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #f44336;
+      color: white;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+      display: none;
+    }
+
+    .minion-badge.visible {
+      display: block;
+    }
+
+    /* Floating Widget */
+    .minion-widget {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 360px;
+      height: 450px;
+      background: var(--surface);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1001;
+      border: 1px solid rgba(255, 217, 61, 0.3);
+    }
+
+    .minion-widget.hidden {
+      display: none;
+    }
+
+    .minion-widget-header {
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #2a2a4a 100%);
+      border-bottom: 1px solid rgba(255, 217, 61, 0.3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #ffd93d;
+      font-weight: 600;
+    }
+
+    .minion-widget-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .minion-expand-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 1rem;
+      padding: 4px;
+    }
+
+    .minion-expand-link:hover {
+      color: #ffd93d;
+    }
+
+    .minion-close-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.4rem;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .minion-close-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .minion-widget-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .minion-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    .minion-empty span {
+      font-size: 2.5rem;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+
+    .minion-msg {
+      display: flex;
+      gap: 8px;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .minion-msg-avatar {
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+
+    .minion-msg-content {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 8px 12px;
+      border-radius: 12px;
+      border-top-left-radius: 4px;
+      max-width: calc(100% - 40px);
+    }
+
+    .minion-msg-name {
+      color: #ffd93d;
+      font-weight: 600;
+      font-size: 0.75rem;
+      margin-bottom: 2px;
+    }
+
+    .minion-msg-text {
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    @media (max-width: 480px) {
+      .minion-widget {
+        width: calc(100% - 40px);
+        right: 20px;
+        left: 20px;
+      }
+    }
+  </style>
+
+  <script>
+    // Minion Chatter Widget
+    (function() {
+      let minionMessages = [];
+      let unreadCount = 0;
+      let widgetVisible = false;
+
+      const widget = document.getElementById('minionWidget');
+      const messagesContainer = document.getElementById('minionWidgetMessages');
+      const badge = document.getElementById('minionBadge');
+
+      // Toggle widget visibility
+      window.toggleMinionWidget = function() {
+        widgetVisible = !widgetVisible;
+        widget.classList.toggle('hidden', !widgetVisible);
+
+        if (widgetVisible) {
+          unreadCount = 0;
+          updateBadge();
+        }
+      };
+
+      // Update badge
+      function updateBadge() {
+        badge.textContent = unreadCount;
+        badge.classList.toggle('visible', unreadCount > 0);
+      }
+
+      // Add message to widget
+      function addMinionMessage(msg) {
+        minionMessages.push(msg);
+        if (minionMessages.length > 50) minionMessages.shift();
+
+        // Remove empty state
+        const empty = messagesContainer.querySelector('.minion-empty');
+        if (empty) empty.remove();
+
+        // Add message
+        const msgEl = document.createElement('div');
+        msgEl.className = 'minion-msg';
+        msgEl.innerHTML = `
+          <span class="minion-msg-avatar">${msg.avatar || '🟡'}</span>
+          <div class="minion-msg-content">
+            <div class="minion-msg-name">${escapeHtml(msg.agent)}</div>
+            <div class="minion-msg-text">${escapeHtml(msg.dialogue)}</div>
+          </div>
+        `;
+        messagesContainer.appendChild(msgEl);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        // Update badge if widget hidden
+        if (!widgetVisible) {
+          unreadCount++;
+          updateBadge();
+        }
+      }
+
+      // Escape HTML
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Listen for minion chatter from WebSocket
+      // This integrates with the existing WebSocket in app.js
+      const originalOnMessage = window.handleMinionChatter;
+      window.handleMinionChatter = function(msg) {
+        addMinionMessage(msg);
+        if (originalOnMessage) originalOnMessage(msg);
+      };
+
+      // Load initial chatter
+      fetch('/api/minions/chatter?limit=20')
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.chatter.length > 0) {
+            data.chatter.forEach(msg => addMinionMessage(msg));
+          }
+        })
+        .catch(console.error);
+    })();
+  </script>
 
   <script src="app.js"></script>
 </body>

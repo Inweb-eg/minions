@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minion Chatter - Minions Framework</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    :root {
+      --minion-yellow: #ffd93d;
+      --minion-blue: #4a6fa5;
+      --minion-dark: #1a1a2e;
+      --chat-bg: #0f0f1a;
+      --bubble-bg: #1e1e30;
+      --bubble-self: #2d4a6f;
+    }
+
+    body {
+      background: var(--chat-bg);
+      min-height: 100vh;
+    }
+
+    .minions-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 1rem;
+      height: calc(100vh - 80px);
+    }
+
+    /* Header */
+    .minions-header {
+      background: linear-gradient(135deg, var(--minion-dark) 0%, #2a2a4a 100%);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--minion-yellow);
+    }
+
+    .minions-header h1 {
+      color: var(--minion-yellow);
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .minions-header .subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 26px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #444;
+      transition: 0.3s;
+      border-radius: 26px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: var(--minion-yellow);
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(24px);
+    }
+
+    /* Sidebar - Agent List */
+    .agents-sidebar {
+      background: var(--bubble-bg);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 1rem;
+      background: rgba(255, 217, 61, 0.1);
+      border-bottom: 1px solid rgba(255, 217, 61, 0.2);
+    }
+
+    .sidebar-header h3 {
+      color: var(--minion-yellow);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .agents-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem;
+    }
+
+    .agent-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .agent-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .agent-item.active {
+      background: rgba(255, 217, 61, 0.1);
+    }
+
+    .agent-avatar {
+      font-size: 1.5rem;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 50%;
+    }
+
+    .agent-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .agent-name {
+      color: var(--text-primary);
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .agent-role {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .agent-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #666;
+    }
+
+    .agent-status.talking {
+      background: var(--minion-yellow);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Chat Area */
+    .chat-area {
+      background: var(--bubble-bg);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 1rem;
+      background: rgba(255, 217, 61, 0.1);
+      border-bottom: 1px solid rgba(255, 217, 61, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-header h3 {
+      color: var(--minion-yellow);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chat-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4caf50;
+    }
+
+    .status-dot.disconnected {
+      background: #f44336;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .message {
+      display: flex;
+      gap: 0.75rem;
+      max-width: 85%;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message-avatar {
+      font-size: 1.5rem;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .message-content {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      border-top-left-radius: 4px;
+    }
+
+    .message-header {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .message-name {
+      color: var(--minion-yellow);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+
+    .message-role {
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+    }
+
+    .message-time {
+      color: var(--text-secondary);
+      font-size: 0.7rem;
+      margin-left: auto;
+    }
+
+    .message-text {
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .message-event {
+      margin-top: 0.5rem;
+      padding-top: 0.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .message-event code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      color: var(--minion-yellow);
+    }
+
+    /* Empty State */
+    .empty-state {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .empty-state .icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    /* Chat Footer */
+    .chat-footer {
+      padding: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .chat-footer button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .btn-clear {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+    }
+
+    .btn-clear:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--text-primary);
+    }
+
+    .btn-back {
+      background: var(--minion-yellow);
+      color: #1a1a2e;
+      margin-left: auto;
+    }
+
+    .btn-back:hover {
+      background: #ffe066;
+    }
+
+    /* Floating Widget Preview */
+    .floating-widget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 380px;
+      height: 500px;
+      background: var(--bubble-bg);
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 1000;
+      border: 1px solid rgba(255, 217, 61, 0.2);
+    }
+
+    .floating-widget.visible {
+      display: flex;
+    }
+
+    .widget-header {
+      padding: 0.75rem 1rem;
+      background: linear-gradient(135deg, var(--minion-dark) 0%, #2a2a4a 100%);
+      border-bottom: 1px solid rgba(255, 217, 61, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .widget-header h4 {
+      color: var(--minion-yellow);
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .widget-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 0.25rem;
+    }
+
+    .widget-close:hover {
+      color: var(--text-primary);
+    }
+
+    .widget-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem;
+    }
+
+    .widget-message {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .widget-avatar {
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .widget-text {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      color: var(--text-primary);
+    }
+
+    .widget-text .name {
+      color: var(--minion-yellow);
+      font-weight: 600;
+      font-size: 0.75rem;
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Floating button */
+    .floating-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--minion-yellow) 0%, #ffb300 100%);
+      border: none;
+      cursor: pointer;
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 20px rgba(255, 217, 61, 0.4);
+      transition: all 0.3s;
+      z-index: 999;
+    }
+
+    .floating-button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 30px rgba(255, 217, 61, 0.6);
+    }
+
+    .floating-button.hidden {
+      display: none;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #f44336;
+      color: white;
+      font-size: 0.7rem;
+      padding: 0.2rem 0.4rem;
+      border-radius: 10px;
+      min-width: 18px;
+      text-align: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .minions-container {
+        grid-template-columns: 1fr;
+      }
+
+      .agents-sidebar {
+        display: none;
+      }
+
+      .floating-widget {
+        width: calc(100% - 40px);
+        height: 60vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="minions-header">
+    <div>
+      <h1>
+        <span>🍌</span> Minion Chatter
+      </h1>
+      <div class="subtitle">Watch your minions talk while they work!</div>
+    </div>
+    <div class="header-controls">
+      <div class="toggle-container">
+        <span style="color: var(--text-secondary); font-size: 0.85rem;">Chatter</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="chatterToggle" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <a href="/" class="btn-back" style="text-decoration: none; padding: 0.5rem 1rem; border-radius: 6px;">
+        Back to Dashboard
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="minions-container">
+    <!-- Agents Sidebar -->
+    <aside class="agents-sidebar">
+      <div class="sidebar-header">
+        <h3>Minion Roster</h3>
+      </div>
+      <div class="agents-list" id="agentsList">
+        <!-- Populated by JS -->
+      </div>
+    </aside>
+
+    <!-- Chat Area -->
+    <main class="chat-area">
+      <div class="chat-header">
+        <h3>
+          <span>💬</span> Live Chatter
+        </h3>
+        <div class="chat-status">
+          <div class="status-dot" id="connectionStatus"></div>
+          <span id="connectionText">Connecting...</span>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="empty-state" id="emptyState">
+          <div class="icon">🤫</div>
+          <h3>Waiting for minions...</h3>
+          <p>When events happen in the system, minions will start chatting here!</p>
+        </div>
+      </div>
+
+      <div class="chat-footer">
+        <button class="btn-clear" onclick="clearChatter()">Clear Chat</button>
+        <button class="btn-back" onclick="window.location.href='/evolve'">View Learning</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Floating Widget (for embedding in other pages) -->
+  <div class="floating-widget" id="floatingWidget">
+    <div class="widget-header">
+      <h4>🍌 Minion Chatter</h4>
+      <button class="widget-close" onclick="toggleWidget()">&times;</button>
+    </div>
+    <div class="widget-messages" id="widgetMessages"></div>
+  </div>
+
+  <script>
+    // State
+    let ws = null;
+    let personalities = {};
+    let chatterHistory = [];
+    let talkingAgents = new Set();
+    let unreadCount = 0;
+
+    // DOM Elements
+    const chatMessages = document.getElementById('chatMessages');
+    const emptyState = document.getElementById('emptyState');
+    const agentsList = document.getElementById('agentsList');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const connectionText = document.getElementById('connectionText');
+    const chatterToggle = document.getElementById('chatterToggle');
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPersonalities();
+      loadChatterHistory();
+      connectWebSocket();
+      setupToggle();
+    });
+
+    // Load minion personalities
+    async function loadPersonalities() {
+      try {
+        const res = await fetch('/api/minions/personalities');
+        const data = await res.json();
+        if (data.success) {
+          personalities = data.personalities;
+          renderAgentsList();
+        }
+      } catch (error) {
+        console.error('Failed to load personalities:', error);
+      }
+    }
+
+    // Load existing chatter history
+    async function loadChatterHistory() {
+      try {
+        const res = await fetch('/api/minions/chatter?limit=100');
+        const data = await res.json();
+        if (data.success && data.chatter.length > 0) {
+          chatterHistory = data.chatter;
+          renderAllMessages();
+        }
+      } catch (error) {
+        console.error('Failed to load chatter history:', error);
+      }
+    }
+
+    // Render agents list
+    function renderAgentsList() {
+      const agents = Object.entries(personalities).filter(([key]) => key !== 'minion');
+
+      agentsList.innerHTML = agents.map(([key, agent]) => `
+        <div class="agent-item" data-agent="${key}">
+          <div class="agent-avatar">${agent.avatar}</div>
+          <div class="agent-info">
+            <div class="agent-name">${agent.name}</div>
+            <div class="agent-role">${agent.role}</div>
+          </div>
+          <div class="agent-status" id="status-${key}"></div>
+        </div>
+      `).join('');
+    }
+
+    // Render all messages
+    function renderAllMessages() {
+      if (chatterHistory.length === 0) {
+        emptyState.style.display = 'flex';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      chatMessages.innerHTML = chatterHistory.map(msg => createMessageHTML(msg)).join('');
+      scrollToBottom();
+    }
+
+    // Create message HTML
+    function createMessageHTML(msg) {
+      const time = new Date(msg.timestamp).toLocaleTimeString();
+      return `
+        <div class="message">
+          <div class="message-avatar">${msg.avatar || '🟡'}</div>
+          <div class="message-content">
+            <div class="message-header">
+              <span class="message-name">${msg.agent}</span>
+              <span class="message-role">${msg.role || ''}</span>
+              <span class="message-time">${time}</span>
+            </div>
+            <div class="message-text">${escapeHtml(msg.dialogue)}</div>
+            ${msg.eventType ? `
+              <div class="message-event">
+                Reacting to: <code>${msg.eventType}</code>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    // Add new message
+    function addMessage(msg) {
+      chatterHistory.push(msg);
+
+      // Keep history manageable
+      if (chatterHistory.length > 200) {
+        chatterHistory.shift();
+      }
+
+      emptyState.style.display = 'none';
+
+      const msgHTML = createMessageHTML(msg);
+      chatMessages.insertAdjacentHTML('beforeend', msgHTML);
+      scrollToBottom();
+
+      // Update agent status
+      const agentKey = msg.agent.toLowerCase();
+      showAgentTalking(agentKey);
+    }
+
+    // Show agent as talking
+    function showAgentTalking(agentKey) {
+      const statusEl = document.getElementById(`status-${agentKey}`);
+      if (statusEl) {
+        statusEl.classList.add('talking');
+        talkingAgents.add(agentKey);
+
+        setTimeout(() => {
+          statusEl.classList.remove('talking');
+          talkingAgents.delete(agentKey);
+        }, 3000);
+      }
+    }
+
+    // WebSocket connection
+    function connectWebSocket() {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${protocol}//${window.location.host}`);
+
+      ws.onopen = () => {
+        connectionStatus.classList.remove('disconnected');
+        connectionText.textContent = 'Connected';
+      };
+
+      ws.onclose = () => {
+        connectionStatus.classList.add('disconnected');
+        connectionText.textContent = 'Disconnected';
+
+        // Reconnect after delay
+        setTimeout(connectWebSocket, 3000);
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          handleWebSocketMessage(message);
+        } catch (error) {
+          console.error('Failed to parse message:', error);
+        }
+      };
+    }
+
+    // Handle WebSocket messages
+    function handleWebSocketMessage(message) {
+      if (message.type === 'minion:chatter') {
+        addMessage(message.payload);
+      }
+    }
+
+    // Toggle chatter
+    function setupToggle() {
+      chatterToggle.addEventListener('change', async (e) => {
+        try {
+          await fetch('/api/minions/chatter/toggle', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ enabled: e.target.checked })
+          });
+        } catch (error) {
+          console.error('Failed to toggle chatter:', error);
+        }
+      });
+    }
+
+    // Clear chatter
+    async function clearChatter() {
+      try {
+        await fetch('/api/minions/chatter', { method: 'DELETE' });
+        chatterHistory = [];
+        chatMessages.innerHTML = '';
+        emptyState.style.display = 'flex';
+      } catch (error) {
+        console.error('Failed to clear chatter:', error);
+      }
+    }
+
+    // Scroll to bottom
+    function scrollToBottom() {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Toggle floating widget
+    function toggleWidget() {
+      const widget = document.getElementById('floatingWidget');
+      widget.classList.toggle('visible');
+    }
+  </script>
+</body>
+</html>

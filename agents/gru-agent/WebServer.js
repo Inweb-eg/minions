@@ -375,6 +375,35 @@ export class WebServer extends EventEmitter {
       });
     });
 
+    // ============ Minion Chatter API ============
+
+    // Get chatter history
+    this.app.get('/api/minions/chatter', (req, res) => {
+      const limit = parseInt(req.query.limit) || 50;
+      this.emit('api:minions:chatter:history', { limit, callback: (data) => res.json(data) });
+    });
+
+    // Get minion personalities
+    this.app.get('/api/minions/personalities', (req, res) => {
+      this.emit('api:minions:personalities', { callback: (data) => res.json(data) });
+    });
+
+    // Toggle chatter on/off
+    this.app.post('/api/minions/chatter/toggle', (req, res) => {
+      const { enabled } = req.body;
+      this.emit('api:minions:chatter:toggle', { enabled, callback: (data) => res.json(data) });
+    });
+
+    // Clear chatter history
+    this.app.delete('/api/minions/chatter', (req, res) => {
+      this.emit('api:minions:chatter:clear', { callback: (data) => res.json(data) });
+    });
+
+    // Serve minions.html for chatter page
+    this.app.get('/minions', (req, res) => {
+      res.sendFile(path.join(this.config.publicDir, 'minions.html'));
+    });
+
     // Serve evolve.html for learning dashboard
     this.app.get('/evolve', (req, res) => {
       res.sendFile(path.join(this.config.publicDir, 'evolve.html'));
