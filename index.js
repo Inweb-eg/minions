@@ -87,7 +87,7 @@ async function startGru(options) {
 
   try {
     // Dynamic import to avoid loading if not needed
-    const { GruAgent } = await import('./agents/gru-agent/index.js');
+    const { getGruAgent } = await import('./agents/gru-agent/index.js');
     const { getNefarioAgent } = await import('./agents/nefario-agent/index.js');
 
     // Import Silas, Lucy, and Tom if available
@@ -114,7 +114,7 @@ async function startGru(options) {
     }
 
     // Create Gru instance
-    const gru = GruAgent.getInstance({
+    const gru = getGruAgent({
       port: options.port,
       fallbackPort: options.port === 2505 ? 8005 : options.port + 1,
       ollamaHost: process.env.OLLAMA_HOST || 'http://localhost:11434',
