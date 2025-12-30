@@ -230,6 +230,29 @@ export const InfrastructureEvents = {
   TOKEN_REFRESHED: 'infra:auth:token:refreshed'
 };
 
+// Learning and Teaching Events
+export const LearningEvents = {
+  PATTERN_DETECTED: 'learning:pattern:detected',
+  PATTERN_THRESHOLD: 'learning:pattern:threshold',
+  SKILL_GENERATING: 'learning:skill:generating',
+  SKILL_GENERATED: 'learning:skill:generated',
+  SKILL_VALIDATED: 'learning:skill:validated',
+  SKILL_DEPLOYED: 'learning:skill:deployed',
+  SKILL_FAILED: 'learning:skill:failed',
+  REWARD_CALCULATED: 'learning:reward:calculated',
+  POLICY_UPDATED: 'learning:policy:updated',
+  ACTION_SELECTED: 'learning:action:selected',
+  EPISODE_ENDED: 'learning:episode:ended',
+  ABTEST_STARTED: 'learning:abtest:started',
+  ABTEST_COMPLETED: 'learning:abtest:completed',
+  ABTEST_WINNER: 'learning:abtest:winner',
+  SKILL_SHARED: 'teaching:skill:shared',
+  SKILL_RECEIVED: 'teaching:skill:received',
+  MASTERY_ACHIEVED: 'teaching:mastery:achieved',
+  CURRICULUM_CREATED: 'teaching:curriculum:created',
+  LEARNING_ERROR: 'learning:error'
+};
+
 // Aggregate all event types
 export const EventTypes = {
   ...AgentEvents,
@@ -245,7 +268,8 @@ export const EventTypes = {
   ...DatabaseEvents,
   ...PerformanceEvents,
   ...NotificationEvents,
-  ...InfrastructureEvents
+  ...InfrastructureEvents,
+  ...LearningEvents
 };
 
 export default EventTypes;

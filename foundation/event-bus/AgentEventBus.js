@@ -1,5 +1,6 @@
 import EventEmitter from 'eventemitter3';
 import { createLogger } from '../common/logger.js';
+import { SystemEvents } from './eventTypes.js';
 
 const logger = createLogger('EventBus');
 
@@ -55,7 +56,7 @@ class AgentEventBus {
       } catch (error) {
         logger.error(`Error in subscriber ${subscriberName} for ${eventType}:`, error);
         // Publish error event
-        this.publish('ERROR_OCCURRED', {
+        this.publish(SystemEvents.ERROR_OCCURRED, {
           agent: subscriberName,
           error: error.message,
           eventType,

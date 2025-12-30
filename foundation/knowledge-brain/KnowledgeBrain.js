@@ -32,7 +32,13 @@ const KNOWLEDGE_TYPES = {
   SECURITY_PATTERN: 'security_pattern',
   TEST_PATTERN: 'test_pattern',
   API_PATTERN: 'api_pattern',
-  DOCUMENTATION: 'documentation'
+  DOCUMENTATION: 'documentation',
+  LEARNED_SKILL: 'learned_skill',
+  RL_POLICY: 'rl_policy',
+  EXPERIENCE: 'experience',
+  SKILL_TEST_RESULT: 'skill_test_result',
+  TEACHING_CURRICULUM: 'teaching_curriculum',
+  MASTERY_RECORD: 'mastery_record'
 };
 
 // Knowledge quality levels
@@ -718,6 +724,56 @@ class KnowledgeBrain {
     }
 
     this.logger.info(`Imported ${data.items?.length || 0} knowledge items`);
+  }
+
+  async storeLearnedSkill(skill) {
+    return await this.learn({ type: KNOWLEDGE_TYPES.LEARNED_SKILL, content: skill, quality: QUALITY_LEVELS.EXPERIMENTAL, tags: ['generated-skill', skill.sourcePattern, skill.name].filter(Boolean), metadata: { skillId: skill.id, skillName: skill.name, sourcePattern: skill.sourcePattern, confidence: skill.metadata?.confidence } });
+  }
+
+  getLearnedSkills(options = {}) {
+    const skills = Array.from(this.knowledge.values()).filter(item => item.type === KNOWLEDGE_TYPES.LEARNED_SKILL);
+    return options.minConfidence ? skills.filter(s => (s.metadata?.confidence || 0) >= options.minConfidence) : skills;
+  }
+
+  async storeRLPolicy(policy) {
+    return await this.learn({ type: KNOWLEDGE_TYPES.RL_POLICY, content: policy, quality: QUALITY_LEVELS.EXPERIMENTAL, tags: ['rl-policy', policy.state], metadata: { state: policy.state, qValues: policy.qValues, updatedAt: Date.now() } });
+  }
+
+  getRLPolicy(state) {
+    for (const item of this.knowledge.values()) { if (item.type === KNOWLEDGE_TYPES.RL_POLICY && item.metadata?.state === state) return item; }
+    return null;
+  }
+
+  async storeExperience(exp) {
+    return await this.learn({ type: KNOWLEDGE_TYPES.EXPERIENCE, content: exp, quality: QUALITY_LEVELS.EXPERIMENTAL, tags: ['experience', exp.pattern].filter(Boolean), metadata: { pattern: exp.pattern, outcome: exp.outcome, reward: exp.reward, timestamp: Date.now() } });
+  }
+
+  getExperiencesByPattern(pattern) {
+    return Array.from(this.knowledge.values()).filter(item => item.type === KNOWLEDGE_TYPES.EXPERIENCE && item.metadata?.pattern === pattern);
+  }
+
+  async storeSkillTestResult(result) {
+    return await this.learn({ type: KNOWLEDGE_TYPES.SKILL_TEST_RESULT, content: result, quality: result.passed ? QUALITY_LEVELS.VERIFIED : QUALITY_LEVELS.EXPERIMENTAL, tags: ['skill-test', result.skillId, result.passed ? 'passed' : 'failed'], metadata: { skillId: result.skillId, testId: result.testId, passed: result.passed, timestamp: Date.now() } });
+  }
+
+  async storeMasteryRecord(agentId, skillId, mastery) {
+    const recordId = `mastery:${agentId}:${skillId}`;
+    return await this.learn({ type: KNOWLEDGE_TYPES.MASTERY_RECORD, content: { agentId, skillId, ...mastery }, quality: QUALITY_LEVELS.TRUSTED, tags: ['mastery', agentId, skillId], metadata: { recordId, agentId, skillId, level: mastery.level, updatedAt: Date.now() } });
+  }
+
+  getMasteryRecord(agentId, skillId) {
+    const recordId = `mastery:${agentId}:${skillId}`;
+    for (const item of this.knowledge.values()) { if (item.type === KNOWLEDGE_TYPES.MASTERY_RECORD && item.metadata?.recordId === recordId) return item; }
+    return null;
+  }
+
+  getLearningStats() {
+    const items = Array.from(this.knowledge.values());
+    const learnedSkills = items.filter(i => i.type === KNOWLEDGE_TYPES.LEARNED_SKILL);
+    const experiences = items.filter(i => i.type === KNOWLEDGE_TYPES.EXPERIENCE);
+    const policies = items.filter(i => i.type === KNOWLEDGE_TYPES.RL_POLICY);
+    const testResults = items.filter(i => i.type === KNOWLEDGE_TYPES.SKILL_TEST_RESULT);
+    return { learnedSkillCount: learnedSkills.length, totalSkillActivations: learnedSkills.reduce((sum, s) => sum + (s.accessCount || 0), 0), experienceCount: experiences.length, policyCount: policies.length, testResultCount: testResults.length, passedTestCount: testResults.filter(t => t.metadata?.passed).length };
   }
 }
 
