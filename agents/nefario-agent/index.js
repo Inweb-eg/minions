@@ -13,6 +13,7 @@
 import EventEmitter from 'events';
 import { createLogger } from '../../foundation/common/logger.js';
 import OllamaAdapter from '../gru-agent/OllamaAdapter.js';
+import { getPlanExecutor } from './PlanExecutor.js';
 
 // Agent States
 export const NefarioState = {
@@ -120,6 +121,9 @@ export class NefarioAgent extends EventEmitter {
     this.currentPlan = null;
     this.planHistory = [];
     this.isInitialized = false;
+
+    // PlanExecutor for bridging plans to execution
+    this.planExecutor = null;
   }
 
   /**
@@ -147,6 +151,10 @@ export class NefarioAgent extends EventEmitter {
       // Initialize AI adapter
       this.aiAdapter = new OllamaAdapter(this.config.ollamaConfig);
       await this.aiAdapter.initialize();
+
+      // Initialize PlanExecutor and wire up code generator
+      this.planExecutor = getPlanExecutor(this.config.executorConfig || {});
+      this.planExecutor.setCodeGenerator(this.aiAdapter);
 
       this.isInitialized = true;
       this.state = NefarioState.IDLE;
@@ -202,6 +210,82 @@ export class NefarioAgent extends EventEmitter {
       this.emit('error', { error: error.message });
       throw error;
     }
+  }
+
+  /**
+   * Execute a plan using PlanExecutor
+   * This is the critical bridge from planning to execution.
+   *
+   * @param {object} plan - Plan to execute (defaults to currentPlan)
+   * @param {object} context - Execution context (project info, etc.)
+   * @returns {Promise<object>} Execution result
+   */
+  async executePlan(plan = null, context = {}) {
+    const targetPlan = plan || this.currentPlan;
+
+    if (!targetPlan) {
+      throw new Error('No plan to execute. Generate a plan first.');
+    }
+
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+
+    this.logger.info(`Executing plan: ${targetPlan.id}`);
+    this.emit('plan:executing', { planId: targetPlan.id });
+
+    try {
+      // Build context from plan metadata if not provided
+      const executionContext = {
+        projectInfo: {
+          name: targetPlan.metadata?.projectName,
+          type: targetPlan.metadata?.projectType,
+          technologies: targetPlan.metadata?.technologies
+        },
+        ...context
+      };
+
+      // Execute via PlanExecutor
+      const result = await this.planExecutor.executePlan(targetPlan, executionContext);
+
+      this.logger.info(`Plan execution completed: ${result.success ? 'SUCCESS' : 'FAILED'}`);
+      this.emit('plan:executed', { planId: targetPlan.id, result });
+
+      return result;
+    } catch (error) {
+      this.logger.error(`Plan execution failed: ${error.message}`);
+      this.emit('plan:execution:failed', { planId: targetPlan.id, error: error.message });
+      throw error;
+    }
+  }
+
+  /**
+   * Generate and execute a plan in one step
+   * @param {object} projectInfo - Project information
+   * @param {object} context - Execution context
+   * @returns {Promise<object>} Execution result
+   */
+  async generateAndExecute(projectInfo, context = {}) {
+    this.logger.info('Generating and executing plan...');
+
+    // Generate the plan
+    const plan = await this.generatePlan(projectInfo);
+
+    // Execute it
+    const result = await this.executePlan(plan, context);
+
+    return {
+      plan,
+      execution: result
+    };
+  }
+
+  /**
+   * Get PlanExecutor instance
+   * @returns {PlanExecutor} The plan executor
+   */
+  getPlanExecutor() {
+    return this.planExecutor;
   }
 
   /**
@@ -814,5 +898,8 @@ export class NefarioAgent extends EventEmitter {
 export function getNefarioAgent(config = {}) {
   return NefarioAgent.getInstance(config);
 }
+
+// Re-export PlanExecutor for direct access
+export { getPlanExecutor, PlanExecutor } from './PlanExecutor.js';
 
 export default NefarioAgent;
