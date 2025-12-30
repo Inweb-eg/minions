@@ -11,6 +11,9 @@ import EventEmitter from 'events';
 import path from 'path';
 import fs from 'fs/promises';
 import { createLogger } from '../../foundation/common/logger.js';
+import { getEventBus } from '../../foundation/event-bus/AgentEventBus.js';
+import { EventTypes } from '../../foundation/event-bus/eventTypes.js';
+import { getPlanExecutor } from '../nefario-agent/PlanExecutor.js';
 
 import GapDetector from './GapDetector.js';
 import CompletionTracker from './CompletionTracker.js';
@@ -73,6 +76,9 @@ export class ProjectCompletionAgent extends EventEmitter {
     this.gapDetector = new GapDetector(this.config);
     this.completionTracker = new CompletionTracker(this.config);
     this.loop = new ContinuousLoop(this.config);
+
+    // PlanExecutor for gap resolution (lazy-loaded)
+    this._planExecutor = null;
 
     // Current project being completed
     this.currentProject = null;
@@ -292,6 +298,48 @@ export class ProjectCompletionAgent extends EventEmitter {
 
   // ==================== Private Methods ====================
 
+  /**
+   * Get PlanExecutor instance (lazy-load)
+   */
+  get planExecutor() {
+    if (!this._planExecutor) {
+      this._planExecutor = getPlanExecutor();
+    }
+    return this._planExecutor;
+  }
+
+  /**
+   * Convert a gap to a task for PlanExecutor
+   */
+  _gapToTask(gap, index) {
+    // Map gap types to task categories
+    const categoryMap = {
+      'backend:endpoint': 'backend',
+      'backend:model': 'backend',
+      'backend:service': 'backend',
+      'frontend:page': 'frontend',
+      'frontend:component': 'frontend',
+      'test:unit': 'testing',
+      'test:integration': 'testing',
+      'documentation': 'documentation',
+      'configuration': 'setup'
+    };
+
+    return {
+      id: gap.id,
+      name: `Resolve: ${gap.description}`,
+      description: gap.description,
+      category: categoryMap[gap.type] || 'backend',
+      type: 'implementation',
+      phase: gap.type.includes('test') ? 'testing' : 'implementation',
+      priority: gap.priority,
+      complexity: gap.priority <= 2 ? 4 : 2, // Higher priority = more complex
+      dependencies: index > 0 ? [] : [],
+      location: gap.location,
+      gapDetails: gap.details || {}
+    };
+  }
+
   async _runCompletionLoop(options) {
     const targetCompletion = options.targetCompletion || this.config.targetCompletion;
     const maxIterations = options.maxIterations || this.config.maxIterations;
@@ -309,6 +357,15 @@ export class ProjectCompletionAgent extends EventEmitter {
 
       if (this.gaps.length > 0) {
         this.emit(CompletionEvents.GAP_DETECTED, { gaps: this.gaps });
+
+        // Publish to EventBus
+        if (this.eventBus) {
+          this.eventBus.publish(EventTypes.COMPLETION_GAP_DETECTED, {
+            project: this.currentProject.name,
+            gapCount: this.gaps.length,
+            gaps: this.gaps.slice(0, 5) // First 5 for brevity
+          });
+        }
       }
 
       // Check completion percentage
@@ -319,6 +376,15 @@ export class ProjectCompletionAgent extends EventEmitter {
         percentage: progress,
         iteration
       });
+
+      if (this.eventBus) {
+        this.eventBus.publish(EventTypes.COMPLETION_PROGRESS_UPDATED, {
+          project: this.currentProject.name,
+          percentage: progress,
+          iteration,
+          gapsRemaining: this.gaps.length
+        });
+      }
 
       if (progress >= targetCompletion) {
         this.logger.info(`Target completion reached: ${progress}%`);
@@ -335,42 +401,94 @@ export class ProjectCompletionAgent extends EventEmitter {
         break;
       }
 
-      // Phase 2: Plan - Prioritize gaps
+      // Phase 2: Plan - Prioritize gaps and convert to tasks
       this.state = AgentState.PLANNING;
       const prioritizedGaps = await this.gapDetector.prioritize(this.gaps);
 
-      // Phase 3: Build - Generate code for highest priority gap
+      // Take top 3 gaps to work on this iteration
+      const gapsToResolve = prioritizedGaps.slice(0, 3);
+      const tasks = gapsToResolve.map((gap, i) => this._gapToTask(gap, i));
+
+      // Create a mini-plan for this iteration
+      const iterationPlan = {
+        id: `completion-${Date.now()}-iter-${iteration}`,
+        version: '1.0',
+        status: 'pending',
+        tasks,
+        executionGroups: [{ id: 'group-1', phase: 'implementation', tasks: tasks.map(t => t.id) }],
+        checkpoints: [],
+        phases: { implementation: tasks },
+        metadata: {
+          projectName: this.currentProject.name,
+          iteration,
+          gapCount: gapsToResolve.length
+        }
+      };
+
+      // Phase 3: Build - Execute the plan via PlanExecutor
       this.state = AgentState.BUILDING;
-      const currentGap = prioritizedGaps[0];
-      this.logger.info(`Working on gap: ${currentGap.type} - ${currentGap.description}`);
+      this.logger.info(`Executing plan with ${tasks.length} tasks...`);
 
-      // TODO: Integrate with code generation (Claude API)
-      // For now, emit event for external handling
-      this.emit('gap:work', { gap: currentGap, project: this.currentProject });
+      try {
+        const executionResult = await this.planExecutor.executePlan(iterationPlan, {
+          projectInfo: {
+            name: this.currentProject.name,
+            path: this.currentProject.sourcePath || this.currentProject.path
+          }
+        });
 
-      // Phase 4: Test
-      this.state = AgentState.TESTING;
-      // TODO: Run tests
+        this.logger.info(`Execution result: ${executionResult.success ? 'SUCCESS' : 'PARTIAL'}`);
 
-      // Phase 5: Fix (if tests fail)
-      this.state = AgentState.FIXING;
-      // TODO: Auto-fix failures
+        // Phase 4: Test - Trigger tests via EventBus
+        this.state = AgentState.TESTING;
+        if (this.eventBus) {
+          this.eventBus.publish(EventTypes.TESTS_STARTED, {
+            agent: this.name,
+            project: this.currentProject.name,
+            iteration,
+            reason: 'completion_verification'
+          });
+        }
 
-      // Phase 6: Verify
-      this.state = AgentState.VERIFYING;
-      await this.completionTracker.updateProgress(this.currentProject.name, {
-        gapResolved: currentGap.id,
-        iteration
-      });
+        // Wait briefly for tests (in real implementation, would await test completion event)
+        await new Promise(resolve => setTimeout(resolve, 500));
 
-      this.metrics.gapsResolved++;
-      this.emit(CompletionEvents.GAP_RESOLVED, { gap: currentGap });
+        // Phase 5: Fix - The autonomous-loop-manager handles this via TESTS_FAILED events
+        this.state = AgentState.FIXING;
+        // Auto-fix is handled automatically by autonomous-loop-manager subscribing to TESTS_FAILED
+
+        // Phase 6: Verify and update progress
+        this.state = AgentState.VERIFYING;
+
+        // Mark resolved gaps
+        for (const gap of gapsToResolve) {
+          if (executionResult.taskResults[gap.id]?.success) {
+            await this.completionTracker.updateProgress(this.currentProject.name, {
+              gapResolved: gap.id,
+              iteration
+            });
+
+            this.metrics.gapsResolved++;
+            this.emit(CompletionEvents.GAP_RESOLVED, { gap });
+
+            if (this.eventBus) {
+              this.eventBus.publish(EventTypes.COMPLETION_GAP_RESOLVED, { gap });
+            }
+          }
+        }
+
+      } catch (error) {
+        this.logger.error(`Execution error: ${error.message}`);
+        this.metrics.errorsCount++;
+
+        // Continue to next iteration despite errors
+      }
 
       // Save state after each iteration
       await this._saveState();
 
-      // Small delay between iterations
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Delay between iterations
+      await new Promise(resolve => setTimeout(resolve, 200));
     }
 
     if (this.state !== AgentState.PAUSED && this.state !== AgentState.COMPLETED) {
