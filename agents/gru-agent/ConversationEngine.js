@@ -64,6 +64,7 @@ export class ConversationEngine extends EventEmitter {
   /**
    * Send a message and get AI response
    * @param {string} message - User message
+   * @returns {Promise<{content: string, provider: string}>} Response object
    */
   async chat(message) {
     if (!this.isInitialized) {
@@ -97,12 +98,14 @@ export class ConversationEngine extends EventEmitter {
       };
     } catch (error) {
       this.logger.error(`Chat error: ${error.message}`);
+      this.emit('error', { operation: 'chat', error: error.message });
       throw error;
     }
   }
 
   /**
    * Get conversation summary for plan generation
+   * @returns {Promise<object>} Parsed summary object or raw response
    */
   async summarize() {
     if (this.history.length === 0) {
@@ -160,6 +163,7 @@ Respond ONLY with the JSON, no other text.`;
       return summary;
     } catch (error) {
       this.logger.error(`Summarize error: ${error.message}`);
+      this.emit('error', { operation: 'summarize', error: error.message });
       throw error;
     }
   }

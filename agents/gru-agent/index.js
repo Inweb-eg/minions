@@ -191,6 +191,8 @@ export class GruAgent extends EventEmitter {
   /**
    * Record a learning event
    * @private
+   * @param {string} type - Event type
+   * @param {object} data - Event data
    */
   _recordLearningEvent(type, data) {
     const event = {
@@ -201,9 +203,9 @@ export class GruAgent extends EventEmitter {
 
     this.learningEventLog.unshift(event);
 
-    // Keep only last 500 events
-    if (this.learningEventLog.length > 500) {
-      this.learningEventLog = this.learningEventLog.slice(0, 500);
+    // Keep only last 500 events - use pop to avoid array reassignment
+    while (this.learningEventLog.length > 500) {
+      this.learningEventLog.pop();
     }
 
     // Broadcast to connected clients
@@ -839,27 +841,33 @@ export class GruAgent extends EventEmitter {
   }
 }
 
-// Singleton factory
+// Singleton instance
 let instance = null;
 
 /**
- * Get singleton instance of GruAgent
+ * Get the singleton GruAgent instance
  * @param {object} config - Configuration options
+ * @returns {GruAgent} The singleton instance
  */
-GruAgent.getInstance = function(config) {
+export function getGruAgent(config = {}) {
   if (!instance) {
     instance = new GruAgent(config);
   }
   return instance;
-};
-
-export function getGruAgent(config) {
-  return GruAgent.getInstance(config);
 }
 
-export function resetGruAgent() {
+/**
+ * Reset the singleton (primarily for testing)
+ * @returns {Promise<void>}
+ */
+export async function resetGruAgent() {
   if (instance) {
-    instance.shutdown().catch(() => {});
+    try {
+      await instance.shutdown();
+    } catch (error) {
+      // Log error instead of silent catch
+      instance.logger?.error?.(`Error during GruAgent shutdown: ${error.message}`);
+    }
     instance = null;
   }
 }
