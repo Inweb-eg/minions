@@ -83,7 +83,10 @@ Detailed documentation is available in the `docs/` folder:
 **Gru Agent** (`agents/gru-agent/`):
 - Web interface coordinator at `http://localhost:2505`
 - Conversational AI powered by Ollama (deepseek-coder:6.7b) or Gemini fallback
-- Components: `WebServer.js`, `ConversationEngine.js`, `OllamaAdapter.js`, `ProjectIntake.js`, `StatusTracker.js`
+- General chat support (not limited to project topics)
+- Learning system monitoring dashboard at `/evolve`
+- Components: `WebServer.js`, `ConversationEngine.js`, `ConversationStore.js`, `OllamaAdapter.js`, `ProjectIntake.js`, `StatusTracker.js`
+- Singletons: `getGruAgent()`, `getConversationStore()`
 - Start with: `node index.js --gru` or Docker: `docker compose up -d`
 
 **Dr. Nefario Agent** (`agents/nefario-agent/`):

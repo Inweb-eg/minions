@@ -200,13 +200,40 @@ orchestrator.getStatus()
 
 ### Gru Agent Components
 
-| Component | Purpose |
-|-----------|---------|
-| `WebServer.js` | HTTP/WebSocket server (port 2505) |
-| `ConversationEngine.js` | AI-powered conversation |
-| `ProjectIntake.js` | New/existing project workflow |
-| `StatusTracker.js` | Real-time execution status |
-| `OllamaAdapter.js` | AI provider (Ollama/Gemini) |
+| Component | Singleton | Purpose |
+|-----------|-----------|---------|
+| `WebServer.js` | - | HTTP/WebSocket server (port 2505) |
+| `ConversationEngine.js` | - | AI-powered conversation (general + project) |
+| `ConversationStore.js` | `getConversationStore()` | Conversation history persistence with CRUD |
+| `ProjectIntake.js` | - | New/existing project workflow, Docker project discovery |
+| `StatusTracker.js` | - | Real-time execution status |
+| `OllamaAdapter.js` | - | AI provider (Ollama/Gemini) |
+
+**Key Methods:**
+```javascript
+// ConversationStore (singleton)
+const store = getConversationStore(config);
+await store.initialize();
+await store.create({ projectName, title });
+store.get(id);
+store.getAll({ projectName, limit });
+store.getGroupedByProject();
+await store.update(id, updates);
+await store.addMessage(id, { role, content });
+await store.delete(id);
+
+// GruAgent (singleton)
+const gru = getGruAgent(config);
+gru.setLearningSystem(knowledgeBrain);
+await gru.start();
+```
+
+**API Endpoints:**
+- `/api/conversations` - CRUD for conversation history
+- `/api/conversations/grouped` - Conversations grouped by project
+- `/api/projects/discover` - Discover projects in Docker mount
+- `/api/learning/*` - Learning system stats, skills, policy, events
+- `/evolve` - Learning system monitoring dashboard
 
 ### Silas Components
 

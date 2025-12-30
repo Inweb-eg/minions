@@ -31,10 +31,14 @@ Gru Agent is the main coordinator agent that provides a conversational web inter
 
 **Key Features:**
 - Conversational AI interface powered by Ollama or Gemini
+- General chat support (not limited to project topics)
+- Conversation history with persistence and CRUD operations
 - Project scanning and framework detection
+- Docker project discovery from mounted volumes
 - Interactive plan creation and approval
 - Real-time execution monitoring with progress tracking
 - Gap detection and autonomous completion
+- Learning system monitoring dashboard (`/evolve`)
 
 ---
 
