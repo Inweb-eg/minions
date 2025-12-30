@@ -104,27 +104,27 @@ Quick reference of all Minions agents organized by function.
 
 | Agent | Codename | Mission |
 |-------|----------|---------|
-| **Vision Agent** | — | Analyzes project requirements and creates high-level technical vision documents. |
-| **Architect Agent** | — | Designs system architecture, component relationships, and technical specifications. |
-| **Planner Agent** | — | Breaks down architecture into executable task plans with dependencies. |
+| **Vision Agent** | Margo | Analyzes project requirements and creates high-level technical vision documents. |
+| **Architect Agent** | Vector | Designs system architecture, component relationships, and technical specifications. |
+| **Planner Agent** | Edith | Breaks down architecture into executable task plans with dependencies. |
 
 ### Code Writer Agents
 
 | Agent | Codename | Mission |
 |-------|----------|---------|
-| **Backend Writer** | — | Generates server-side code including APIs, services, and business logic. |
-| **Frontend Writer** | — | Creates client-side UI components, state management, and user interactions. |
-| **Flutter Writer** | — | Produces cross-platform mobile applications using Flutter/Dart. |
+| **Backend Writer** | Stuart | Generates server-side code including APIs, services, and business logic. |
+| **Frontend Writer** | Agnes | Creates client-side UI components, state management, and user interactions. |
+| **Flutter Writer** | Otto | Produces cross-platform mobile applications using Flutter/Dart. |
 
 ### Specialized Agents
 
 | Agent | Codename | Mission |
 |-------|----------|---------|
-| **Tester Agent** | — | Runs test suites, generates test cases, and validates code quality. |
-| **Docker Agent** | — | Manages containerization, Dockerfile generation, and compose configurations. |
-| **GitHub Agent** | — | Handles Git operations, PR creation, and repository management. |
-| **Codebase Analyzer** | — | Scans codebases to extract structure, patterns, and dependency maps. |
-| **Document Agent** | — | Generates documentation, READMEs, and API references from code. |
+| **Tester Agent** | Bob | Runs test suites, generates test cases, and validates code quality. |
+| **Docker Agent** | Herb | Manages containerization, Dockerfile generation, and compose configurations. |
+| **GitHub Agent** | Mel | Handles Git operations, PR creation, and repository management. |
+| **Codebase Analyzer** | Carl | Scans codebases to extract structure, patterns, and dependency maps. |
+| **Document Agent** | Jerry | Generates documentation, READMEs, and API references from code. |
 | **Database Agent** | Dave | Database schema design, migration generation, and query optimization. |
 | **Performance Agent** | Kevin | Performance profiling, bottleneck detection, and optimization recommendations. |
 
@@ -132,11 +132,11 @@ Quick reference of all Minions agents organized by function.
 
 | Agent | Codename | Mission |
 |-------|----------|---------|
-| **Pattern Detector** | — | Identifies recurring patterns in agent behavior for skill extraction. |
-| **Skill Synthesizer** | — | Generates reusable skills from detected patterns using LLM synthesis. |
-| **RL Policy** | — | Reinforcement learning policy for action selection and strategy optimization. |
-| **A/B Tester** | — | Compares skill variants to determine optimal implementations. |
-| **Cross-Agent Teacher** | — | Transfers learned skills between agents with mastery tracking. |
+| **Pattern Detector** | Phil | Identifies recurring patterns in agent behavior for skill extraction. |
+| **Skill Synthesizer** | Dru | Generates reusable skills from detected patterns using LLM synthesis. |
+| **RL Policy** | Eduardo | Reinforcement learning policy for action selection and strategy optimization. |
+| **A/B Tester** | Balthazar | Compares skill variants to determine optimal implementations. |
+| **Cross-Agent Teacher** | Marlena | Transfers learned skills between agents with mastery tracking. |
 
 ### Core Infrastructure
 
