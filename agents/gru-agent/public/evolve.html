@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Evolve - Minions Self-Learning Dashboard</title>
+  <title>Evolve - Minions Learning Control Center</title>
   <style>
     :root {
       --bg-primary: #0f172a;
@@ -19,11 +19,7 @@
       --border-color: #475569;
     }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -48,9 +44,7 @@
       gap: 0.5rem;
     }
 
-    .header h1 span {
-      color: var(--accent-purple);
-    }
+    .header h1 span { color: var(--accent-purple); }
 
     .nav-links {
       display: flex;
@@ -76,14 +70,41 @@
     }
 
     .container {
-      max-width: 1400px;
+      max-width: 1600px;
       margin: 0 auto;
       padding: 2rem;
     }
 
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1rem;
+    }
+
+    .tab {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+
+    .tab:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .tab.active { background: var(--accent-purple); color: white; border-color: var(--accent-purple); }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Stats Grid */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 1rem;
       margin-bottom: 2rem;
     }
@@ -91,34 +112,19 @@
     .stat-card {
       background: var(--bg-secondary);
       border-radius: 1rem;
-      padding: 1.5rem;
+      padding: 1.25rem;
       border: 1px solid var(--border-color);
     }
 
-    .stat-card .label {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-      margin-bottom: 0.5rem;
-    }
+    .stat-card .label { color: var(--text-secondary); font-size: 0.75rem; margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 1.75rem; font-weight: bold; }
 
-    .stat-card .value {
-      font-size: 2rem;
-      font-weight: bold;
-    }
-
-    .stat-card .trend {
-      font-size: 0.75rem;
-      margin-top: 0.5rem;
-    }
-
-    .stat-card .trend.up { color: var(--accent-green); }
-    .stat-card .trend.down { color: var(--accent-red); }
-
+    /* Sections */
     .section {
       background: var(--bg-secondary);
       border-radius: 1rem;
       padding: 1.5rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       border: 1px solid var(--border-color);
     }
 
@@ -132,84 +138,121 @@
     }
 
     .section-header h2 {
-      font-size: 1.25rem;
+      font-size: 1.125rem;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
 
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 1200px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+    /* Buttons */
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-success { background: var(--accent-green); color: white; border-color: var(--accent-green); }
+    .btn-success:hover { background: #16a34a; }
+    .btn-danger { background: var(--accent-red); color: white; border-color: var(--accent-red); }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); }
+    .btn-secondary:hover { background: var(--border-color); }
+    .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.75rem; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Forms */
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary); }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 0.5rem;
+      color: var(--text-primary);
+      font-size: 0.875rem;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    /* Range Slider */
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .slider-container input[type="range"] {
+      flex: 1;
+      height: 6px;
+      background: var(--bg-tertiary);
+      border-radius: 3px;
+      -webkit-appearance: none;
+    }
+    .slider-container input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      background: var(--accent-blue);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .slider-value {
+      background: var(--bg-tertiary);
+      padding: 0.25rem 0.75rem;
+      border-radius: 0.25rem;
+      font-weight: bold;
+      min-width: 60px;
+      text-align: center;
+    }
+
+    /* Badges */
     .badge {
       background: var(--bg-tertiary);
       padding: 0.25rem 0.75rem;
       border-radius: 9999px;
       font-size: 0.75rem;
     }
-
     .badge.active { background: var(--accent-green); color: white; }
     .badge.pending { background: var(--accent-yellow); color: black; }
     .badge.error { background: var(--accent-red); color: white; }
+    .badge.canary { background: var(--accent-purple); color: white; }
 
-    .two-column {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-    }
+    /* Lists */
+    .item-list { max-height: 400px; overflow-y: auto; }
 
-    @media (max-width: 1024px) {
-      .two-column {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    /* Skills List */
-    .skill-list {
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .skill-item {
+    .list-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding: 1rem;
       border-bottom: 1px solid var(--border-color);
     }
+    .list-item:last-child { border-bottom: none; }
+    .list-item:hover { background: var(--bg-tertiary); }
 
-    .skill-item:last-child {
-      border-bottom: none;
-    }
-
-    .skill-info {
-      flex: 1;
-    }
-
-    .skill-name {
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-
-    .skill-meta {
-      color: var(--text-secondary);
-      font-size: 0.75rem;
-    }
-
-    .skill-stats {
-      text-align: right;
-    }
-
-    .skill-stats .success-rate {
-      font-weight: bold;
-      font-size: 1.125rem;
-    }
-
-    .skill-stats .activations {
-      color: var(--text-secondary);
-      font-size: 0.75rem;
-    }
+    .item-info { flex: 1; }
+    .item-name { font-weight: 600; margin-bottom: 0.25rem; }
+    .item-meta { color: var(--text-secondary); font-size: 0.75rem; }
+    .item-actions { display: flex; gap: 0.5rem; }
 
     /* Event Log */
     .event-log {
-      max-height: 500px;
+      max-height: 400px;
       overflow-y: auto;
       font-family: 'Consolas', 'Monaco', monospace;
       font-size: 0.75rem;
@@ -221,34 +264,22 @@
       display: flex;
       gap: 1rem;
     }
-
-    .event-entry:hover {
-      background: var(--bg-tertiary);
-    }
-
-    .event-time {
-      color: var(--text-secondary);
-      white-space: nowrap;
-    }
-
+    .event-entry:hover { background: var(--bg-tertiary); }
+    .event-time { color: var(--text-secondary); white-space: nowrap; }
     .event-type {
       padding: 0.125rem 0.5rem;
       border-radius: 0.25rem;
       font-size: 0.625rem;
       white-space: nowrap;
     }
-
+    .event-type.control { background: var(--accent-purple); }
     .event-type.pattern { background: var(--accent-blue); }
-    .event-type.skill { background: var(--accent-purple); }
-    .event-type.reward { background: var(--accent-green); }
-    .event-type.test { background: var(--accent-yellow); color: black; }
+    .event-type.skill { background: var(--accent-green); }
+    .event-type.reward { background: var(--accent-yellow); color: black; }
+    .event-type.test { background: #f97316; }
     .event-type.error { background: var(--accent-red); }
     .event-type.teaching { background: #ec4899; }
-
-    .event-message {
-      flex: 1;
-      word-break: break-word;
-    }
+    .event-message { flex: 1; word-break: break-word; }
 
     /* Policy Visualization */
     .policy-grid {
@@ -256,149 +287,25 @@
       grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 0.5rem;
     }
-
     .policy-state {
       background: var(--bg-tertiary);
       border-radius: 0.5rem;
       padding: 0.75rem;
     }
-
-    .policy-state .state-name {
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-      margin-bottom: 0.5rem;
-    }
-
-    .policy-state .action {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.625rem;
-      padding: 0.25rem 0;
-    }
-
-    .policy-state .action-name {
-      color: var(--text-primary);
-    }
-
-    .policy-state .q-value {
-      color: var(--accent-blue);
-      font-weight: bold;
-    }
-
-    /* Teaching Progress */
-    .teaching-item {
-      padding: 1rem;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .teaching-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.5rem;
-    }
-
-    .teaching-skill {
-      font-weight: 600;
-    }
-
-    .teaching-agents {
-      color: var(--text-secondary);
-      font-size: 0.75rem;
-    }
-
-    .progress-bar {
-      background: var(--bg-tertiary);
-      border-radius: 0.25rem;
-      height: 0.5rem;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      background: var(--accent-green);
-      height: 100%;
-      transition: width 0.3s;
-    }
-
-    /* Test Results */
-    .test-result {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0.75rem;
-      border-bottom: 1px solid var(--border-color);
-    }
-
-    .test-competitors {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .test-competitor {
-      padding: 0.25rem 0.5rem;
-      border-radius: 0.25rem;
-      font-size: 0.75rem;
-    }
-
-    .test-competitor.winner {
-      background: var(--accent-green);
-      color: white;
-    }
-
-    .test-competitor.loser {
-      background: var(--bg-tertiary);
-    }
-
-    .test-significance {
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-    }
+    .policy-state .state-name { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+    .policy-state .action { display: flex; justify-content: space-between; font-size: 0.625rem; padding: 0.25rem 0; }
+    .policy-state .action-name { color: var(--text-primary); }
+    .policy-state .q-value { color: var(--accent-blue); font-weight: bold; }
 
     /* Empty State */
     .empty-state {
       text-align: center;
-      padding: 3rem;
+      padding: 2rem;
       color: var(--text-secondary);
     }
 
-    .empty-state svg {
-      width: 64px;
-      height: 64px;
-      margin-bottom: 1rem;
-      opacity: 0.5;
-    }
-
-    /* Refresh Button */
-    .refresh-btn {
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      cursor: pointer;
-      font-size: 0.875rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .refresh-btn:hover {
-      background: var(--accent-blue);
-      border-color: var(--accent-blue);
-    }
-
-    .refresh-btn.loading {
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
     /* Status Indicator */
-    .status-indicator {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
+    .status-indicator { display: flex; align-items: center; gap: 0.5rem; }
     .status-dot {
       width: 8px;
       height: 8px;
@@ -406,16 +313,63 @@
       background: var(--accent-green);
       animation: pulse 2s infinite;
     }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .status-dot.disconnected { background: var(--accent-red); animation: none; }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
     }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: var(--bg-secondary);
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      border: 1px solid var(--border-color);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-header h3 { font-size: 1.25rem; }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .modal-actions { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem; }
 
-    .status-dot.disconnected {
-      background: var(--accent-red);
-      animation: none;
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      color: white;
+      font-size: 0.875rem;
+      z-index: 1001;
+      animation: slideIn 0.3s ease;
     }
+    .toast.success { background: var(--accent-green); }
+    .toast.error { background: var(--accent-red); }
+    .toast.info { background: var(--accent-blue); }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
   </style>
 </head>
 <body>
@@ -428,107 +382,275 @@
   </header>
 
   <div class="container">
-    <!-- Stats Overview -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="label">Learned Skills</div>
-        <div class="value" id="skillCount">0</div>
-        <div class="trend up" id="skillTrend"></div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Total Activations</div>
-        <div class="value" id="activationCount">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Success Rate</div>
-        <div class="value" id="successRate">0%</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">RL Policy</div>
-        <div class="value" id="policyStatus">-</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">Experience Count</div>
-        <div class="value" id="experienceCount">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="label">A/B Tests</div>
-        <div class="value" id="testCount">0</div>
-      </div>
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('dashboard')">Dashboard</button>
+      <button class="tab" onclick="switchTab('plans')">Learning Plans</button>
+      <button class="tab" onclick="switchTab('skills')">Skills</button>
+      <button class="tab" onclick="switchTab('policy')">RL Policy</button>
+      <button class="tab" onclick="switchTab('tests')">A/B Tests</button>
+      <button class="tab" onclick="switchTab('teaching')">Teaching</button>
     </div>
 
-    <div class="two-column">
-      <!-- Left Column -->
-      <div>
-        <!-- Learned Skills -->
-        <div class="section">
-          <div class="section-header">
-            <h2>Learned Skills</h2>
-            <button class="refresh-btn" onclick="refreshSkills()">Refresh</button>
-          </div>
-          <div class="skill-list" id="skillList">
-            <div class="empty-state">
-              <p>No skills learned yet</p>
-              <p style="font-size: 0.75rem; margin-top: 0.5rem;">Skills are generated from detected patterns</p>
-            </div>
-          </div>
+    <!-- Dashboard Tab -->
+    <div id="tab-dashboard" class="tab-content active">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label">Learned Skills</div>
+          <div class="value" id="skillCount">0</div>
         </div>
-
-        <!-- RL Policy -->
-        <div class="section">
-          <div class="section-header">
-            <h2>RL Policy (Q-Values)</h2>
-            <span class="badge" id="policyBadge">Not Loaded</span>
-          </div>
-          <div class="policy-grid" id="policyGrid">
-            <div class="empty-state">
-              <p>No policy trained yet</p>
-            </div>
-          </div>
+        <div class="stat-card">
+          <div class="label">Total Activations</div>
+          <div class="value" id="activationCount">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Success Rate</div>
+          <div class="value" id="successRate">0%</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Experience Count</div>
+          <div class="value" id="experienceCount">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">A/B Tests</div>
+          <div class="value" id="testCount">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Learning Plans</div>
+          <div class="value" id="planCount">0</div>
         </div>
       </div>
 
-      <!-- Right Column -->
-      <div>
-        <!-- Event Log -->
+      <div class="grid-2">
         <div class="section">
           <div class="section-header">
-            <h2>Learning Events</h2>
+            <h2>Recent Events</h2>
             <div class="status-indicator">
               <span class="status-dot" id="statusDot"></span>
-              <span id="statusText">Monitoring</span>
+              <span id="statusText">Connected</span>
             </div>
           </div>
           <div class="event-log" id="eventLog">
-            <div class="empty-state">
-              <p>Waiting for learning events...</p>
-            </div>
+            <div class="empty-state"><p>Waiting for events...</p></div>
           </div>
         </div>
 
-        <!-- A/B Test Results -->
         <div class="section">
           <div class="section-header">
-            <h2>A/B Test Results</h2>
+            <h2>Quick Actions</h2>
           </div>
-          <div id="testResults">
-            <div class="empty-state">
-              <p>No A/B tests completed yet</p>
-            </div>
+          <div style="display: grid; gap: 1rem;">
+            <button class="btn btn-primary" onclick="openModal('createPlan')">Create Learning Plan</button>
+            <button class="btn btn-secondary" onclick="openModal('generateSkill')">Generate Skill</button>
+            <button class="btn btn-secondary" onclick="openModal('startTest')">Start A/B Test</button>
+            <button class="btn btn-secondary" onclick="refreshAll()">Refresh All Data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Learning Plans Tab -->
+    <div id="tab-plans" class="tab-content">
+      <div class="section">
+        <div class="section-header">
+          <h2>Learning Plans</h2>
+          <button class="btn btn-primary" onclick="openModal('createPlan')">+ New Plan</button>
+        </div>
+        <div class="item-list" id="planList">
+          <div class="empty-state"><p>No learning plans created yet</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skills Tab -->
+    <div id="tab-skills" class="tab-content">
+      <div class="grid-2">
+        <div class="section">
+          <div class="section-header">
+            <h2>Learned Skills</h2>
+            <button class="btn btn-secondary btn-sm" onclick="loadSkills()">Refresh</button>
+          </div>
+          <div class="item-list" id="skillList">
+            <div class="empty-state"><p>No skills learned yet</p></div>
           </div>
         </div>
 
-        <!-- Teaching Sessions -->
         <div class="section">
           <div class="section-header">
-            <h2>Cross-Agent Teaching</h2>
+            <h2>Generate Skill</h2>
           </div>
-          <div id="teachingSessions">
-            <div class="empty-state">
-              <p>No active teaching sessions</p>
+          <div class="form-group">
+            <label>Pattern Type</label>
+            <input type="text" id="generatePatternType" placeholder="e.g., auto-retry, cache-result">
+          </div>
+          <button class="btn btn-primary" onclick="generateSkill()">Generate Skill</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RL Policy Tab -->
+    <div id="tab-policy" class="tab-content">
+      <div class="grid-2">
+        <div class="section">
+          <div class="section-header">
+            <h2>Policy Controls</h2>
+          </div>
+          <div class="form-group">
+            <label>Exploration Rate (Epsilon)</label>
+            <div class="slider-container">
+              <input type="range" id="explorationRate" min="0" max="100" value="20" oninput="updateExplorationDisplay()">
+              <span class="slider-value" id="explorationValue">0.20</span>
             </div>
+            <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
+              Higher = more exploration, Lower = more exploitation
+            </p>
+          </div>
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button class="btn btn-primary" onclick="setExplorationRate()">Apply Rate</button>
+            <button class="btn btn-danger" onclick="confirmResetPolicy()">Reset Policy</button>
           </div>
         </div>
+
+        <div class="section">
+          <div class="section-header">
+            <h2>Q-Values</h2>
+            <span class="badge" id="policyBadge">Not Loaded</span>
+          </div>
+          <div class="policy-grid" id="policyGrid">
+            <div class="empty-state"><p>No policy trained yet</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- A/B Tests Tab -->
+    <div id="tab-tests" class="tab-content">
+      <div class="grid-2">
+        <div class="section">
+          <div class="section-header">
+            <h2>Active Tests</h2>
+            <button class="btn btn-primary btn-sm" onclick="openModal('startTest')">+ New Test</button>
+          </div>
+          <div class="item-list" id="activeTestList">
+            <div class="empty-state"><p>No active tests</p></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header">
+            <h2>Completed Tests</h2>
+          </div>
+          <div class="item-list" id="completedTestList">
+            <div class="empty-state"><p>No completed tests</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teaching Tab -->
+    <div id="tab-teaching" class="tab-content">
+      <div class="grid-2">
+        <div class="section">
+          <div class="section-header">
+            <h2>Start Teaching Session</h2>
+          </div>
+          <div class="form-group">
+            <label>Skill ID</label>
+            <input type="text" id="teachSkillId" placeholder="Skill to teach">
+          </div>
+          <div class="form-group">
+            <label>Teacher Agent</label>
+            <input type="text" id="teacherAgent" placeholder="e.g., silas, lucy">
+          </div>
+          <div class="form-group">
+            <label>Student Agent</label>
+            <input type="text" id="studentAgent" placeholder="e.g., tom, nefario">
+          </div>
+          <button class="btn btn-primary" onclick="startTeaching()">Start Teaching</button>
+        </div>
+
+        <div class="section">
+          <div class="section-header">
+            <h2>Teaching Sessions</h2>
+          </div>
+          <div class="item-list" id="teachingList">
+            <div class="empty-state"><p>No teaching sessions</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Plan Modal -->
+  <div class="modal" id="modal-createPlan">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Create Learning Plan</h3>
+        <button class="modal-close" onclick="closeModal('createPlan')">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>Plan Name</label>
+        <input type="text" id="planName" placeholder="e.g., Error Handling Skills">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="planDescription" rows="3" placeholder="What this plan aims to achieve..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Target Skills (comma-separated)</label>
+        <input type="text" id="planSkills" placeholder="e.g., auto-retry, circuit-breaker, rate-limiter">
+      </div>
+      <div class="form-group">
+        <label>Priority</label>
+        <select id="planPriority">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('createPlan')">Cancel</button>
+        <button class="btn btn-primary" onclick="createPlan()">Create Plan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generate Skill Modal -->
+  <div class="modal" id="modal-generateSkill">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Generate Skill</h3>
+        <button class="modal-close" onclick="closeModal('generateSkill')">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>Pattern Type</label>
+        <input type="text" id="modalPatternType" placeholder="e.g., auto-retry, cache-result">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('generateSkill')">Cancel</button>
+        <button class="btn btn-primary" onclick="generateSkillFromModal()">Generate</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Start Test Modal -->
+  <div class="modal" id="modal-startTest">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Start A/B Test</h3>
+        <button class="modal-close" onclick="closeModal('startTest')">&times;</button>
+      </div>
+      <div class="form-group">
+        <label>Control Skill</label>
+        <input type="text" id="testControlSkill" placeholder="Current skill name/ID">
+      </div>
+      <div class="form-group">
+        <label>Treatment Skill</label>
+        <input type="text" id="testTreatmentSkill" placeholder="New skill to test">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('startTest')">Cancel</button>
+        <button class="btn btn-primary" onclick="startABTest()">Start Test</button>
       </div>
     </div>
   </div>
@@ -544,161 +666,150 @@
     document.addEventListener('DOMContentLoaded', () => {
       connectWebSocket();
       loadInitialData();
-      setInterval(loadStats, 30000); // Refresh stats every 30s
+      setInterval(loadStats, 30000);
     });
 
-    // WebSocket connection for real-time events
+    // Tab switching
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+
+      // Load tab-specific data
+      if (tabName === 'skills') loadSkills();
+      if (tabName === 'policy') loadPolicy();
+      if (tabName === 'tests') loadTests();
+      if (tabName === 'teaching') loadTeaching();
+      if (tabName === 'plans') loadPlans();
+    }
+
+    // Modal controls
+    function openModal(name) { document.getElementById(`modal-${name}`).classList.add('active'); }
+    function closeModal(name) { document.getElementById(`modal-${name}`).classList.remove('active'); }
+
+    // Toast notifications
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // WebSocket
     function connectWebSocket() {
       ws = new WebSocket(`ws://${window.location.host}`);
-
       ws.onopen = () => {
         isConnected = true;
         document.getElementById('statusDot').classList.remove('disconnected');
         document.getElementById('statusText').textContent = 'Connected';
       };
-
       ws.onclose = () => {
         isConnected = false;
         document.getElementById('statusDot').classList.add('disconnected');
         document.getElementById('statusText').textContent = 'Disconnected';
         setTimeout(connectWebSocket, 3000);
       };
-
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
           handleRealtimeEvent(data);
-        } catch (e) {
-          console.error('Failed to parse message:', e);
-        }
+        } catch (e) { console.error('Parse error:', e); }
       };
     }
 
-    // Handle real-time events
     function handleRealtimeEvent(data) {
-      // Check if it's a learning-related event
-      if (data.type && data.type.startsWith('learning:')) {
+      if (data.type) {
         addEventToLog(data);
-
-        // Refresh relevant sections
-        if (data.type === 'learning:skill:generated' || data.type === 'learning:skill:deployed') {
-          refreshSkills();
-        } else if (data.type === 'learning:policy:updated') {
-          loadPolicy();
-        }
+        if (data.type.includes('skill')) loadSkills();
+        if (data.type.includes('policy')) loadPolicy();
+        if (data.type.includes('plan')) loadPlans();
       }
     }
 
-    // Add event to log
     function addEventToLog(event) {
-      eventHistory.unshift({
-        time: new Date().toISOString(),
-        type: event.type,
-        data: event.data || event
-      });
-
-      if (eventHistory.length > MAX_EVENTS) {
-        eventHistory.pop();
-      }
-
+      eventHistory.unshift({ time: new Date().toISOString(), type: event.type, data: event.data || event });
+      if (eventHistory.length > MAX_EVENTS) eventHistory.pop();
       renderEventLog();
     }
 
-    // Load initial data
+    // Data loading
     async function loadInitialData() {
-      await Promise.all([
-        loadStats(),
-        loadSkills(),
-        loadPolicy(),
-        loadEvents(),
-        loadTestResults(),
-        loadTeaching()
-      ]);
+      await Promise.all([loadStats(), loadSkills(), loadPolicy(), loadEvents(), loadTests(), loadTeaching(), loadPlans()]);
     }
 
-    // Load stats
+    function refreshAll() {
+      loadInitialData();
+      showToast('Data refreshed', 'success');
+    }
+
     async function loadStats() {
       try {
         const res = await fetch('/api/learning/stats');
         const stats = await res.json();
-
         document.getElementById('skillCount').textContent = stats.learnedSkillCount || 0;
         document.getElementById('activationCount').textContent = stats.totalSkillActivations || 0;
-        document.getElementById('successRate').textContent =
-          ((stats.overallSuccessRate || 0) * 100).toFixed(1) + '%';
-        document.getElementById('policyStatus').textContent = stats.hasRLPolicy ? 'Active' : 'None';
+        document.getElementById('successRate').textContent = ((stats.overallSuccessRate || 0) * 100).toFixed(1) + '%';
         document.getElementById('experienceCount').textContent = stats.experienceCount || 0;
         document.getElementById('testCount').textContent = stats.testResultCount || 0;
-      } catch (e) {
-        console.error('Failed to load stats:', e);
-      }
+
+        const plansRes = await fetch('/api/learning/plans');
+        const plans = await plansRes.json();
+        document.getElementById('planCount').textContent = plans.length || 0;
+      } catch (e) { console.error('Failed to load stats:', e); }
     }
 
-    // Load skills
     async function loadSkills() {
       try {
         const res = await fetch('/api/learning/skills');
         const skills = await res.json();
-
         const container = document.getElementById('skillList');
-
         if (!skills || skills.length === 0) {
-          container.innerHTML = `
-            <div class="empty-state">
-              <p>No skills learned yet</p>
-            </div>
-          `;
+          container.innerHTML = '<div class="empty-state"><p>No skills learned yet</p></div>';
           return;
         }
-
         container.innerHTML = skills.map(skill => `
-          <div class="skill-item">
-            <div class="skill-info">
-              <div class="skill-name">${escapeHtml(skill.name || skill.id)}</div>
-              <div class="skill-meta">
+          <div class="list-item">
+            <div class="item-info">
+              <div class="item-name">${escapeHtml(skill.name || skill.id)}</div>
+              <div class="item-meta">
                 Pattern: ${escapeHtml(skill.sourcePattern || 'unknown')} |
-                Quality: ${skill.metadata?.quality || 'experimental'}
+                ${((skill.metadata?.successRate || 0) * 100).toFixed(0)}% success |
+                ${skill.metadata?.activations || 0} activations
               </div>
             </div>
-            <div class="skill-stats">
-              <div class="success-rate">${((skill.metadata?.successRate || 0) * 100).toFixed(0)}%</div>
-              <div class="activations">${skill.metadata?.activations || 0} activations</div>
+            <div class="item-actions">
+              ${skill.status === 'canary' ? `
+                <button class="btn btn-success btn-sm" onclick="approveSkill('${skill.id}')">Approve</button>
+                <button class="btn btn-danger btn-sm" onclick="rejectSkill('${skill.id}')">Reject</button>
+              ` : `
+                <button class="btn btn-secondary btn-sm" onclick="toggleSkill('${skill.id}', ${!skill.active})">${skill.active ? 'Disable' : 'Enable'}</button>
+              `}
             </div>
           </div>
         `).join('');
-      } catch (e) {
-        console.error('Failed to load skills:', e);
-      }
+      } catch (e) { console.error('Failed to load skills:', e); }
     }
 
-    function refreshSkills() {
-      loadSkills();
-      loadStats();
-    }
-
-    // Load policy
     async function loadPolicy() {
       try {
         const res = await fetch('/api/learning/policy');
         const policy = await res.json();
-
         const container = document.getElementById('policyGrid');
         const badge = document.getElementById('policyBadge');
-
         if (!policy || !policy.qTable || Object.keys(policy.qTable).length === 0) {
-          container.innerHTML = `
-            <div class="empty-state">
-              <p>No policy trained yet</p>
-            </div>
-          `;
+          container.innerHTML = '<div class="empty-state"><p>No policy trained yet</p></div>';
           badge.textContent = 'Not Loaded';
           badge.className = 'badge';
           return;
         }
-
         badge.textContent = `${Object.keys(policy.qTable).length} states`;
         badge.className = 'badge active';
-
+        if (policy.explorationRate !== undefined) {
+          document.getElementById('explorationRate').value = policy.explorationRate * 100;
+          document.getElementById('explorationValue').textContent = policy.explorationRate.toFixed(2);
+        }
         const states = Object.entries(policy.qTable).slice(0, 12);
         container.innerHTML = states.map(([state, actions]) => `
           <div class="policy-state">
@@ -711,64 +822,46 @@
             `).join('')}
           </div>
         `).join('');
-      } catch (e) {
-        console.error('Failed to load policy:', e);
-      }
+      } catch (e) { console.error('Failed to load policy:', e); }
     }
 
-    // Load events
     async function loadEvents() {
       try {
         const res = await fetch('/api/learning/events?limit=100');
         const events = await res.json();
-
         if (events && events.length > 0) {
-          eventHistory = events.map(e => ({
-            time: e.timestamp,
-            type: e.type,
-            data: e.data
-          }));
+          eventHistory = events.map(e => ({ time: e.timestamp, type: e.type, data: e.data }));
           renderEventLog();
         }
-      } catch (e) {
-        console.error('Failed to load events:', e);
-      }
+      } catch (e) { console.error('Failed to load events:', e); }
     }
 
-    // Render event log
     function renderEventLog() {
       const container = document.getElementById('eventLog');
-
       if (eventHistory.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <p>Waiting for learning events...</p>
-          </div>
-        `;
+        container.innerHTML = '<div class="empty-state"><p>Waiting for events...</p></div>';
         return;
       }
-
-      container.innerHTML = eventHistory.slice(0, 100).map(event => {
+      container.innerHTML = eventHistory.slice(0, 50).map(event => {
         const time = new Date(event.time).toLocaleTimeString();
         const typeClass = getEventTypeClass(event.type);
-        const typeName = event.type.replace('learning:', '').replace(':', ' ');
-        const message = formatEventMessage(event);
-
+        const typeName = event.type.replace('learning:', '').replace('control:', '');
         return `
           <div class="event-entry">
             <span class="event-time">${time}</span>
             <span class="event-type ${typeClass}">${typeName}</span>
-            <span class="event-message">${escapeHtml(message)}</span>
+            <span class="event-message">${escapeHtml(formatEventMessage(event))}</span>
           </div>
         `;
       }).join('');
     }
 
     function getEventTypeClass(type) {
+      if (type.includes('control')) return 'control';
       if (type.includes('pattern')) return 'pattern';
       if (type.includes('skill')) return 'skill';
       if (type.includes('reward')) return 'reward';
-      if (type.includes('test') || type.includes('abtest')) return 'test';
+      if (type.includes('test')) return 'test';
       if (type.includes('error')) return 'error';
       if (type.includes('teaching') || type.includes('mastery')) return 'teaching';
       return '';
@@ -776,99 +869,306 @@
 
     function formatEventMessage(event) {
       const data = event.data || {};
-      if (data.skillName) return `Skill: ${data.skillName}`;
-      if (data.pattern) return `Pattern: ${data.pattern}`;
-      if (data.agent) return `Agent: ${data.agent}`;
+      if (data.rate !== undefined) return `Rate: ${data.rate}`;
+      if (data.skillId) return `Skill: ${data.skillId}`;
+      if (data.testId) return `Test: ${data.testId}`;
+      if (data.planId) return `Plan: ${data.planId}`;
+      if (data.name) return data.name;
       if (data.message) return data.message;
-      return JSON.stringify(data).substring(0, 100);
+      return JSON.stringify(data).substring(0, 80);
     }
 
-    // Load test results
-    async function loadTestResults() {
+    async function loadTests() {
       try {
         const res = await fetch('/api/learning/tests');
         const tests = await res.json();
-
-        const container = document.getElementById('testResults');
-
-        if (!tests || tests.length === 0) {
-          container.innerHTML = `
-            <div class="empty-state">
-              <p>No A/B tests completed yet</p>
-            </div>
-          `;
-          return;
-        }
-
-        container.innerHTML = tests.slice(0, 10).map(test => `
-          <div class="test-result">
-            <div class="test-competitors">
-              <span class="test-competitor ${test.winner === 'control' ? 'winner' : 'loser'}">
-                ${escapeHtml(test.controlSkill?.name || 'Control')}
-              </span>
-              <span>vs</span>
-              <span class="test-competitor ${test.winner === 'treatment' ? 'winner' : 'loser'}">
-                ${escapeHtml(test.treatmentSkill?.name || 'Treatment')}
-              </span>
-            </div>
-            <div class="test-significance">
-              p=${(test.significance || 0).toFixed(3)}
-            </div>
-          </div>
-        `).join('');
-      } catch (e) {
-        console.error('Failed to load test results:', e);
-      }
-    }
-
-    // Load teaching sessions
-    async function loadTeaching() {
-      try {
-        const res = await fetch('/api/learning/teaching');
-        const teaching = await res.json();
-
-        const container = document.getElementById('teachingSessions');
-
-        if (!teaching || (!teaching.activeSessions?.length && !teaching.stats)) {
-          container.innerHTML = `
-            <div class="empty-state">
-              <p>No active teaching sessions</p>
-            </div>
-          `;
-          return;
-        }
-
-        if (teaching.activeSessions && teaching.activeSessions.length > 0) {
-          container.innerHTML = teaching.activeSessions.map(session => `
-            <div class="teaching-item">
-              <div class="teaching-header">
-                <span class="teaching-skill">${escapeHtml(session.skill || 'Unknown')}</span>
-                <span class="badge ${session.status === 'active' ? 'active' : ''}">${session.status}</span>
+        const activeContainer = document.getElementById('activeTestList');
+        const completedContainer = document.getElementById('completedTestList');
+        const active = tests.filter(t => t.status === 'running');
+        const completed = tests.filter(t => t.status !== 'running');
+        if (active.length === 0) {
+          activeContainer.innerHTML = '<div class="empty-state"><p>No active tests</p></div>';
+        } else {
+          activeContainer.innerHTML = active.map(t => `
+            <div class="list-item">
+              <div class="item-info">
+                <div class="item-name">${escapeHtml(t.controlSkill)} vs ${escapeHtml(t.treatmentSkill)}</div>
+                <div class="item-meta">Started: ${new Date(t.startedAt).toLocaleString()}</div>
               </div>
-              <div class="teaching-agents">
-                ${escapeHtml(session.teacher || '?')} teaching ${escapeHtml(session.learner || '?')}
-              </div>
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: ${session.progress || 0}%"></div>
+              <div class="item-actions">
+                <button class="btn btn-danger btn-sm" onclick="cancelTest('${t.id}')">Cancel</button>
               </div>
             </div>
           `).join('');
-        } else if (teaching.stats) {
-          container.innerHTML = `
-            <div class="teaching-item">
-              <div class="teaching-header">
-                <span>Teaching Statistics</span>
+        }
+        if (completed.length === 0) {
+          completedContainer.innerHTML = '<div class="empty-state"><p>No completed tests</p></div>';
+        } else {
+          completedContainer.innerHTML = completed.slice(0, 10).map(t => `
+            <div class="list-item">
+              <div class="item-info">
+                <div class="item-name">${escapeHtml(t.controlSkill)} vs ${escapeHtml(t.treatmentSkill)}</div>
+                <div class="item-meta">Winner: ${t.winner || 'N/A'} | p=${(t.significance || 0).toFixed(3)}</div>
               </div>
-              <div class="teaching-agents">
-                Skills shared: ${teaching.stats.skillsShared || 0} |
-                Curriculums: ${teaching.stats.curriculumsCreated || 0}
+              <span class="badge ${t.status === 'completed' ? 'active' : 'error'}">${t.status}</span>
+            </div>
+          `).join('');
+        }
+      } catch (e) { console.error('Failed to load tests:', e); }
+    }
+
+    async function loadTeaching() {
+      try {
+        const res = await fetch('/api/learning/teaching');
+        const data = await res.json();
+        const container = document.getElementById('teachingList');
+        if (!data.activeSessions || data.activeSessions.length === 0) {
+          container.innerHTML = data.stats ? `
+            <div class="list-item">
+              <div class="item-info">
+                <div class="item-name">Teaching Statistics</div>
+                <div class="item-meta">Skills shared: ${data.stats.skillsShared || 0} | Curriculums: ${data.stats.curriculumsCreated || 0}</div>
               </div>
             </div>
-          `;
+          ` : '<div class="empty-state"><p>No teaching sessions</p></div>';
+          return;
         }
-      } catch (e) {
-        console.error('Failed to load teaching:', e);
+        container.innerHTML = data.activeSessions.map(s => `
+          <div class="list-item">
+            <div class="item-info">
+              <div class="item-name">${escapeHtml(s.skill || 'Unknown')}</div>
+              <div class="item-meta">${escapeHtml(s.teacher)} teaching ${escapeHtml(s.learner)}</div>
+            </div>
+            <div class="item-actions">
+              <button class="btn btn-success btn-sm" onclick="validateTeaching('${s.id}')">Validate</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) { console.error('Failed to load teaching:', e); }
+    }
+
+    async function loadPlans() {
+      try {
+        const res = await fetch('/api/learning/plans');
+        const plans = await res.json();
+        const container = document.getElementById('planList');
+        if (!plans || plans.length === 0) {
+          container.innerHTML = '<div class="empty-state"><p>No learning plans created yet</p></div>';
+          return;
+        }
+        container.innerHTML = plans.map(p => `
+          <div class="list-item">
+            <div class="item-info">
+              <div class="item-name">${escapeHtml(p.name)}</div>
+              <div class="item-meta">
+                Priority: ${p.priority} | Skills: ${p.targetSkills.join(', ') || 'none'} | Progress: ${p.progress}%
+              </div>
+            </div>
+            <div class="item-actions">
+              ${p.status === 'pending' ? `
+                <button class="btn btn-success btn-sm" onclick="executePlan('${p.id}')">Execute</button>
+              ` : ''}
+              <span class="badge ${p.status === 'completed' ? 'active' : p.status === 'executing' ? 'pending' : ''}">${p.status}</span>
+              <button class="btn btn-danger btn-sm" onclick="deletePlan('${p.id}')">Delete</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) { console.error('Failed to load plans:', e); }
+    }
+
+    // Control actions
+    function updateExplorationDisplay() {
+      const value = document.getElementById('explorationRate').value / 100;
+      document.getElementById('explorationValue').textContent = value.toFixed(2);
+    }
+
+    async function setExplorationRate() {
+      const rate = document.getElementById('explorationRate').value / 100;
+      try {
+        const res = await fetch('/api/learning/rl/exploration', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rate })
+        });
+        const data = await res.json();
+        if (data.success) showToast(`Exploration rate set to ${rate.toFixed(2)}`, 'success');
+        else showToast(data.error || 'Failed to set rate', 'error');
+      } catch (e) { showToast('Failed to set exploration rate', 'error'); }
+    }
+
+    async function confirmResetPolicy() {
+      if (confirm('Are you sure you want to reset the RL policy? This will clear all learned Q-values.')) {
+        try {
+          const res = await fetch('/api/learning/rl/reset', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ keepConfig: true })
+          });
+          const data = await res.json();
+          if (data.success) { showToast('Policy reset successfully', 'success'); loadPolicy(); }
+          else showToast(data.error || 'Failed to reset', 'error');
+        } catch (e) { showToast('Failed to reset policy', 'error'); }
       }
+    }
+
+    async function generateSkill() {
+      const patternType = document.getElementById('generatePatternType').value.trim();
+      if (!patternType) { showToast('Please enter a pattern type', 'error'); return; }
+      await doGenerateSkill(patternType);
+    }
+
+    async function generateSkillFromModal() {
+      const patternType = document.getElementById('modalPatternType').value.trim();
+      if (!patternType) { showToast('Please enter a pattern type', 'error'); return; }
+      closeModal('generateSkill');
+      await doGenerateSkill(patternType);
+    }
+
+    async function doGenerateSkill(patternType) {
+      try {
+        showToast('Generating skill...', 'info');
+        const res = await fetch('/api/learning/skills/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ patternType })
+        });
+        const data = await res.json();
+        if (data.success) { showToast('Skill generated successfully', 'success'); loadSkills(); }
+        else showToast(data.error || 'Failed to generate skill', 'error');
+      } catch (e) { showToast('Failed to generate skill', 'error'); }
+    }
+
+    async function approveSkill(skillId) {
+      try {
+        const res = await fetch(`/api/learning/skills/${skillId}/approve`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) { showToast('Skill approved', 'success'); loadSkills(); }
+        else showToast(data.error || 'Failed to approve', 'error');
+      } catch (e) { showToast('Failed to approve skill', 'error'); }
+    }
+
+    async function rejectSkill(skillId) {
+      const reason = prompt('Reason for rejection:') || 'Manually rejected';
+      try {
+        const res = await fetch(`/api/learning/skills/${skillId}/reject`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason })
+        });
+        const data = await res.json();
+        if (data.success) { showToast('Skill rejected', 'success'); loadSkills(); }
+        else showToast(data.error || 'Failed to reject', 'error');
+      } catch (e) { showToast('Failed to reject skill', 'error'); }
+    }
+
+    async function toggleSkill(skillId, enabled) {
+      try {
+        const res = await fetch(`/api/learning/skills/${skillId}/toggle`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled })
+        });
+        const data = await res.json();
+        if (data.success) { showToast(`Skill ${enabled ? 'enabled' : 'disabled'}`, 'success'); loadSkills(); }
+        else showToast(data.error || 'Failed to toggle', 'error');
+      } catch (e) { showToast('Failed to toggle skill', 'error'); }
+    }
+
+    async function startABTest() {
+      const controlSkill = document.getElementById('testControlSkill').value.trim();
+      const treatmentSkill = document.getElementById('testTreatmentSkill').value.trim();
+      if (!controlSkill || !treatmentSkill) { showToast('Please enter both skills', 'error'); return; }
+      closeModal('startTest');
+      try {
+        const res = await fetch('/api/learning/tests/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ controlSkill, treatmentSkill })
+        });
+        const data = await res.json();
+        if (data.success) { showToast('A/B test started', 'success'); loadTests(); }
+        else showToast(data.error || 'Failed to start test', 'error');
+      } catch (e) { showToast('Failed to start test', 'error'); }
+    }
+
+    async function cancelTest(testId) {
+      if (!confirm('Cancel this test?')) return;
+      try {
+        const res = await fetch(`/api/learning/tests/${testId}/cancel`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason: 'Manually cancelled' })
+        });
+        const data = await res.json();
+        if (data.success) { showToast('Test cancelled', 'success'); loadTests(); }
+        else showToast(data.error || 'Failed to cancel', 'error');
+      } catch (e) { showToast('Failed to cancel test', 'error'); }
+    }
+
+    async function startTeaching() {
+      const skillId = document.getElementById('teachSkillId').value.trim();
+      const teacherAgent = document.getElementById('teacherAgent').value.trim();
+      const studentAgent = document.getElementById('studentAgent').value.trim();
+      if (!skillId || !studentAgent) { showToast('Please enter skill ID and student agent', 'error'); return; }
+      try {
+        const res = await fetch('/api/learning/teaching/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ skillId, teacherAgent, studentAgent })
+        });
+        const data = await res.json();
+        if (data.success) { showToast('Teaching session started', 'success'); loadTeaching(); }
+        else showToast(data.error || 'Failed to start teaching', 'error');
+      } catch (e) { showToast('Failed to start teaching', 'error'); }
+    }
+
+    async function validateTeaching(sessionId) {
+      try {
+        const res = await fetch(`/api/learning/teaching/${sessionId}/validate`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) { showToast('Session validated', 'success'); loadTeaching(); }
+        else showToast(data.error || 'Failed to validate', 'error');
+      } catch (e) { showToast('Failed to validate', 'error'); }
+    }
+
+    async function createPlan() {
+      const name = document.getElementById('planName').value.trim();
+      const description = document.getElementById('planDescription').value.trim();
+      const skillsRaw = document.getElementById('planSkills').value.trim();
+      const priority = document.getElementById('planPriority').value;
+      if (!name) { showToast('Please enter a plan name', 'error'); return; }
+      const targetSkills = skillsRaw ? skillsRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+      closeModal('createPlan');
+      try {
+        const res = await fetch('/api/learning/plans', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, description, targetSkills, priority })
+        });
+        const data = await res.json();
+        if (data.id) { showToast('Plan created', 'success'); loadPlans(); loadStats(); }
+        else showToast('Failed to create plan', 'error');
+      } catch (e) { showToast('Failed to create plan', 'error'); }
+    }
+
+    async function executePlan(planId) {
+      try {
+        showToast('Executing plan...', 'info');
+        const res = await fetch(`/api/learning/plans/${planId}/execute`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) { showToast('Plan executed', 'success'); loadPlans(); loadSkills(); }
+        else showToast(data.error || 'Failed to execute', 'error');
+      } catch (e) { showToast('Failed to execute plan', 'error'); }
+    }
+
+    async function deletePlan(planId) {
+      if (!confirm('Delete this plan?')) return;
+      try {
+        const res = await fetch(`/api/learning/plans/${planId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) { showToast('Plan deleted', 'success'); loadPlans(); loadStats(); }
+        else showToast('Failed to delete', 'error');
+      } catch (e) { showToast('Failed to delete plan', 'error'); }
     }
 
     // Utility

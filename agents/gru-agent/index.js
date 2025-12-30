@@ -821,6 +821,303 @@ export class GruAgent extends EventEmitter {
       const events = this.learningEventLog.slice(0, limit || 100);
       callback(events);
     });
+
+    // ============ Learning Control Handlers ============
+
+    // RL Policy Controls
+    this.webServer.on('api:learning:rl:setExploration', ({ rate, callback }) => {
+      if (!this.knowledgeBrain) {
+        callback({ success: false, error: 'Learning system not connected' });
+        return;
+      }
+      try {
+        const rlPolicy = this.knowledgeBrain.rlPolicy;
+        if (rlPolicy?.setExplorationRate) {
+          rlPolicy.setExplorationRate(rate);
+          this._recordLearningEvent('control:rl:exploration', { rate });
+          callback({ success: true, rate });
+        } else {
+          callback({ success: false, error: 'RL policy not available' });
+        }
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    this.webServer.on('api:learning:rl:reset', ({ keepConfig, callback }) => {
+      if (!this.knowledgeBrain) {
+        callback({ success: false, error: 'Learning system not connected' });
+        return;
+      }
+      try {
+        const rlPolicy = this.knowledgeBrain.rlPolicy;
+        if (rlPolicy?.reset) {
+          rlPolicy.reset(keepConfig);
+          this._recordLearningEvent('control:rl:reset', { keepConfig });
+          callback({ success: true });
+        } else {
+          callback({ success: false, error: 'RL policy not available' });
+        }
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    // Skills Controls
+    this.webServer.on('api:learning:skills:generate', async ({ patternType, callback }) => {
+      if (!this.knowledgeBrain) {
+        callback({ success: false, error: 'Learning system not connected' });
+        return;
+      }
+      try {
+        const skillGenerator = this.knowledgeBrain.skillGenerator;
+        if (skillGenerator?.generateSkill) {
+          const pattern = { type: patternType, count: 1, confidence: 1.0 };
+          const skill = await skillGenerator.generateSkill(pattern);
+          this._recordLearningEvent('control:skill:generate', { patternType, skill });
+          callback({ success: true, skill });
+        } else {
+          callback({ success: false, error: 'Skill generator not available' });
+        }
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    this.webServer.on('api:learning:skills:approve', async ({ skillId, callback }) => {
+      if (!this.knowledgeBrain) {
+        callback({ success: false, error: 'Learning system not connected' });
+        return;
+      }
+      try {
+        const skillGenerator = this.knowledgeBrain.skillGenerator;
+        if (skillGenerator?._evaluateCanary) {
+          // Force approve canary skill
+          await skillGenerator._evaluateCanary(skillId);
+          this._recordLearningEvent('control:skill:approve', { skillId });
+          callback({ success: true, skillId });
+        } else {
+          callback({ success: false, error: 'Skill generator not available' });
+        }
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    this.webServer.on('api:learning:skills:reject', async ({ skillId, reason, callback }) => {
+      if (!this.knowledgeBrain) {
+        callback({ success: false, error: 'Learning system not connected' });
+        return;
+      }
+      try {
+        const skillLibrary = this.knowledgeBrain.skillLibrary;
+        if (skillLibrary?.deactivateSkill) {
+          skillLibrary.deactivateSkill(skillId);
+          this._recordLearningEvent('control:skill:reject', { skillId, reason });
+          callback({ success: true, skillId, reason });
+        } else {
+          callback({ success: false, error: 'Skill library not available' });
+        }
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    this.webServer.on('api:learning:skills:toggle', async ({ skillId, enabled, callback }) => {
+      if (!this.knowledgeBrain) {
+        callback({ success: false, error: 'Learning system not connected' });
+        return;
+      }
+      try {
+        const skillLibrary = this.knowledgeBrain.skillLibrary;
+        if (enabled && skillLibrary?.activateSkill) {
+          skillLibrary.activateSkill(skillId);
+          this._recordLearningEvent('control:skill:activate', { skillId });
+          callback({ success: true, skillId, enabled: true });
+        } else if (!enabled && skillLibrary?.deactivateSkill) {
+          skillLibrary.deactivateSkill(skillId);
+          this._recordLearningEvent('control:skill:deactivate', { skillId });
+          callback({ success: true, skillId, enabled: false });
+        } else {
+          callback({ success: false, error: 'Skill library not available' });
+        }
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    // A/B Test Controls
+    this.webServer.on('api:learning:tests:start', async ({ controlSkill, treatmentSkill, options, callback }) => {
+      if (!this.knowledgeBrain) {
+        callback({ success: false, error: 'Learning system not connected' });
+        return;
+      }
+      try {
+        const abTester = this.knowledgeBrain.abTester;
+        if (abTester?.startTest) {
+          const testId = abTester.startTest(controlSkill, treatmentSkill, options);
+          this._recordLearningEvent('control:test:start', { testId, controlSkill, treatmentSkill });
+          callback({ success: true, testId });
+        } else {
+          callback({ success: false, error: 'A/B tester not available' });
+        }
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    this.webServer.on('api:learning:tests:cancel', async ({ testId, reason, callback }) => {
+      if (!this.knowledgeBrain) {
+        callback({ success: false, error: 'Learning system not connected' });
+        return;
+      }
+      try {
+        const abTester = this.knowledgeBrain.abTester;
+        if (abTester?.cancelTest) {
+          abTester.cancelTest(testId, reason);
+          this._recordLearningEvent('control:test:cancel', { testId, reason });
+          callback({ success: true, testId });
+        } else {
+          callback({ success: false, error: 'A/B tester not available' });
+        }
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    // Teaching Controls
+    this.webServer.on('api:learning:teaching:start', async ({ skillId, teacherAgent, studentAgent, callback }) => {
+      if (!this.knowledgeBrain) {
+        callback({ success: false, error: 'Learning system not connected' });
+        return;
+      }
+      try {
+        const teacher = this.knowledgeBrain.crossAgentTeacher;
+        if (teacher?.packageSkillForTransfer && teacher?.receiveSkill) {
+          const pkg = await teacher.packageSkillForTransfer(skillId, teacherAgent);
+          const session = await teacher.receiveSkill(pkg, studentAgent);
+          this._recordLearningEvent('control:teaching:start', { skillId, teacherAgent, studentAgent, session });
+          callback({ success: true, session });
+        } else {
+          callback({ success: false, error: 'Cross-agent teacher not available' });
+        }
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    this.webServer.on('api:learning:teaching:validate', async ({ sessionId, callback }) => {
+      if (!this.knowledgeBrain) {
+        callback({ success: false, error: 'Learning system not connected' });
+        return;
+      }
+      try {
+        const teacher = this.knowledgeBrain.crossAgentTeacher;
+        if (teacher?.validateSkill) {
+          const result = await teacher.validateSkill(sessionId);
+          this._recordLearningEvent('control:teaching:validate', { sessionId, result });
+          callback({ success: true, result });
+        } else {
+          callback({ success: false, error: 'Cross-agent teacher not available' });
+        }
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    // Mastery Controls
+    this.webServer.on('api:learning:mastery:update', async ({ agentId, skillId, success, callback }) => {
+      if (!this.knowledgeBrain) {
+        callback({ success: false, error: 'Learning system not connected' });
+        return;
+      }
+      try {
+        const teacher = this.knowledgeBrain.crossAgentTeacher;
+        if (teacher?.updateMastery) {
+          teacher.updateMastery(agentId, skillId, success);
+          this._recordLearningEvent('control:mastery:update', { agentId, skillId, success });
+          callback({ success: true, agentId, skillId });
+        } else {
+          callback({ success: false, error: 'Cross-agent teacher not available' });
+        }
+      } catch (error) {
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    // Learning Plans - stored locally in GruAgent
+    this.learningPlans = new Map();
+
+    this.webServer.on('api:learning:plans:list', ({ callback }) => {
+      const plans = Array.from(this.learningPlans.values());
+      callback(plans);
+    });
+
+    this.webServer.on('api:learning:plans:create', ({ name, description, targetSkills, priority, callback }) => {
+      const plan = {
+        id: `plan-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        name,
+        description: description || '',
+        targetSkills: targetSkills || [],
+        priority: priority || 'medium',
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+        progress: 0
+      };
+      this.learningPlans.set(plan.id, plan);
+      this._recordLearningEvent('control:plan:create', plan);
+      callback(plan);
+    });
+
+    this.webServer.on('api:learning:plans:update', ({ planId, updates, callback }) => {
+      const plan = this.learningPlans.get(planId);
+      if (!plan) {
+        callback({ success: false, error: 'Plan not found' });
+        return;
+      }
+      Object.assign(plan, updates, { updatedAt: new Date().toISOString() });
+      this._recordLearningEvent('control:plan:update', { planId, updates });
+      callback(plan);
+    });
+
+    this.webServer.on('api:learning:plans:delete', ({ planId, callback }) => {
+      const deleted = this.learningPlans.delete(planId);
+      this._recordLearningEvent('control:plan:delete', { planId });
+      callback({ success: deleted });
+    });
+
+    this.webServer.on('api:learning:plans:execute', async ({ planId, callback }) => {
+      const plan = this.learningPlans.get(planId);
+      if (!plan) {
+        callback({ success: false, error: 'Plan not found' });
+        return;
+      }
+      try {
+        plan.status = 'executing';
+        plan.startedAt = new Date().toISOString();
+        this._recordLearningEvent('control:plan:execute', { planId });
+
+        // Execute plan steps - trigger skill generation for target skills
+        if (this.knowledgeBrain && plan.targetSkills.length > 0) {
+          const skillGenerator = this.knowledgeBrain.skillGenerator;
+          for (const skillName of plan.targetSkills) {
+            if (skillGenerator?.generateSkill) {
+              const pattern = { type: skillName, count: 1, confidence: 1.0 };
+              await skillGenerator.generateSkill(pattern);
+            }
+          }
+        }
+
+        plan.status = 'completed';
+        plan.completedAt = new Date().toISOString();
+        plan.progress = 100;
+        callback({ success: true, plan });
+      } catch (error) {
+        plan.status = 'failed';
+        plan.error = error.message;
+        callback({ success: false, error: error.message });
+      }
+    });
   }
 
   /**

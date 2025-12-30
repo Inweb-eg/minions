@@ -217,6 +217,164 @@ export class WebServer extends EventEmitter {
       this.emit('api:learning:events', { limit, callback: (data) => res.json(data) });
     });
 
+    // ============ Learning Control API ============
+
+    // RL Policy Controls
+    this.app.post('/api/learning/rl/exploration', (req, res) => {
+      const { rate } = req.body;
+      if (rate === undefined || rate < 0 || rate > 1) {
+        return res.status(400).json({ error: 'Rate must be between 0 and 1' });
+      }
+      this.emit('api:learning:rl:setExploration', {
+        rate,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    this.app.post('/api/learning/rl/reset', (req, res) => {
+      const { keepConfig } = req.body;
+      this.emit('api:learning:rl:reset', {
+        keepConfig: keepConfig !== false,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    // Skills Controls
+    this.app.post('/api/learning/skills/generate', (req, res) => {
+      const { patternType } = req.body;
+      if (!patternType) {
+        return res.status(400).json({ error: 'patternType is required' });
+      }
+      this.emit('api:learning:skills:generate', {
+        patternType,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    this.app.post('/api/learning/skills/:id/approve', (req, res) => {
+      this.emit('api:learning:skills:approve', {
+        skillId: req.params.id,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    this.app.post('/api/learning/skills/:id/reject', (req, res) => {
+      const { reason } = req.body;
+      this.emit('api:learning:skills:reject', {
+        skillId: req.params.id,
+        reason: reason || 'Manually rejected',
+        callback: (data) => res.json(data)
+      });
+    });
+
+    this.app.post('/api/learning/skills/:id/toggle', (req, res) => {
+      const { enabled } = req.body;
+      this.emit('api:learning:skills:toggle', {
+        skillId: req.params.id,
+        enabled,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    // A/B Test Controls
+    this.app.post('/api/learning/tests/start', (req, res) => {
+      const { controlSkill, treatmentSkill, options } = req.body;
+      if (!controlSkill || !treatmentSkill) {
+        return res.status(400).json({ error: 'controlSkill and treatmentSkill are required' });
+      }
+      this.emit('api:learning:tests:start', {
+        controlSkill,
+        treatmentSkill,
+        options: options || {},
+        callback: (data) => res.json(data)
+      });
+    });
+
+    this.app.post('/api/learning/tests/:id/cancel', (req, res) => {
+      const { reason } = req.body;
+      this.emit('api:learning:tests:cancel', {
+        testId: req.params.id,
+        reason: reason || 'Manually cancelled',
+        callback: (data) => res.json(data)
+      });
+    });
+
+    // Teaching Controls
+    this.app.post('/api/learning/teaching/start', (req, res) => {
+      const { skillId, teacherAgent, studentAgent } = req.body;
+      if (!skillId || !studentAgent) {
+        return res.status(400).json({ error: 'skillId and studentAgent are required' });
+      }
+      this.emit('api:learning:teaching:start', {
+        skillId,
+        teacherAgent,
+        studentAgent,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    this.app.post('/api/learning/teaching/:id/validate', (req, res) => {
+      this.emit('api:learning:teaching:validate', {
+        sessionId: req.params.id,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    // Mastery Controls
+    this.app.post('/api/learning/mastery', (req, res) => {
+      const { agentId, skillId, success } = req.body;
+      if (!agentId || !skillId || success === undefined) {
+        return res.status(400).json({ error: 'agentId, skillId, and success are required' });
+      }
+      this.emit('api:learning:mastery:update', {
+        agentId,
+        skillId,
+        success,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    // Learning Plans
+    this.app.get('/api/learning/plans', (req, res) => {
+      this.emit('api:learning:plans:list', { callback: (data) => res.json(data) });
+    });
+
+    this.app.post('/api/learning/plans', (req, res) => {
+      const { name, description, targetSkills, priority } = req.body;
+      if (!name) {
+        return res.status(400).json({ error: 'name is required' });
+      }
+      this.emit('api:learning:plans:create', {
+        name,
+        description,
+        targetSkills: targetSkills || [],
+        priority: priority || 'medium',
+        callback: (data) => res.json(data)
+      });
+    });
+
+    this.app.put('/api/learning/plans/:id', (req, res) => {
+      this.emit('api:learning:plans:update', {
+        planId: req.params.id,
+        updates: req.body,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    this.app.delete('/api/learning/plans/:id', (req, res) => {
+      this.emit('api:learning:plans:delete', {
+        planId: req.params.id,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    this.app.post('/api/learning/plans/:id/execute', (req, res) => {
+      this.emit('api:learning:plans:execute', {
+        planId: req.params.id,
+        callback: (data) => res.json(data)
+      });
+    });
+
     // Serve evolve.html for learning dashboard
     this.app.get('/evolve', (req, res) => {
       res.sendFile(path.join(this.config.publicDir, 'evolve.html'));
