@@ -776,6 +776,10 @@ class KnowledgeBrain {
     const testResults = items.filter(i => i.type === KNOWLEDGE_TYPES.SKILL_TEST_RESULT);
     return { learnedSkillCount: learnedSkills.length, totalSkillActivations: learnedSkills.reduce((sum, s) => sum + (s.accessCount || 0), 0), experienceCount: experiences.length, policyCount: policies.length, testResultCount: testResults.length, passedTestCount: testResults.filter(t => t.metadata?.passed).length };
   }
+
+  async storeTeachingCurriculum(curriculum) {
+    return await this.learn({ type: KNOWLEDGE_TYPES.TEACHING_CURRICULUM, content: curriculum, quality: QUALITY_LEVELS.TRUSTED, tags: ['curriculum', curriculum.targetSkill, curriculum.toAgent].filter(Boolean), metadata: { curriculumId: curriculum.id, targetSkill: curriculum.targetSkill, fromAgent: curriculum.fromAgent, toAgent: curriculum.toAgent, createdAt: Date.now() } });
+  }
 }
 
 // Singleton instance
