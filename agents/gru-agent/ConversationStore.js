@@ -317,8 +317,11 @@ export function getConversationStore(config = {}) {
   return instance;
 }
 
-export function resetConversationStore() {
-  instance = null;
+export async function resetConversationStore() {
+  if (instance) {
+    await instance.shutdown();
+    instance = null;
+  }
 }
 
 export default ConversationStore;

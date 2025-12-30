@@ -869,6 +869,6 @@ export { WebServer };
 export { ConversationEngine };
 export { ProjectIntake };
 export { StatusTracker, Phase };
-export { getConversationStore } from './ConversationStore.js';
+export { getConversationStore, resetConversationStore } from './ConversationStore.js';
 
 export default GruAgent;

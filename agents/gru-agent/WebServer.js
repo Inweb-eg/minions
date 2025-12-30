@@ -217,6 +217,11 @@ export class WebServer extends EventEmitter {
       this.emit('api:learning:events', { limit, callback: (data) => res.json(data) });
     });
 
+    // Serve evolve.html for learning dashboard
+    this.app.get('/evolve', (req, res) => {
+      res.sendFile(path.join(this.config.publicDir, 'evolve.html'));
+    });
+
     // Serve index.html for all other routes (SPA support)
     this.app.get('*', (req, res) => {
       res.sendFile(path.join(this.config.publicDir, 'index.html'));
