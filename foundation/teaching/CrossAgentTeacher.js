@@ -107,7 +107,7 @@ class CrossAgentTeacher extends EventEmitter {
     try {
       this.eventBus = getEventBus();
       this.knowledgeBrain = getKnowledgeBrain();
-      await this.knowledgeBrain.ensureInitialized();
+      await this.knowledgeBrain.initialize();
 
       // Subscribe to teaching-related events
       if (this.config.enableAutoSubscribe) {

@@ -537,6 +537,7 @@ class KnowledgeBrain {
    * Calculate cosine similarity between vectors
    */
   cosineSimilarity(vecA, vecB) {
+    if (!vecA || !vecB) return 0;
     const terms = new Set([...Object.keys(vecA), ...Object.keys(vecB)]);
 
     let dotProduct = 0;

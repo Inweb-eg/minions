@@ -1,0 +1,42 @@
+{
+  "id": "rl_policy_[object Object]",
+  "type": "rl_policy",
+  "agentId": {
+    "qTable": [
+      {
+        "state": "s1",
+        "actions": [
+          [
+            "a1",
+            0.1
+          ]
+        ]
+      }
+    ],
+    "actionSuccesses": [
+      [
+        "a1",
+        {
+          "successes": 2,
+          "failures": 1
+        }
+      ]
+    ],
+    "explorationRate": 0.199,
+    "stats": {
+      "totalUpdates": 1,
+      "averageReward": 1,
+      "explorationActions": 0,
+      "exploitationActions": 0,
+      "lastSaveTime": 0
+    },
+    "config": {
+      "learningRate": 0.1,
+      "discountFactor": 0.95,
+      "minExploration": 0.05
+    },
+    "savedAt": 1767101865451
+  },
+  "storedAt": 1767101865451,
+  "updatedAt": 1767101865451
+}

@@ -1,0 +1,53 @@
+{
+  "id": "rl-policy-singleton",
+  "type": "rl_policy",
+  "content": {
+    "qTable": [
+      {
+        "state": "s1",
+        "actions": [
+          [
+            "a1",
+            0.46855900000000006
+          ]
+        ]
+      }
+    ],
+    "actionSuccesses": [
+      [
+        "a1",
+        {
+          "successes": 15,
+          "failures": 1
+        }
+      ]
+    ],
+    "explorationRate": 0.19407450187125314,
+    "stats": {
+      "totalUpdates": 6,
+      "averageReward": 1,
+      "explorationActions": 0,
+      "exploitationActions": 0,
+      "lastSaveTime": 0
+    },
+    "config": {
+      "learningRate": 0.1,
+      "discountFactor": 0.95,
+      "minExploration": 0.05
+    },
+    "savedAt": 1767098617539
+  },
+  "tags": [
+    "reinforcement-learning",
+    "policy"
+  ],
+  "quality": "verified",
+  "metadata": {
+    "updates": 6,
+    "lastUpdated": 1767098617539
+  },
+  "createdAt": 1767098387732,
+  "lastAccessed": 1767098617539,
+  "accessCount": 69,
+  "usefulness": 1
+}

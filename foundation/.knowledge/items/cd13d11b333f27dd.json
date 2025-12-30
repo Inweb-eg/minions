@@ -1,0 +1,48 @@
+{
+  "id": "cd13d11b333f27dd",
+  "type": "experience",
+  "content": {
+    "agentId": "agent",
+    "skillId": "mastery_skill",
+    "mastery": {
+      "level": "master",
+      "successRate": 1,
+      "activations": 1,
+      "successCount": 1,
+      "lastUpdated": 1767103677291
+    }
+  },
+  "metadata": {
+    "type": "mastery",
+    "agentId": "agent",
+    "skillId": "mastery_skill",
+    "level": "master",
+    "successRate": 1,
+    "activations": 1
+  },
+  "tags": [
+    "mastery",
+    "agent",
+    "mastery_skill",
+    "master"
+  ],
+  "quality": "experimental",
+  "vector": {
+    "agentid": 1,
+    "agent": 1,
+    "skillid": 1,
+    "mastery_skill": 1,
+    "mastery": 1,
+    "level": 1,
+    "master": 1,
+    "successrate": 1,
+    "activations": 1,
+    "successcount": 1,
+    "lastupdated": 1,
+    "1767103677291": 1
+  },
+  "createdAt": 1767103677291,
+  "lastAccessed": 1767103677291,
+  "accessCount": 1,
+  "usefulness": 0
+}
