@@ -799,15 +799,37 @@ export class SecurityRiskAgent extends EventEmitter {
   }
 
   async _scanForVulnerabilities(options) {
-    // Placeholder - would integrate with security scanning tools
     const vulns = [];
+    const sourcePath = this.currentProject.sourcePath || this.currentProject.path;
 
-    // Check for common vulnerability patterns
-    const sourcePath = this.currentProject.sourcePath;
+    if (!sourcePath) {
+      this.logger.warn('No source path available for vulnerability scan');
+      return vulns;
+    }
 
     try {
-      // This would be expanded with actual vulnerability detection
-      // For now, return empty array
+      // Find all source files to scan
+      const sourceFiles = await this._findSourceFiles(sourcePath, options);
+      this.logger.info(`Scanning ${sourceFiles.length} files for vulnerabilities...`);
+
+      // Scan each file
+      for (const filePath of sourceFiles) {
+        const fileVulns = await this._scanFileForVulnerabilities(filePath);
+        vulns.push(...fileVulns);
+
+        // Emit events for critical vulnerabilities
+        for (const vuln of fileVulns) {
+          if (vuln.severity === RiskSeverity.CRITICAL) {
+            this.emit(SecurityEvents.VULNERABILITY_FOUND, vuln);
+          }
+        }
+      }
+
+      // Add dependency vulnerability checks
+      const depVulns = await this._scanDependencies(sourcePath);
+      vulns.push(...depVulns);
+
+      this.logger.info(`Found ${vulns.length} vulnerabilities`);
       return vulns;
     } catch (error) {
       this.logger.warn(`Vulnerability scan error: ${error.message}`);
@@ -816,19 +838,125 @@ export class SecurityRiskAgent extends EventEmitter {
   }
 
   async _scanForSecrets(options) {
-    // Placeholder - would scan for exposed secrets
     const secrets = [];
+    const sourcePath = this.currentProject.sourcePath || this.currentProject.path;
 
-    // Common secret patterns to check
-    const patterns = [
-      /api[_-]?key\s*[:=]\s*['"]\w+['"]/gi,
-      /password\s*[:=]\s*['"]\w+['"]/gi,
-      /secret\s*[:=]\s*['"]\w+['"]/gi,
-      /token\s*[:=]\s*['"]\w+['"]/gi,
-      /-----BEGIN\s+(RSA\s+)?PRIVATE\s+KEY-----/g
-    ];
+    if (!sourcePath) {
+      this.logger.warn('No source path available for secrets scan');
+      return secrets;
+    }
 
-    return secrets;
+    try {
+      // Find all files to scan (including config files)
+      const filesToScan = await this._findSourceFiles(sourcePath, {
+        ...options,
+        includeConfig: true
+      });
+      this.logger.info(`Scanning ${filesToScan.length} files for secrets...`);
+
+      // Scan each file
+      for (const filePath of filesToScan) {
+        const fileSecrets = await this._scanFileForSecrets(filePath);
+        secrets.push(...fileSecrets);
+
+        // Emit events for detected secrets
+        for (const secret of fileSecrets) {
+          this.emit(SecurityEvents.SECRET_DETECTED, secret);
+        }
+      }
+
+      this.logger.info(`Found ${secrets.length} potential secrets`);
+      return secrets;
+    } catch (error) {
+      this.logger.warn(`Secrets scan error: ${error.message}`);
+      return secrets;
+    }
+  }
+
+  /**
+   * Find source files to scan
+   * @private
+   */
+  async _findSourceFiles(basePath, options = {}) {
+    const files = [];
+    const extensions = options.extensions || ['.js', '.ts', '.jsx', '.tsx', '.py', '.rb', '.go', '.java', '.php'];
+    const configExtensions = ['.json', '.yaml', '.yml', '.env', '.config'];
+    const ignoreDirs = ['node_modules', '.git', 'dist', 'build', 'coverage', '__pycache__', 'vendor'];
+
+    const scanDir = async (dirPath) => {
+      try {
+        const entries = await fs.readdir(dirPath, { withFileTypes: true });
+
+        for (const entry of entries) {
+          const fullPath = path.join(dirPath, entry.name);
+
+          if (entry.isDirectory()) {
+            if (!ignoreDirs.includes(entry.name)) {
+              await scanDir(fullPath);
+            }
+          } else if (entry.isFile()) {
+            const ext = path.extname(entry.name).toLowerCase();
+            if (extensions.includes(ext)) {
+              files.push(fullPath);
+            } else if (options.includeConfig && configExtensions.includes(ext)) {
+              files.push(fullPath);
+            } else if (entry.name === '.env' || entry.name.startsWith('.env.')) {
+              files.push(fullPath);
+            }
+          }
+        }
+      } catch (error) {
+        // Directory not accessible, skip
+      }
+    };
+
+    await scanDir(basePath);
+    return files;
+  }
+
+  /**
+   * Scan dependencies for known vulnerabilities
+   * @private
+   */
+  async _scanDependencies(sourcePath) {
+    const vulns = [];
+
+    try {
+      // Check package.json for known vulnerable packages
+      const packageJsonPath = path.join(sourcePath, 'package.json');
+      const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+
+      const allDeps = {
+        ...packageJson.dependencies,
+        ...packageJson.devDependencies
+      };
+
+      // Known vulnerable package patterns (simplified check)
+      const knownVulnerable = {
+        'lodash': { before: '4.17.21', severity: RiskSeverity.HIGH, cve: 'CVE-2021-23337' },
+        'minimist': { before: '1.2.6', severity: RiskSeverity.CRITICAL, cve: 'CVE-2021-44906' },
+        'axios': { before: '0.21.2', severity: RiskSeverity.HIGH, cve: 'CVE-2021-3749' },
+        'node-fetch': { before: '2.6.7', severity: RiskSeverity.MEDIUM, cve: 'CVE-2022-0235' }
+      };
+
+      for (const [pkg, version] of Object.entries(allDeps)) {
+        if (knownVulnerable[pkg]) {
+          // Simplified version check (would use semver in production)
+          vulns.push({
+            type: 'Vulnerable Dependency',
+            package: pkg,
+            version: version,
+            severity: knownVulnerable[pkg].severity,
+            cve: knownVulnerable[pkg].cve,
+            recommendation: `Update ${pkg} to latest version`
+          });
+        }
+      }
+    } catch (error) {
+      // No package.json or parse error
+    }
+
+    return vulns;
   }
 
   async _scanFileForSecrets(filePath) {
@@ -868,37 +996,138 @@ export class SecurityRiskAgent extends EventEmitter {
     try {
       const content = await fs.readFile(filePath, 'utf-8');
       const vulns = [];
+      const ext = path.extname(filePath).toLowerCase();
 
-      // Check for common vulnerability patterns
-      const checks = [
-        {
-          name: 'SQL Injection',
-          pattern: /query\s*\(\s*['"`].*\$\{/gi,
-          severity: RiskSeverity.CRITICAL
-        },
-        {
-          name: 'Command Injection',
-          pattern: /exec\s*\(\s*['"`].*\$\{/gi,
-          severity: RiskSeverity.CRITICAL
-        },
+      // Common vulnerability patterns (language-agnostic)
+      const commonChecks = [
         {
           name: 'Eval Usage',
           pattern: /\beval\s*\(/gi,
-          severity: RiskSeverity.HIGH
+          severity: RiskSeverity.HIGH,
+          recommendation: 'Avoid eval() - use safer alternatives like JSON.parse()'
         },
         {
           name: 'innerHTML Assignment',
           pattern: /\.innerHTML\s*=/gi,
-          severity: RiskSeverity.MEDIUM
+          severity: RiskSeverity.MEDIUM,
+          recommendation: 'Use textContent or sanitize HTML input to prevent XSS'
+        },
+        {
+          name: 'document.write',
+          pattern: /document\.write\s*\(/gi,
+          severity: RiskSeverity.MEDIUM,
+          recommendation: 'Avoid document.write() - use DOM manipulation instead'
+        },
+        {
+          name: 'Hardcoded Credentials',
+          pattern: /(password|passwd|pwd)\s*[:=]\s*['"][^'"]{4,}['"]/gi,
+          severity: RiskSeverity.CRITICAL,
+          recommendation: 'Move credentials to environment variables'
         }
       ];
 
-      for (const { name, pattern, severity } of checks) {
+      // JavaScript/TypeScript specific
+      const jsChecks = [
+        {
+          name: 'SQL Injection Risk',
+          pattern: /query\s*\(\s*['"`].*(\$\{|\+\s*\w)/gi,
+          severity: RiskSeverity.CRITICAL,
+          recommendation: 'Use parameterized queries instead of string concatenation'
+        },
+        {
+          name: 'Command Injection Risk',
+          pattern: /(exec|spawn|execSync|spawnSync)\s*\([^)]*(\$\{|\+\s*\w)/gi,
+          severity: RiskSeverity.CRITICAL,
+          recommendation: 'Sanitize user input before shell execution'
+        },
+        {
+          name: 'Path Traversal Risk',
+          pattern: /(readFile|writeFile|createReadStream|createWriteStream)\s*\([^)]*(\$\{|\+\s*\w)/gi,
+          severity: RiskSeverity.HIGH,
+          recommendation: 'Validate file paths to prevent directory traversal'
+        },
+        {
+          name: 'Unsafe Regex',
+          pattern: /new RegExp\s*\([^)]*(\$\{|\+\s*\w)/gi,
+          severity: RiskSeverity.MEDIUM,
+          recommendation: 'Sanitize input used in regular expressions'
+        },
+        {
+          name: 'Prototype Pollution Risk',
+          pattern: /\[['"`]__proto__['"`]\]|\[['"`]constructor['"`]\]|\[['"`]prototype['"`]\]/gi,
+          severity: RiskSeverity.HIGH,
+          recommendation: 'Validate object keys to prevent prototype pollution'
+        },
+        {
+          name: 'Insecure Randomness',
+          pattern: /Math\.random\s*\(\)/gi,
+          severity: RiskSeverity.LOW,
+          recommendation: 'Use crypto.randomBytes() for security-sensitive operations'
+        },
+        {
+          name: 'Disabled Security Headers',
+          pattern: /helmet\s*\(\s*\{[^}]*disabled:\s*true/gi,
+          severity: RiskSeverity.MEDIUM,
+          recommendation: 'Enable security headers for production'
+        },
+        {
+          name: 'CORS Wildcard',
+          pattern: /cors\s*\(\s*\{[^}]*origin:\s*['"`]\*['"`]/gi,
+          severity: RiskSeverity.MEDIUM,
+          recommendation: 'Restrict CORS to specific origins in production'
+        }
+      ];
+
+      // Python specific
+      const pyChecks = [
+        {
+          name: 'SQL Injection (Python)',
+          pattern: /execute\s*\(\s*['"f].*%s|\.format\s*\(/gi,
+          severity: RiskSeverity.CRITICAL,
+          recommendation: 'Use parameterized queries with placeholders'
+        },
+        {
+          name: 'Pickle Deserialization',
+          pattern: /pickle\.loads?\s*\(/gi,
+          severity: RiskSeverity.HIGH,
+          recommendation: 'Avoid unpickling untrusted data'
+        },
+        {
+          name: 'Shell Injection (Python)',
+          pattern: /subprocess\.(call|run|Popen)\s*\([^)]*shell\s*=\s*True/gi,
+          severity: RiskSeverity.CRITICAL,
+          recommendation: 'Avoid shell=True, use argument lists instead'
+        }
+      ];
+
+      // Select checks based on file extension
+      let checks = [...commonChecks];
+      if (['.js', '.ts', '.jsx', '.tsx', '.mjs'].includes(ext)) {
+        checks = checks.concat(jsChecks);
+      } else if (['.py'].includes(ext)) {
+        checks = checks.concat(pyChecks);
+      }
+
+      for (const { name, pattern, severity, recommendation } of checks) {
+        // Reset regex state
+        pattern.lastIndex = 0;
+
         if (pattern.test(content)) {
+          // Find line number
+          pattern.lastIndex = 0;
+          const match = pattern.exec(content);
+          let lineNumber = null;
+          if (match) {
+            const beforeMatch = content.substring(0, match.index);
+            lineNumber = beforeMatch.split('\n').length;
+          }
+
           vulns.push({
             type: name,
             file: filePath,
-            severity
+            line: lineNumber,
+            severity,
+            recommendation
           });
         }
       }
