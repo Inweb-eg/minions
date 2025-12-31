@@ -325,4 +325,146 @@ describe('EnhancedEventBus', () => {
       expect(errorCaught).toBe(true);
     });
   });
+
+  describe('coverage improvements', () => {
+    test('respond with no pending request should warn', () => {
+      eventBus.respond('unknown-request-id', { data: 'test' });
+    });
+
+    test('history exceeding maxHistory should shift', async () => {
+      const smallBus = new EnhancedEventBus({ persistMessages: false, maxHistory: 3 });
+      await smallBus.initialize();
+      await smallBus.publish('E1', { agent: 'test' });
+      await smallBus.publish('E2', { agent: 'test' });
+      await smallBus.publish('E3', { agent: 'test' });
+      await smallBus.publish('E4', { agent: 'test' });
+      await smallBus.publish('E5', { agent: 'test' });
+      await new Promise(resolve => setTimeout(resolve, 100));
+      const history = smallBus.getHistory();
+      expect(history.length).toBeLessThanOrEqual(3);
+      await smallBus.shutdown();
+    });
+
+    test('unknown priority should fallback to normal', async () => {
+      await eventBus.publish('FALLBACK_TEST', { agent: 'test' }, { priority: 999 });
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(eventBus.getStats().messagesPublished).toBeGreaterThan(0);
+    });
+
+    test('broadcast subscriber error should be caught', async () => {
+      eventBus.subscribeToBroadcast(BroadcastChannel.ALERTS, 'faulty-broadcast', () => {
+        throw new Error('Broadcast handler error');
+      });
+      await eventBus.broadcast(BroadcastChannel.ALERTS, { test: true });
+    });
+
+    test('getHistory agent filter', async () => {
+      await eventBus.publish('AGENT_TEST', { agent: 'agent-a' });
+      await eventBus.publish('AGENT_TEST', { agent: 'agent-b' });
+      await new Promise(resolve => setTimeout(resolve, 100));
+      const history = eventBus.getHistory({ agent: 'agent-a' });
+      expect(history.every(e => e.data?.agent === 'agent-a')).toBe(true);
+    });
+
+    test('getHistory since filter', async () => {
+      const beforeTime = Date.now();
+      await new Promise(resolve => setTimeout(resolve, 10));
+      await eventBus.publish('SINCE_TEST', { agent: 'test' });
+      await new Promise(resolve => setTimeout(resolve, 50));
+      const history = eventBus.getHistory({ since: beforeTime });
+      expect(history.every(e => e.timestamp >= beforeTime)).toBe(true);
+    });
+
+    test('shutdown clears pending request timeouts', async () => {
+      const newBus = new EnhancedEventBus({ persistMessages: false });
+      await newBus.initialize();
+      const requestPromise = newBus.request('UNANSWERED', { agent: 'test' }, { timeout: 5000 });
+      await newBus.shutdown();
+      expect(newBus.pendingRequests.size).toBe(0);
+    });
+
+    test('broadcastSubscriberCount in stats', async () => {
+      eventBus.subscribeToBroadcast(BroadcastChannel.STATUS, 'stat-sub1', () => {});
+      eventBus.subscribeToBroadcast(BroadcastChannel.STATUS, 'stat-sub2', () => {});
+      const stats = eventBus.getStats();
+      expect(stats.broadcastSubscriberCount).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  describe('persistence mode', () => {
+    let persistentBus;
+
+    beforeEach(async () => {
+      resetEnhancedEventBus();
+      resetMemoryStore();
+      persistentBus = new EnhancedEventBus({ persistMessages: true });
+      await persistentBus.initialize();
+    });
+
+    afterEach(async () => {
+      if (persistentBus) await persistentBus.shutdown();
+    });
+
+    test('should persist and recover messages', async () => {
+      await persistentBus.publish('PERSIST_TEST', { agent: 'test', value: 123 }, { persist: true });
+      await new Promise(resolve => setTimeout(resolve, 100));
+      const stats = persistentBus.getStats();
+      expect(stats.messagesProcessed).toBeGreaterThan(0);
+    });
+
+    test('persistMessage and markMessageProcessed', async () => {
+      const messageId = await persistentBus.publish('MARK_PROCESSED', { agent: 'test' });
+      await new Promise(resolve => setTimeout(resolve, 100));
+      expect(messageId).toBeDefined();
+    });
+
+    test('recoverMessages on init', async () => {
+      const memStore = persistentBus.memoryStore;
+      await memStore.set('pending_messages', 'msg_recover_test', {
+        type: 'RECOVERED_EVENT',
+        data: { agent: 'recovery-test' },
+        timestamp: Date.now() - 1000,
+        id: 'recover_test',
+        priority: MessagePriority.NORMAL,
+        processed: false
+      });
+      const recoverBus = new EnhancedEventBus({ persistMessages: true });
+      await recoverBus.initialize();
+      await new Promise(resolve => setTimeout(resolve, 200));
+      await recoverBus.shutdown();
+    });
+
+    test('broadcastSystem convenience method', async () => {
+      let received = false;
+      persistentBus.subscribeToBroadcast(BroadcastChannel.SYSTEM, 'sys-sub', () => {
+        received = true;
+      });
+      await persistentBus.broadcastSystem({ message: 'system broadcast' });
+      expect(received).toBe(true);
+    });
+
+    test('recoverMessages filters already processed messages', async () => {
+      const memStore = persistentBus.memoryStore;
+      await memStore.set('pending_messages', 'msg_processed', {
+        type: 'PROCESSED_EVENT',
+        data: { agent: 'test' },
+        timestamp: Date.now() - 2000,
+        id: 'processed_id',
+        priority: MessagePriority.HIGH,
+        processed: true
+      });
+      await memStore.set('pending_messages', 'msg_unprocessed', {
+        type: 'UNPROCESSED_EVENT',
+        data: { agent: 'test' },
+        timestamp: Date.now() - 1000,
+        id: 'unprocessed_id',
+        priority: MessagePriority.LOW,
+        processed: false
+      });
+      const recoverBus = new EnhancedEventBus({ persistMessages: true });
+      await recoverBus.initialize();
+      await new Promise(resolve => setTimeout(resolve, 100));
+      await recoverBus.shutdown();
+    });
+  });
 });

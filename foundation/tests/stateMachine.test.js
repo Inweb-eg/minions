@@ -4,6 +4,7 @@ import StateMachine, {
   getStateMachine,
   removeStateMachine,
   clearStateMachines,
+  getAllStateMachines,
   AgentState,
   TransitionResult
 } from '../state-machine/StateMachine.js';
@@ -63,7 +64,6 @@ describe('StateMachine', () => {
     });
 
     test('should reject invalid transitions', async () => {
-      // Try to transition from IDLE to COMPLETED (not allowed)
       const result = await sm.transition(AgentState.COMPLETED);
 
       expect(result.result).toBe(TransitionResult.INVALID_TRANSITION);
@@ -121,11 +121,9 @@ describe('StateMachine', () => {
       });
       await sm.initialize();
 
-      // Should fail guard
       const result1 = await sm.transition('state_b');
       expect(result1.result).toBe(TransitionResult.GUARD_FAILED);
 
-      // Update context and try again
       sm.context.allowed = true;
       const result2 = await sm.transition('state_b');
       expect(result2.result).toBe(TransitionResult.SUCCESS);
@@ -371,7 +369,6 @@ describe('StateMachine', () => {
       const sm1 = getStateMachine('agent1', { persist: false });
       const sm2 = getStateMachine('agent2', { persist: false });
 
-      // These are new instances
       expect(sm1).toBeDefined();
       expect(sm2).toBeDefined();
     });
@@ -382,16 +379,191 @@ describe('StateMachine', () => {
       const sm = createAgentStateMachine('my-agent', { persist: false });
       await sm.initialize();
 
-      // Should start in IDLE
       expect(sm.getState()).toBe(AgentState.IDLE);
 
-      // Should be able to transition through the standard flow
       await sm.transition(AgentState.PLANNING);
       await sm.transition(AgentState.EXECUTING);
       await sm.transition(AgentState.COMPLETED);
       await sm.transition(AgentState.IDLE);
 
       expect(sm.transitionCount).toBe(4);
+    });
+  });
+
+  describe('additional coverage', () => {
+    test('array-style transitions', async () => {
+      const sm = new StateMachine({
+        name: 'array-trans',
+        initialState: 'a',
+        transitions: { a: ['b', 'c'], b: ['a'], c: ['a'] },
+        persist: false
+      });
+      await sm.initialize();
+      expect(sm.canTransitionTo('b')).toBe(true);
+      const result = await sm.transition('b');
+      expect(result.result).toBe(TransitionResult.SUCCESS);
+      expect(sm.getValidTransitions()).toContain('a');
+    });
+
+    test('guard throws error', async () => {
+      const sm = new StateMachine({
+        name: 'guard-error',
+        initialState: 'a',
+        transitions: { a: { b: { guard: () => { throw new Error('Guard exploded'); } } } },
+        persist: false
+      });
+      await sm.initialize();
+      const result = await sm.transition('b');
+      expect(result.result).toBe(TransitionResult.GUARD_FAILED);
+    });
+
+    test('history exceeds maxHistory', async () => {
+      const sm = new StateMachine({
+        name: 'max-hist',
+        initialState: 'a',
+        transitions: { a: { b: {} }, b: { a: {} } },
+        maxHistory: 3,
+        persist: false
+      });
+      await sm.initialize();
+      await sm.transition('b');
+      await sm.transition('a');
+      await sm.transition('b');
+      await sm.transition('a');
+      await sm.transition('b');
+      expect(sm.getHistory(10).length).toBeLessThanOrEqual(3);
+    });
+
+    test('transition action throws error', async () => {
+      const sm = new StateMachine({
+        name: 'action-error',
+        initialState: 'a',
+        transitions: { a: { b: { action: () => { throw new Error('Action failed'); } } } },
+        persist: false
+      });
+      await sm.initialize();
+      const result = await sm.transition('b');
+      expect(result.result).toBe(TransitionResult.SUCCESS);
+    });
+
+    test('onExit unsubscribe', async () => {
+      const sm = createAgentStateMachine('exit-unsub', { persist: false });
+      await sm.initialize();
+      let count = 0;
+      const unsub = sm.onExit(AgentState.IDLE, () => { count++; });
+      unsub();
+      await sm.transition(AgentState.PLANNING);
+      expect(count).toBe(0);
+    });
+
+    test('onTransition unsubscribe', async () => {
+      const sm = createAgentStateMachine('trans-unsub', { persist: false });
+      await sm.initialize();
+      let count = 0;
+      const unsub = sm.onTransition(() => { count++; });
+      unsub();
+      await sm.transition(AgentState.PLANNING);
+      expect(count).toBe(0);
+    });
+
+    test('onEnter handler throws error', async () => {
+      const sm = createAgentStateMachine('enter-err', { persist: false });
+      await sm.initialize();
+      sm.onEnter(AgentState.PLANNING, () => { throw new Error('Enter failed'); });
+      const result = await sm.transition(AgentState.PLANNING);
+      expect(result.result).toBe(TransitionResult.SUCCESS);
+    });
+
+    test('onExit handler throws error', async () => {
+      const sm = createAgentStateMachine('exit-err', { persist: false });
+      await sm.initialize();
+      sm.onExit(AgentState.IDLE, () => { throw new Error('Exit failed'); });
+      const result = await sm.transition(AgentState.PLANNING);
+      expect(result.result).toBe(TransitionResult.SUCCESS);
+    });
+
+    test('onTransition handler throws error', async () => {
+      const sm = createAgentStateMachine('trans-err', { persist: false });
+      await sm.initialize();
+      sm.onTransition(() => { throw new Error('Trans failed'); });
+      const result = await sm.transition(AgentState.PLANNING);
+      expect(result.result).toBe(TransitionResult.SUCCESS);
+    });
+
+    test('ensureInitialized calls initialize', async () => {
+      const sm = new StateMachine({
+        name: 'ensure-init',
+        initialState: 'a',
+        transitions: { a: { b: {} } },
+        persist: false
+      });
+      expect(sm.initialized).toBe(false);
+      await sm.transition('b');
+      expect(sm.initialized).toBe(true);
+    });
+
+    test('getTransitionDefinition with no transitions', () => {
+      const sm = new StateMachine({ name: 'no-trans', initialState: 'a', transitions: {}, persist: false });
+      expect(sm.getTransitionDefinition('a', 'b')).toBeNull();
+    });
+
+    test('canTransitionTo with no transitions', () => {
+      const sm = new StateMachine({ name: 'no-trans', initialState: 'a', transitions: {}, persist: false });
+      expect(sm.canTransitionTo('b')).toBe(false);
+    });
+
+    test('getValidTransitions returns empty for no transitions', () => {
+      const sm = new StateMachine({ name: 'no-trans', initialState: 'a', transitions: {}, persist: false });
+      expect(sm.getValidTransitions()).toEqual([]);
+    });
+
+    test('getAllStateMachines returns all registered machines', () => {
+      clearStateMachines();
+      getStateMachine('sm1', { persist: false });
+      getStateMachine('sm2', { persist: false });
+      const all = getAllStateMachines();
+      expect(all.size).toBe(2);
+    });
+  });
+
+  describe('persistence', () => {
+    test('should persist and restore state', async () => {
+      const sm1 = createAgentStateMachine('persist-test', { persist: true });
+      await sm1.initialize();
+      await sm1.transition(AgentState.PLANNING);
+      await sm1.transition(AgentState.EXECUTING);
+      const sm2 = new StateMachine({
+        name: 'persist-test',
+        initialState: AgentState.IDLE,
+        transitions: sm1.transitions,
+        persist: true
+      });
+      await sm2.initialize();
+      expect(sm2.initialized).toBe(true);
+    });
+
+    test('reset with persist calls persistState', async () => {
+      const sm = createAgentStateMachine('reset-persist', { persist: true });
+      await sm.initialize();
+      await sm.transition(AgentState.PLANNING);
+      await sm.reset({ keepHistory: true });
+      expect(sm.getState()).toBe(AgentState.IDLE);
+      expect(sm.history.length).toBeGreaterThan(0);
+    });
+
+    test('should restore lastError from persistence', async () => {
+      const sm1 = createAgentStateMachine('error-persist', { persist: true });
+      await sm1.initialize();
+      await sm1.error('Persisted error message');
+      expect(sm1.lastError.message).toBe('Persisted error message');
+      const sm2 = new StateMachine({
+        name: 'error-persist',
+        initialState: AgentState.IDLE,
+        transitions: sm1.transitions,
+        persist: true
+      });
+      await sm2.initialize();
+      expect(sm2.currentState).toBe(AgentState.ERROR);
     });
   });
 });
