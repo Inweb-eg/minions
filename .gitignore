@@ -2,10 +2,12 @@
 node_modules/
 package-lock.json
 
-# Database files (keep .db but ignore temp files)
+# Database files
+*.db
 *.db-shm
 *.db-wal
 *.db-journal
+data/*.db
 
 # Runtime state files
 .planner/planner-state.json
@@ -28,6 +30,11 @@ build/
 .benchmark-history/
 .nyc_output/
 coverage/
+**/coverage/
+
+# Claude Code knowledge cache
+.knowledge/
+**/.knowledge/
 
 # Generated code (can be regenerated)
 generated/
@@ -58,6 +65,9 @@ junit.xml
 tmp/
 temp/
 *.tmp
+
+# Conversation/discussion notes
+*-ultrathink-*.txt
 
 # OS files
 Thumbs.db
