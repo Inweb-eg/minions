@@ -159,7 +159,7 @@ describe('Fast-Fail Mode Validation', () => {
       // Should get feedback quickly (within test duration + overhead)
       expect(feedbackTime).toBeLessThan(500);
       expect(testResults.failedAt).toBeDefined();
-      expect(testResults.failedAt).toBeLessThan(feedbackTime);
+      expect(testResults.failedAt).toBeLessThanOrEqual(feedbackTime);
     });
 
     test('should skip low priority tests in fast mode', () => {

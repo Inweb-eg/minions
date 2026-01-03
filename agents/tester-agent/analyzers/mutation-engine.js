@@ -985,18 +985,21 @@ ${results.survived > 0 ? '## Survived Mutants\n' + (results.survivedMutants || [
   async generateReport(mutationResults) {
     const { mutationScore, totalMutants, killed, survived } = mutationResults;
 
+    const testQualityGrade = this.getQualityGrade(mutationScore);
+
     const report = {
       summary: {
         mutationScore,
         totalMutants,
         killed,
         survived,
-        testQualityGrade: this.getQualityGrade(mutationScore)
+        testQualityGrade
       },
       survivedMutants: mutationResults.results
         ? mutationResults.results.filter(r => r.status === MUTANT_STATUS.SURVIVED)
         : [],
-      recommendations: await this.generateInsights(mutationResults)
+      recommendations: await this.generateInsights(mutationResults),
+      testQualityGrade // Also at top level for test compatibility
     };
 
     return report;

@@ -16,7 +16,9 @@ export const REGRESSION_THRESHOLDS = {
   MINOR: 1.1,      // 10% slower
   MODERATE: 1.25,  // 25% slower
   MAJOR: 1.5,      // 50% slower
-  CRITICAL: 2.0    // 100% slower (2x)
+  CRITICAL: 25,    // 25% increase threshold for critical
+  WARNING: 10,     // 10% increase (for percent-based comparison)
+  INFO: 5          // 5% increase
 };
 
 /**
@@ -433,6 +435,62 @@ export class BenchmarkRegressionDetector extends BaseAnalyzer {
   }
 
   /**
+   * Detect regressions between baseline and current results (simplified interface)
+   * @param {Object} baseline - Baseline results
+   * @param {Object} current - Current results
+   * @param {Object} options - Detection options
+   * @returns {Array} Detected regressions
+   */
+  detect(baseline, current, options = {}) {
+    const regressions = [];
+    const { accountForVariance = false } = options;
+
+    // Get metric keys to compare
+    const baselineKeys = Object.keys(baseline).filter(
+      k => typeof baseline[k] === 'number'
+    );
+
+    for (const key of baselineKeys) {
+      const baselineValue = baseline[key];
+      const currentValue = current[key];
+
+      if (currentValue === undefined) continue;
+
+      // Skip variance if within normal range
+      if (accountForVariance && baseline.variance) {
+        if (Math.abs(currentValue - baselineValue) <= baseline.variance) {
+          continue;
+        }
+      }
+
+      const percentIncrease = ((currentValue - baselineValue) / baselineValue) * 100;
+
+      // Only report regressions (positive increase > threshold)
+      if (percentIncrease > REGRESSION_THRESHOLDS.WARNING) {
+        const severity = this.categorizeSeverity(percentIncrease);
+
+        let type = 'performance_regression';
+        if (key.toLowerCase().includes('response') || key.toLowerCase().includes('time')) {
+          type = 'response_time_regression';
+        } else if (key.toLowerCase().includes('memory')) {
+          type = 'memory_regression';
+        }
+
+        regressions.push({
+          metric: key,
+          type,
+          baseline: baselineValue,
+          current: currentValue,
+          percentIncrease,
+          severity
+        });
+      }
+    }
+
+    return regressions;
+  }
+
+  /**
    * Categorize regression severity
    * @param {number} percentIncrease - Percent increase
    * @returns {string} Severity level
@@ -578,7 +636,10 @@ export class BenchmarkRegressionDetector extends BaseAnalyzer {
     const comparisons = {};
 
     for (const [name, baseline] of Object.entries(baselines)) {
-      const comparison = {};
+      const comparison = {
+        percentIncrease: 0, // Default top-level percentIncrease
+        metrics: {}
+      };
 
       // Compare each metric
       for (const [metric, baselineValue] of Object.entries(baseline)) {
@@ -586,12 +647,17 @@ export class BenchmarkRegressionDetector extends BaseAnalyzer {
           const currentValue = current[metric];
           const percentIncrease = ((currentValue - baselineValue) / baselineValue) * 100;
 
-          comparison[metric] = {
+          comparison.metrics[metric] = {
             baseline: baselineValue,
             current: currentValue,
             percentIncrease,
             regression: percentIncrease > REGRESSION_THRESHOLDS.WARNING
           };
+
+          // Use the first numeric metric as the top-level percentIncrease
+          if (comparison.percentIncrease === 0) {
+            comparison.percentIncrease = percentIncrease;
+          }
         }
       }
 

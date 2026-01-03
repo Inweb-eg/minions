@@ -16,7 +16,9 @@ export const BENCHMARK_STATUS = {
   PASS: 'pass',
   FAIL: 'fail',
   WARNING: 'warning',
-  TIMEOUT: 'timeout'
+  TIMEOUT: 'timeout',
+  COMPLETED: 'completed',
+  RUNNING: 'running'
 };
 
 /**
@@ -92,7 +94,7 @@ export class BaseBenchmark {
   endBenchmark() {
     this.endTime = Date.now();
     const duration = this.endTime - this.startTime;
-    this.logger.success(`${this.type} benchmark completed in ${duration}ms`);
+    this.logger.info(`${this.type} benchmark completed in ${duration}ms`);
     return duration;
   }
 
@@ -229,7 +231,8 @@ export class BaseBenchmark {
       type: this.type,
       duration: this.endTime && this.startTime ? this.endTime - this.startTime : 0,
       resultsCount: this.results.length,
-      metrics: {}
+      metrics: {},
+      averages: this.getAverageMetrics()
     };
 
     // Calculate statistics for each metric
@@ -238,6 +241,23 @@ export class BaseBenchmark {
     });
 
     return summary;
+  }
+
+  /**
+   * Get average values for all metrics
+   * @returns {Object} Metric averages
+   */
+  getAverageMetrics() {
+    const averages = {};
+
+    Object.keys(this.metrics).forEach(metricName => {
+      const stats = this.calculateStatistics(metricName);
+      if (stats) {
+        averages[metricName] = stats.avg;
+      }
+    });
+
+    return averages;
   }
 
   /**

@@ -1,118 +1,211 @@
-import { describe, test, expect, beforeEach } from '@jest/globals';
+import { describe, test, expect, beforeEach, afterEach } from '@jest/globals';
 import { PageGenerator, getPageGenerator, PAGE_TYPE } from '../skills/page-generator.js';
+import fs from 'fs/promises';
+import path from 'path';
+import os from 'os';
 
 describe('PageGenerator', () => {
   let generator;
+  let tempDir;
 
-  beforeEach(() => {
-    generator = new PageGenerator({ dryRun: true });
+  beforeEach(async () => {
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'page-test-'));
+    generator = new PageGenerator({ outputPath: tempDir });
+  });
+
+  afterEach(async () => {
+    await fs.rm(tempDir, { recursive: true, force: true });
   });
 
   describe('PAGE_TYPE constants', () => {
     test('should define all page types', () => {
       expect(PAGE_TYPE.BASIC).toBe('basic');
-      expect(PAGE_TYPE.LIST).toBe('list');
-      expect(PAGE_TYPE.DETAIL).toBe('detail');
+      expect(PAGE_TYPE.WITH_BLOC).toBe('withBloc');
+      expect(PAGE_TYPE.WITH_TABS).toBe('withTabs');
+      expect(PAGE_TYPE.WITH_DRAWER).toBe('withDrawer');
       expect(PAGE_TYPE.FORM).toBe('form');
     });
   });
 
-  describe('generate', () => {
+  describe('generate basic page', () => {
     test('should generate a basic page with scaffold', async () => {
       const result = await generator.generate({
-        name: 'HomePage',
-        hasAppBar: true,
+        name: 'Home',
+        type: PAGE_TYPE.BASIC,
         appBarTitle: 'Home'
       });
 
       expect(result.success).toBe(true);
-      expect(result.code).toContain('class HomePage extends StatelessWidget');
-      expect(result.code).toContain('Scaffold');
-      expect(result.code).toContain('AppBar');
-      expect(result.code).toContain("title: Text('Home')");
+
+      const filePath = path.join(tempDir, 'lib/pages/home.dart');
+      const content = await fs.readFile(filePath, 'utf-8');
+
+      expect(content).toContain('class HomePage extends StatelessWidget');
+      expect(content).toContain('Scaffold');
+      expect(content).toContain('AppBar');
     });
 
-    test('should generate page with drawer', async () => {
+    test('should include floating action button when specified', async () => {
       const result = await generator.generate({
-        name: 'HomePage',
-        hasDrawer: true
+        name: 'Home',
+        type: PAGE_TYPE.BASIC,
+        floatingActionButton: 'FloatingActionButton(onPressed: () {}, child: Icon(Icons.add))'
       });
 
       expect(result.success).toBe(true);
-      expect(result.code).toContain('drawer:');
-      expect(result.code).toContain('Drawer');
+
+      const filePath = path.join(tempDir, 'lib/pages/home.dart');
+      const content = await fs.readFile(filePath, 'utf-8');
+
+      expect(content).toContain('floatingActionButton');
+      expect(content).toContain('FloatingActionButton');
     });
 
-    test('should generate page with bottom navigation', async () => {
+    test('should include bottom navigation when specified', async () => {
       const result = await generator.generate({
-        name: 'HomePage',
-        hasBottomNav: true,
-        bottomNavItems: [
-          { icon: 'Icons.home', label: 'Home' },
-          { icon: 'Icons.search', label: 'Search' },
-          { icon: 'Icons.person', label: 'Profile' }
+        name: 'Home',
+        type: PAGE_TYPE.BASIC,
+        bottomNavigationBar: 'BottomNavigationBar(items: [])'
+      });
+
+      expect(result.success).toBe(true);
+
+      const filePath = path.join(tempDir, 'lib/pages/home.dart');
+      const content = await fs.readFile(filePath, 'utf-8');
+
+      expect(content).toContain('bottomNavigationBar');
+      expect(content).toContain('BottomNavigationBar');
+    });
+  });
+
+  describe('generate page with Bloc', () => {
+    test('should generate page with Bloc integration', async () => {
+      const result = await generator.generate({
+        name: 'Home',
+        type: PAGE_TYPE.WITH_BLOC,
+        blocName: 'Home'
+      });
+
+      expect(result.success).toBe(true);
+
+      const filePath = path.join(tempDir, 'lib/pages/home.dart');
+      const content = await fs.readFile(filePath, 'utf-8');
+
+      expect(content).toContain('BlocBuilder');
+      expect(content).toContain('HomeBloc');
+      expect(content).toContain('HomeState');
+      expect(content).toContain('BlocProvider');
+    });
+
+    test('should load on init when specified', async () => {
+      const result = await generator.generate({
+        name: 'Home',
+        type: PAGE_TYPE.WITH_BLOC,
+        blocName: 'Home',
+        loadOnInit: true,
+        loadEvent: 'LoadData'
+      });
+
+      expect(result.success).toBe(true);
+
+      const filePath = path.join(tempDir, 'lib/pages/home.dart');
+      const content = await fs.readFile(filePath, 'utf-8');
+
+      expect(content).toContain('LoadData');
+    });
+  });
+
+  describe('generate page with tabs', () => {
+    test('should generate page with tabs', async () => {
+      const result = await generator.generate({
+        name: 'Dashboard',
+        type: PAGE_TYPE.WITH_TABS,
+        tabs: [
+          { label: 'Overview', body: 'OverviewTab()' },
+          { label: 'Settings', body: 'SettingsTab()' }
         ]
       });
 
       expect(result.success).toBe(true);
-      expect(result.code).toContain('bottomNavigationBar:');
-      expect(result.code).toContain('BottomNavigationBar');
-      expect(result.code).toContain('Icons.home');
-    });
 
-    test('should generate page with floating action button', async () => {
+      const filePath = path.join(tempDir, 'lib/pages/dashboard.dart');
+      const content = await fs.readFile(filePath, 'utf-8');
+
+      expect(content).toContain('TabBar');
+      expect(content).toContain('TabBarView');
+    });
+  });
+
+  describe('generate page with drawer', () => {
+    test('should generate page with drawer', async () => {
       const result = await generator.generate({
-        name: 'HomePage',
-        hasFloatingButton: true,
-        floatingButtonIcon: 'Icons.add'
+        name: 'Home',
+        type: PAGE_TYPE.WITH_DRAWER,
+        drawerItems: [
+          { icon: 'Icons.home', label: 'Home', route: '/home' }
+        ]
       });
 
       expect(result.success).toBe(true);
-      expect(result.code).toContain('floatingActionButton:');
-      expect(result.code).toContain('FloatingActionButton');
-      expect(result.code).toContain('Icons.add');
-    });
 
-    test('should generate page with Bloc integration', async () => {
+      const filePath = path.join(tempDir, 'lib/pages/home.dart');
+      const content = await fs.readFile(filePath, 'utf-8');
+
+      expect(content).toContain('Drawer');
+    });
+  });
+
+  describe('route configuration', () => {
+    test('should include route path constant', async () => {
       const result = await generator.generate({
-        name: 'HomePage',
-        bloc: 'HomeBloc'
+        name: 'Profile',
+        type: PAGE_TYPE.BASIC,
+        routePath: '/profile'
       });
 
       expect(result.success).toBe(true);
-      expect(result.code).toContain('BlocBuilder');
-      expect(result.code).toContain('HomeBloc');
-      expect(result.code).toContain('HomeState');
+
+      const filePath = path.join(tempDir, 'lib/pages/profile.dart');
+      const content = await fs.readFile(filePath, 'utf-8');
+
+      expect(content).toContain("routePath = '/profile'");
     });
+  });
 
-    test('should generate stateful page', async () => {
-      const result = await generator.generate({
-        name: 'SettingsPage',
-        stateful: true
-      });
-
-      expect(result.success).toBe(true);
-      expect(result.code).toContain('class SettingsPage extends StatefulWidget');
-      expect(result.code).toContain('class _SettingsPageState extends State<SettingsPage>');
-    });
-
-    test('should include route name constant', async () => {
-      const result = await generator.generate({
-        name: 'ProfilePage',
-        routeName: '/profile'
-      });
-
-      expect(result.success).toBe(true);
-      expect(result.code).toContain("static const routeName = '/profile'");
-    });
-
+  describe('validation', () => {
     test('should fail with missing name', async () => {
       const result = await generator.generate({
-        hasAppBar: true
+        type: PAGE_TYPE.BASIC
       });
 
       expect(result.success).toBe(false);
-      expect(result.errors).toContain("Missing required field: 'name'");
+      expect(result.errors).toContain('Missing required field: name');
+    });
+
+    test('should fail with invalid name pattern', async () => {
+      const result = await generator.generate({
+        name: 'invalidName', // Should start with uppercase
+        type: PAGE_TYPE.BASIC
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.errors.some(e => e.includes('does not match pattern'))).toBe(true);
+    });
+  });
+
+  describe('dry run mode', () => {
+    test('should not write files in dry run mode', async () => {
+      const dryRunGenerator = new PageGenerator({ dryRun: true, outputPath: tempDir });
+
+      const result = await dryRunGenerator.generate({
+        name: 'Test',
+        type: PAGE_TYPE.BASIC
+      });
+
+      expect(result.success).toBe(true);
+
+      const filePath = path.join(tempDir, 'lib/pages/test.dart');
+      await expect(fs.access(filePath)).rejects.toThrow();
     });
   });
 

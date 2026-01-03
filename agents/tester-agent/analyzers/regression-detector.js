@@ -253,10 +253,53 @@ export class RegressionDetector extends BaseAnalyzer {
    */
   buildTestMap(results) {
     const map = {};
+    if (!results || !Array.isArray(results)) {
+      return map;
+    }
     results.forEach(test => {
       map[test.name] = test;
     });
     return map;
+  }
+
+  /**
+   * Compare two test runs to detect regressions
+   * @param {Array} previousResults - Previous test results
+   * @param {Array} currentResults - Current test results
+   * @returns {Array} Detected regressions
+   */
+  compareRuns(previousResults, currentResults) {
+    const regressions = [];
+
+    if (!previousResults || !currentResults) {
+      return regressions;
+    }
+
+    const previousMap = this.buildTestMap(previousResults);
+    const currentMap = this.buildTestMap(currentResults);
+
+    // Check each current test for regression
+    Object.entries(currentMap).forEach(([testName, currentTest]) => {
+      const previousTest = previousMap[testName];
+
+      if (!previousTest) {
+        return; // New test
+      }
+
+      // Check for regression (was passing, now failing)
+      if (previousTest.status === 'passed' && currentTest.status === 'failed') {
+        regressions.push({
+          type: REGRESSION_TYPE.NEWLY_FAILING,
+          test: testName,
+          severity: SEVERITY.HIGH,
+          previousStatus: previousTest.status,
+          currentStatus: currentTest.status,
+          currentError: currentTest.error
+        });
+      }
+    });
+
+    return regressions;
   }
 
   /**

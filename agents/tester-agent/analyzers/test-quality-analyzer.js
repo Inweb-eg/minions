@@ -11,11 +11,16 @@ import { BaseAnalyzer, ANALYSIS_STATUS, SEVERITY } from './base-analyzer.js';
  * Quality grades
  */
 export const QUALITY_GRADE = {
-  A: 'A',  // Excellent (90-100)
-  B: 'B',  // Good (80-89)
-  C: 'C',  // Fair (70-79)
-  D: 'D',  // Poor (60-69)
-  F: 'F'   // Failing (<60)
+  A: 'A',            // Excellent (90-100)
+  B: 'B',            // Good (80-89)
+  C: 'C',            // Fair (70-79)
+  D: 'D',            // Poor (60-69)
+  F: 'F',            // Failing (<60)
+  // Aliases for test compatibility
+  EXCELLENT: 'A',
+  GOOD: 'B',
+  FAIR: 'C',
+  POOR: 'D'
 };
 
 /**
@@ -480,6 +485,102 @@ export class TestQualityAnalyzer extends BaseAnalyzer {
         status: value.status
       }))
     };
+  }
+
+  /**
+   * Analyze test quality from mutation results
+   * @param {Object} mutationResults - Mutation testing results
+   * @returns {Promise<Object>} Quality analysis
+   */
+  async analyzeFromMutations(mutationResults) {
+    const { mutationScore = 0, byOperator = {} } = mutationResults;
+    // Handle both array and number for survived
+    const survivedList = Array.isArray(mutationResults.survived) ? mutationResults.survived : [];
+
+    const grade = this.gradeFromScore(mutationScore);
+    const recommendations = [];
+
+    // Generate recommendations for weak operators
+    for (const [operator, stats] of Object.entries(byOperator)) {
+      const opScore = stats.killed / (stats.killed + stats.survived) * 100;
+      if (opScore < 60) {
+        recommendations.push(`Improve ${operator} operator coverage (${opScore.toFixed(1)}%)`);
+      }
+    }
+
+    if (mutationScore < 70) {
+      recommendations.push('Mutation score below 70%. Add more comprehensive tests.');
+    }
+
+    // Generate missing test suggestions
+    const missingTests = survivedList.map(mutant => {
+      const op = mutant.operator || 'unknown';
+      if (op === 'boundary' || op === 'conditional_boundary') {
+        return `Add boundary condition test at ${JSON.stringify(mutant.location)}`;
+      } else if (op === 'return' || op === 'return_value') {
+        return `Add return value assertion test at ${JSON.stringify(mutant.location)}`;
+      } else if (op === 'logical') {
+        return `Add logical condition test at ${JSON.stringify(mutant.location)}`;
+      }
+      return `Add test for ${op} mutation at ${JSON.stringify(mutant.location)}`;
+    });
+
+    return {
+      grade,
+      score: mutationScore,
+      recommendations,
+      byOperator,
+      missingTests
+    };
+  }
+
+  /**
+   * Get grade from score
+   * @param {number} score - Quality score
+   * @returns {string} Grade
+   */
+  gradeFromScore(score) {
+    if (score >= 80) return QUALITY_GRADE.EXCELLENT;
+    if (score >= 60) return QUALITY_GRADE.GOOD;
+    if (score >= 40) return QUALITY_GRADE.FAIR;
+    return QUALITY_GRADE.POOR;
+  }
+
+  /**
+   * Detect missing edge case tests
+   * @param {Object} mutationResults - Mutation results
+   * @returns {Promise<Array>} Missing edge case tests
+   */
+  async detectMissingEdgeCases(mutationResults) {
+    const missingTests = [];
+    const survived = mutationResults.survived || [];
+
+    for (const mutant of survived) {
+      const edgeCase = {
+        location: mutant.location,
+        operator: mutant.operator,
+        suggestedTest: `Add test for ${mutant.operator} at ${JSON.stringify(mutant.location)}`,
+        description: mutant.description || mutant.mutation
+      };
+
+      // Determine edge case type
+      if (mutant.operator === 'boundary' || mutant.operator === 'conditional_boundary') {
+        edgeCase.type = 'boundary';
+        edgeCase.suggestedTest = 'Add boundary condition test';
+      } else if (mutant.operator === 'return' || mutant.operator === 'return_value') {
+        edgeCase.type = 'return_value';
+        edgeCase.suggestedTest = 'Add return value assertion test';
+      } else if (mutant.operator === 'logical') {
+        edgeCase.type = 'logical';
+        edgeCase.suggestedTest = 'Add logical condition test';
+      } else {
+        edgeCase.type = 'general';
+      }
+
+      missingTests.push(edgeCase);
+    }
+
+    return missingTests;
   }
 }
 

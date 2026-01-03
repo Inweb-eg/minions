@@ -330,8 +330,8 @@ describe('Manager-Agent Integration', () => {
 
       const result = await fixSuggestionGenerator.generate(data, { dryRun: true });
 
-      expect(result.summary.byPriority).toBeDefined();
-      expect(result.suggestions[0].priority).toBeDefined();
+      expect(result.summary.byConfidence).toBeDefined();
+      expect(result.suggestions[0].confidence).toBeDefined();
     });
   });
 
