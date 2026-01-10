@@ -5,10 +5,13 @@ Quick reference guide to all components in the Minions framework.
 ## Table of Contents
 
 - [Foundation Layer](#foundation-layer)
+- [Learning & Evolution Layer](#learning--evolution-layer)
 - [Manager Agent](#manager-agent)
 - [Specialized Agents](#specialized-agents)
 - [Skills](#skills)
 - [Event Types](#event-types)
+- [Quick Start](#quick-start)
+- [File Structure](#file-structure)
 
 ---
 
@@ -21,7 +24,7 @@ Core infrastructure components that power the framework.
 | Component | File | Singleton | Purpose |
 |-----------|------|-----------|---------|
 | **AgentEventBus** | `foundation/event-bus/AgentEventBus.js` | `getEventBus()` | Central pub/sub for all agent communication |
-| **EventTypes** | `foundation/event-bus/eventTypes.js` | - | Centralized event type constants |
+| **EventTypes** | `foundation/event-bus/eventTypes.js` | - | Centralized event type constants (80+ events) |
 
 **Key Methods:**
 ```javascript
@@ -64,6 +67,14 @@ MemoryNamespace = {
 }
 ```
 
+**Key Methods:**
+```javascript
+memoryStore.set(namespace, key, value, { ttl })
+memoryStore.get(namespace, key)
+memoryStore.addKnowledge(category, topic, content, options)
+memoryStore.queryKnowledge(query)
+```
+
 ### State Management
 
 | Component | File | Singleton | Purpose |
@@ -77,11 +88,21 @@ AgentState = {
 }
 ```
 
+**Key Methods:**
+```javascript
+stateMachine.transition(toState, options)
+stateMachine.canTransitionTo(toState)
+stateMachine.onEnter(state, handler)
+stateMachine.onExit(state, handler)
+stateMachine.error(error, options)
+stateMachine.recover(targetState, options)
+```
+
 ### Analysis
 
 | Component | File | Singleton | Purpose |
 |-----------|------|-----------|---------|
-| **ASTParser** | `foundation/parsers/ASTParser.js` | `getASTParser()` | JavaScript/TypeScript parsing |
+| **ASTParser** | `foundation/parsers/ASTParser.js` | `getASTParser()` | JavaScript/TypeScript parsing (Babel) |
 | **BaseAnalyzer** | `foundation/analyzers/BaseAnalyzer.js` | - | Abstract analyzer base class |
 
 ### Resilience
@@ -92,18 +113,22 @@ AgentState = {
 | **CircuitBreaker** | `foundation/resilience/CircuitBreaker.js` | `getCircuitBreaker(name)` | Circuit breaker pattern |
 | **CircuitBreakerRegistry** | `foundation/resilience/CircuitBreaker.js` | `getCircuitBreakerRegistry()` | Manages multiple circuit breakers |
 
+**Circuit Breaker States:**
+```javascript
+CircuitState = { CLOSED, OPEN, HALF_OPEN }
+```
+
 **Key Methods:**
 ```javascript
 // Rate Limiter
 rateLimiter.check(key, tokens)    // Returns { allowed, remaining, retryAfter }
 rateLimiter.acquire(key, tokens, maxWait)  // Async, waits if needed
 rateLimiter.configure(key, { limit, window })
-rateLimiter.getMetrics()
 
 // Circuit Breaker
 circuitBreaker.execute(fn, fallback)  // Executes with circuit protection
 circuitBreaker.getStatus()
-circuitBreaker.forceState(state)  // CLOSED, OPEN, HALF_OPEN
+circuitBreaker.forceState(state)
 ```
 
 ### Advanced Persistence
@@ -145,6 +170,114 @@ authManager.middleware({ requiredLevel })  // Express middleware
 ```javascript
 import { createLogger } from './foundation/common/logger.js';
 const logger = createLogger('ComponentName');
+logger.info('Message');
+logger.debug('Debug info', { context });
+logger.error('Error occurred', error);
+```
+
+---
+
+## Learning & Evolution Layer
+
+Components for autonomous learning, skill generation, and cross-agent knowledge sharing.
+
+### Core Learning Components
+
+| Component | File | Singleton | Purpose |
+|-----------|------|-----------|---------|
+| **ReinforcementLearner** | `foundation/learning/ReinforcementLearner.js` | `getReinforcementLearner()` | Q-learning with Thompson sampling |
+| **DynamicSkillGenerator** | `foundation/learning/DynamicSkillGenerator.js` | `getDynamicSkillGenerator()` | LLM-based skill synthesis from patterns |
+| **KnowledgeBrain** | `foundation/knowledge-brain/KnowledgeBrain.js` | `getKnowledgeBrain()` | Distributed collective intelligence |
+| **CrossAgentTeacher** | `foundation/learning/CrossAgentTeacher.js` | `getCrossAgentTeacher()` | Inter-agent skill transfer |
+
+### ReinforcementLearner
+
+**Configuration:**
+```javascript
+{
+  learningRate: 0.1,        // Alpha
+  discountFactor: 0.95,     // Gamma
+  explorationRate: 0.2,     // Epsilon
+  explorationDecay: 0.995,
+  minExploration: 0.05
+}
+```
+
+**Reward Signals:**
+```javascript
+RewardSignal = {
+  SUCCESS: 1.0,
+  PARTIAL_SUCCESS: 0.5,
+  FAILURE: -0.5,
+  TIMEOUT: -0.3,
+  USER_POSITIVE: 0.8,
+  QUALITY_BONUS: 0.3
+}
+```
+
+**Key Methods:**
+```javascript
+learner.selectAction(state)              // Epsilon-greedy action selection
+learner.recordExperience({ state, action, reward, nextState })
+learner.updateQValue(state, action, reward, nextState)
+learner.getPolicy()                       // Get Q-table
+learner.savePolicy()                      // Persist to KnowledgeBrain
+learner.loadPolicy()                      // Load from KnowledgeBrain
+```
+
+### DynamicSkillGenerator
+
+**Key Methods:**
+```javascript
+skillGen.generateSkill({ pattern, examples })  // Generate from pattern
+skillGen.deployCanary(skillId)                 // Deploy to subset
+skillGen.approveSkill(skillId)                 // Promote to production
+skillGen.rejectSkill(skillId)                  // Remove canary
+skillGen.listSkills()                          // Get all generated skills
+```
+
+**Skill Lifecycle:**
+```
+Pattern Detected → Skill Generated → Canary Deploy → A/B Test → Approved/Rejected
+```
+
+### KnowledgeBrain
+
+**Knowledge Types:**
+```javascript
+KnowledgeType = {
+  CODE_PATTERN, BUG_FIX, ARCHITECTURE, BEST_PRACTICE,
+  ERROR_SOLUTION, PERFORMANCE_TIP, SECURITY_PATTERN,
+  TEST_PATTERN, API_PATTERN, DOCUMENTATION,
+  LEARNED_SKILL, RL_POLICY, EXPERIENCE,
+  SKILL_TEST_RESULT, TEACHING_CURRICULUM, MASTERY_RECORD
+}
+```
+
+**Quality Levels:**
+```javascript
+QualityLevel = { VERIFIED, TRUSTED, COMMUNITY, EXPERIMENTAL }
+```
+
+**Key Methods:**
+```javascript
+brain.store({ type, topic, content, quality, confidence })
+brain.query({ type, topic, similarity })
+brain.findPatterns(patternSpec)
+brain.propagateKnowledge(agentList)
+brain.buildRelationshipGraph()
+```
+
+### CrossAgentTeacher
+
+**Key Methods:**
+```javascript
+teacher.createCurriculum({ skill, levels, exercises })
+teacher.startTeachingSession({ fromAgent, toAgent, skill })
+teacher.validateMastery(sessionId)
+teacher.updateMasteryLevel(agentName, skill, level)
+teacher.getAgentCompetencies(agentName)
+teacher.shareLearning({ sourceAgent, targetAgents, knowledge })
 ```
 
 ---
@@ -169,6 +302,7 @@ orchestrator.registerValidationAgent(agent)
 orchestrator.execute(changedFiles)
 orchestrator.buildExecutionPlan(changedFiles)
 orchestrator.getStatus()
+orchestrator.stop()
 ```
 
 **Autonomous Loop Config:**
@@ -261,23 +395,7 @@ await gru.start();
 - `DELETE /api/learning/plans/:id` - Delete learning plan
 - `POST /api/learning/plans/:id/execute` - Execute learning plan
 
-### Silas Components
-
-| Component | Purpose |
-|-----------|---------|
-| `ProjectRegistry.js` | Project persistence (`.registry.json`) |
-| `ProjectScanner.js` | Framework/language detection |
-| `ProjectInitializer.js` | Workspace folder creation |
-
-### Lucy Components
-
-| Component | Purpose |
-|-----------|---------|
-| `GapDetector.js` | Missing component detection |
-| `CompletionTracker.js` | Progress measurement |
-| `ContinuousLoop.js` | Loop execution control |
-
-### Tom Components
+### Tom Components (Security & Risk)
 
 | Component | Purpose |
 |-----------|---------|
@@ -286,7 +404,7 @@ await gru.start();
 | `AuditLogger.js` | Security audit trail |
 | `OpsValidator.js` | Deployment validation |
 
-### Dave Components
+### Dave Components (Database)
 
 | Component | Purpose |
 |-----------|---------|
@@ -305,7 +423,7 @@ databaseAgent.mapRelationships()
 databaseAgent.exportSchema('prisma')
 ```
 
-### Kevin Components
+### Kevin Components (Performance)
 
 | Component | Purpose |
 |-----------|---------|
@@ -478,6 +596,18 @@ PerformanceEvents = {
 }
 ```
 
+### Learning & Evolution
+```javascript
+LearningEvents = {
+  PATTERN_DETECTED, PATTERN_ANALYZED, SKILL_GENERATING, SKILL_GENERATED,
+  SKILL_DEPLOYED, SKILL_APPROVED, SKILL_REJECTED, SKILL_EVOLVED,
+  ABTEST_STARTED, ABTEST_COMPLETED, ABTEST_WINNER,
+  POLICY_UPDATED, EXPERIENCE_RECORDED, EPISODE_COMPLETED,
+  TEACHING_STARTED, TEACHING_COMPLETED, MASTERY_UPDATED,
+  KNOWLEDGE_STORED, KNOWLEDGE_PROPAGATED
+}
+```
+
 ### Infrastructure
 ```javascript
 InfrastructureEvents = {
@@ -516,6 +646,17 @@ node index.js --gru
 # Open http://localhost:2505
 ```
 
+### Enable Learning System
+```javascript
+import { getKnowledgeBrain, getReinforcementLearner } from './index.js';
+
+const brain = getKnowledgeBrain();
+const learner = getReinforcementLearner();
+
+await brain.initialize();
+await learner.loadPolicy();
+```
+
 ---
 
 ## File Structure
@@ -533,6 +674,8 @@ minions/
 │   ├── resilience/       # Rate limiting, circuit breaker
 │   ├── auth/             # Authentication system
 │   ├── state-machine/
+│   ├── learning/         # RL, skill generation
+│   ├── knowledge-brain/  # Collective intelligence
 │   ├── parsers/          # AST parsing
 │   ├── analyzers/        # Base analyzer
 │   └── common/           # Logger
@@ -545,13 +688,46 @@ minions/
 │   ├── security-risk-agent/    # Tom
 │   ├── database-agent/   # Dave - Database operations
 │   ├── performance-agent/# Kevin - Performance analysis
+│   ├── tester-agent/     # Multi-platform testing
+│   ├── docker-agent/     # Container management
+│   ├── github-agent/     # GitHub automation
 │   ├── vision-agent/     # Product owner
 │   ├── planner-agent/    # Execution engine
+│   ├── backend-writer-agent/
+│   ├── frontend-writer-agent/
+│   ├── flutter-writer-agent/
 │   └── skills/           # Reusable capabilities
 ├── docs/                 # Documentation
+├── docker/               # Docker configuration
 ├── templates/            # Code generation templates
 └── index.js              # Main entry point
 ```
+
+---
+
+## Singleton Reference
+
+| Component | Factory Function | Path |
+|-----------|------------------|------|
+| EventBus | `getEventBus()` | foundation/event-bus/AgentEventBus.js |
+| HealthMonitor | `getHealthMonitor()` | foundation/health-monitor/HealthMonitor.js |
+| MetricsCollector | `getMetricsCollector()` | foundation/metrics-collector/MetricsCollector.js |
+| RollbackManager | `getRollbackManager()` | foundation/rollback-manager/RollbackManager.js |
+| AlertingSystem | `getAlertingSystem()` | foundation/alerting/AlertingSystem.js |
+| MemoryStore | `getMemoryStore()` | foundation/memory-store/MemoryStore.js |
+| DecisionLogger | `getDecisionLogger()` | foundation/memory-store/DecisionLogger.js |
+| StateMachine | `getStateMachine(name, options)` | foundation/state-machine/StateMachine.js |
+| RateLimiter | `getRateLimiter()` | foundation/resilience/RateLimiter.js |
+| CircuitBreaker | `getCircuitBreaker(name)` | foundation/resilience/CircuitBreaker.js |
+| AuthManager | `getAuthManager()` | foundation/auth/AuthManager.js |
+| ReinforcementLearner | `getReinforcementLearner()` | foundation/learning/ReinforcementLearner.js |
+| DynamicSkillGenerator | `getDynamicSkillGenerator()` | foundation/learning/DynamicSkillGenerator.js |
+| KnowledgeBrain | `getKnowledgeBrain()` | foundation/knowledge-brain/KnowledgeBrain.js |
+| CrossAgentTeacher | `getCrossAgentTeacher()` | foundation/learning/CrossAgentTeacher.js |
+| Orchestrator | `getOrchestrator()` | agents/manager-agent/orchestrator.js |
+| GruAgent | `getGruAgent()` | agents/gru-agent/index.js |
+| NefarioAgent | `getNefarioAgent()` | agents/nefario-agent/index.js |
+| ConversationStore | `getConversationStore()` | agents/gru-agent/ConversationStore.js |
 
 ---
 

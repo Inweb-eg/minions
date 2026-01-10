@@ -1090,15 +1090,57 @@ loopManager.registerAgent('frontend-agent', frontendAgentInstance);
 
 Modify templates in `templates/` to match your coding conventions. See the [Templates Guide](../templates/README.md).
 
-### 6. Read the Full Documentation
+### 6. Enable Learning System
+
+The Minions learning system enables agents to learn from experience:
+
+```javascript
+import {
+  getReinforcementLearner,
+  getKnowledgeBrain,
+  getDynamicSkillGenerator
+} from './minions/index.js';
+
+// Initialize learning components
+const learner = getReinforcementLearner();
+const brain = getKnowledgeBrain();
+const skillGen = getDynamicSkillGenerator();
+
+// Record learning experiences
+await learner.recordExperience({
+  state: 'test_failure',
+  action: 'apply_auto_fix',
+  reward: 1.0,  // SUCCESS
+  nextState: 'tests_passing'
+});
+
+// Store knowledge for sharing
+await brain.store({
+  type: 'CODE_PATTERN',
+  topic: 'null-check-fix',
+  content: { pattern: 'optional chaining', effectiveness: 0.92 },
+  confidence: 0.95
+});
+
+// Query knowledge
+const patterns = await brain.query({
+  type: 'CODE_PATTERN',
+  topic: 'error-handling'
+});
+```
+
+Access the Learning Dashboard at `http://localhost:2505/evolve` when running Gru.
+
+### 7. Read the Full Documentation
 
 - [API Reference](./api-reference.md) - Complete API documentation
 - [Architecture Guide](./architecture.md) - Deep dive into internals
 - [Creating Agents](./creating-agents.md) - Agent development patterns
 - [Skills Guide](./skills-guide.md) - Using and creating skills
+- [Learning System](./learning-system.md) - RL, knowledge brain, skill generation
 - [Templates Guide](../templates/README.md) - Customize code generation templates
 
-### 7. Run the Examples
+### 8. Run the Examples
 
 ```bash
 # Basic usage

@@ -6,976 +6,558 @@
 
 ![Minions Banner](https://github.com/user-attachments/assets/e1be888e-b70a-4fcb-b4b7-4c57d84420a3)
 
-**Full AI Software Development Company & Self-Improving Development System**
+**Event-Driven Multi-Agent Framework for Autonomous AI Development**
 
-*A generic, reusable autonomous multi-agent system framework for AI-powered development workflows.*
-
-[![By Kareem Hussein](https://img.shields.io/badge/Author-Kareem%20Hussein-blue)](https://github.com/kareemhussein)
-[![Inweb Software Solutions](https://img.shields.io/badge/Company-Inweb%20Software%20Solutions-purple)](https://inwebsolutions.com)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)](https://nodejs.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
+[![Author](https://img.shields.io/badge/Author-Kareem%20Hussein-blue)](https://github.com/kareemhussein)
+[![Inweb](https://img.shields.io/badge/Company-Inweb%20Software%20Solutions-purple)](https://inwebsolutions.com)
 
----
-
-**Author:** Kareem Hussein
-
-**Company:** Inweb Software Solutions
+[Getting Started](docs/getting-started.md) | [API Reference](docs/api-reference.md) | [Architecture](docs/architecture.md) | [Component Index](docs/component-index.md)
 
 </div>
 
-## Overview
+---
 
-Minions is an event-driven framework for building and orchestrating multiple AI agents that work together autonomously. It provides enterprise-grade infrastructure for agent coordination, health monitoring, and automatic failure recovery.
+## What is Minions?
 
-### Key Features
+Minions is an enterprise-grade framework for orchestrating autonomous AI agents that work together to complete software development tasks. Built on an event-driven architecture with 80+ event types, it provides robust infrastructure for agent coordination, health monitoring, and automatic failure recovery.
 
-- **Event-Driven Architecture** - Centralized pub/sub system with 80+ event types for loose coupling between agents
-- **Dependency-Based Orchestration** - Agents execute in topologically-sorted order with parallel execution support
-- **Health Monitoring & Alerting** - Real-time health tracking with configurable alert thresholds
+**Key Capabilities:**
+- **26 Specialized Agents** - Pre-built agents for testing, Docker, GitHub, security, databases, and more
+- **Event-Driven Architecture** - Loose coupling via centralized pub/sub with 80+ event types
+- **Dependency-Based Orchestration** - Topologically-sorted agent execution with parallel processing
+- **Self-Learning System** - Reinforcement learning, pattern recognition, and skill generation
 - **Autonomous Fix Loops** - Automatic test-fix-verify cycles with tiered recovery strategies
-- **Checkpoint & Rollback** - Git-aware checkpointing for safe failure recovery
-- **Built-in Skills** - Auto-fixer, code review, security scanning, dependency analysis, test generation
-- **Specialized Agents** - Pre-built agents for testing, Docker, GitHub, codebase analysis, and documentation
-- **Self-Evolution** - Automated pipeline to evolve the framework itself through analysis, planning, code generation, and testing
+- **Git-Aware Checkpointing** - Safe rollback on failure with stash/unstash support
 
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              YOUR PROJECT                                    │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                              │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │                          ORCHESTRATOR                                │   │
-│   │  - Dependency resolution (topological sort)                         │   │
-│   │  - Parallel execution with concurrency control                      │   │
-│   │  - Checkpoint/rollback on failure                                   │   │
-│   └───────────────────────────────┬─────────────────────────────────────┘   │
-│                                   │                                          │
-│   ┌───────────────────────────────▼─────────────────────────────────────┐   │
-│   │                           EVENT BUS                                  │   │
-│   │  - Pub/Sub for agent communication (80+ event types)                │   │
-│   │  - Event history (configurable retention)                           │   │
-│   │  - Error isolation per subscriber                                   │   │
-│   └─────┬─────────┬─────────┬─────────┬─────────┬─────────┬─────────────┘   │
-│         │         │         │         │         │         │                  │
-│   ┌─────▼───┐ ┌───▼───┐ ┌───▼───┐ ┌───▼───┐ ┌───▼───┐ ┌───▼───┐            │
-│   │ Tester  │ │Docker │ │GitHub │ │  Doc  │ │Custom │ │Custom │            │
-│   │  Agent  │ │ Agent │ │ Agent │ │ Agent │ │Agent 1│ │Agent N│            │
-│   └─────────┘ └───────┘ └───────┘ └───────┘ └───────┘ └───────┘            │
-│                                                                              │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │                        SKILLS LAYER                                  │   │
-│   │  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────────────┐    │   │
-│   │  │ AutoFixer │ │  Code     │ │ Security  │ │    Test           │    │   │
-│   │  │           │ │ Reviewer  │ │ Scanner   │ │   Generator       │    │   │
-│   │  └───────────┘ └───────────┘ └───────────┘ └───────────────────┘    │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-│   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │                      FOUNDATION SERVICES                             │   │
-│   │  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────────────┐    │   │
-│   │  │  Health   │ │  Metrics  │ │  Alerting │ │    Rollback       │    │   │
-│   │  │  Monitor  │ │ Collector │ │  System   │ │    Manager        │    │   │
-│   │  └───────────┘ └───────────┘ └───────────┘ └───────────────────┘    │   │
-│   │  ┌───────────┐ ┌───────────┐ ┌───────────────────────────────────┐  │   │
-│   │  │  Logger   │ │ Analyzers │ │       AST Parser (Babel)          │  │   │
-│   │  │  (Pino)   │ │           │ │                                   │  │   │
-│   │  └───────────┘ └───────────┘ └───────────────────────────────────┘  │   │
-│   └─────────────────────────────────────────────────────────────────────┘   │
-│                                                                              │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-## Installation
-
-### Option 1: Docker (Recommended)
-
-```bash
-cd minions/docker
-
-# Start Ollama + Minions containers
-docker compose up -d
-
-# Pull the AI model (first time only)
-docker exec minions-ollama ollama pull deepseek-coder:6.7b
-docker restart minions
-
-# Access web interface at http://localhost:2505
-```
-
-### Option 2: Manual Installation
-
-```bash
-cd minions
-npm run install:all
-```
-
-**Requirements:** Node.js >= 18.0.0, Ollama (for AI features)
+---
 
 ## Quick Start
 
-```javascript
-import { initializeMinions, createAgent, EventTypes } from 'minions';
+### Docker (Recommended)
 
-async function main() {
-  // Initialize the framework
-  const { orchestrator, eventBus } = await initializeMinions({
-    enableMetrics: true,
-    enableHealth: true,
-    maxConcurrency: 5
-  });
-
-  // Create agents
-  const dataAgent = createAgent({
-    name: 'data-agent',
-    execute: async () => {
-      console.log('Processing data...');
-      eventBus.publish(EventTypes.CODE_ANALYZED, {
-        agent: 'data-agent',
-        results: { filesAnalyzed: 10 }
-      });
-    }
-  });
-
-  const analyzerAgent = createAgent({
-    name: 'analyzer-agent',
-    execute: async () => {
-      console.log('Running analysis...');
-    }
-  });
-
-  // Register with dependencies
-  orchestrator.registerAgent('data-agent', async () => dataAgent, []);
-  orchestrator.registerAgent('analyzer-agent', async () => analyzerAgent, ['data-agent']);
-
-  // Execute - runs in dependency order
-  const result = await orchestrator.execute();
-  console.log('Result:', result);
-}
-
-main();
+```bash
+cd minions/docker
+docker compose up -d
+docker exec minions-ollama ollama pull deepseek-coder:6.7b
+docker restart minions
+# Access: http://localhost:2505
 ```
 
-## Core Components
+### Node.js
 
-### Orchestrator
+```bash
+npm run install:all
+node index.js --gru  # Start web interface
+```
 
-Coordinates agent execution with dependency resolution and parallel processing:
+**Requirements:** Node.js >= 18.0.0, Ollama or Gemini API key
+
+---
+
+## Architecture Overview
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                         CLIENT INTERFACE                                │
+│    Gru (Web UI)  →  Dr. Nefario (Planner)  →  Tom (Security)           │
+│    Silas (Projects)  →  Lucy (Completion)                               │
+├────────────────────────────────────────────────────────────────────────┤
+│                         ORCHESTRATION                                   │
+│    Orchestrator  →  DependencyGraph  →  AutonomousLoopManager          │
+├────────────────────────────────────────────────────────────────────────┤
+│                      SPECIALIZED AGENTS                                 │
+│    Tester  │  Docker  │  GitHub  │  Database  │  Performance           │
+│    Backend Writer  │  Frontend Writer  │  Flutter Writer               │
+├────────────────────────────────────────────────────────────────────────┤
+│                          SKILLS LAYER                                   │
+│    AutoFixer  │  CodeReviewer  │  SecurityScanner  │  TestGenerator    │
+├────────────────────────────────────────────────────────────────────────┤
+│                      LEARNING & EVOLUTION                               │
+│    KnowledgeBrain  │  ReinforcementLearner  │  DynamicSkillGenerator   │
+│    CrossAgentTeacher  │  PatternRecognition                            │
+├────────────────────────────────────────────────────────────────────────┤
+│                     FOUNDATION SERVICES                                 │
+│    EventBus  │  MemoryStore  │  StateMachine  │  CircuitBreaker        │
+│    HealthMonitor  │  MetricsCollector  │  AlertingSystem  │  Rollback  │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Agent Directory
+
+### Client Interface Agents
+
+| Agent | Codename | Purpose |
+|-------|----------|---------|
+| **GruAgent** | Gru | Web interface coordinator with conversational AI (Ollama/Gemini) |
+| **NefarioAgent** | Dr. Nefario | Converts requirements to execution plans |
+| **ProjectManagerAgent** | Silas | External project connections and framework detection |
+| **ProjectCompletionAgent** | Lucy | Autonomous completion loops with gap detection |
+| **SecurityRiskAgent** | Tom | STRIDE threat modeling, vulnerability scanning, risk tracking |
+
+### Specialized Agents
+
+| Agent | Codename | Purpose |
+|-------|----------|---------|
+| **TesterAgent** | Bob | Multi-platform testing, coverage analysis, mutation testing |
+| **DockerAgent** | Herb | Container lifecycle, Dockerfile validation, optimization |
+| **GithubAgent** | Mel | Git operations, PR management, code review engine |
+| **DatabaseAgent** | Dave | Schema design, migrations, query optimization |
+| **PerformanceAgent** | Kevin | Profiling, benchmarking, bottleneck detection |
+| **DocumentAgent** | Jerry | Bidirectional code-documentation sync |
+
+### Code Writer Agents
+
+| Agent | Codename | Skills |
+|-------|----------|--------|
+| **BackendWriterAgent** | Stuart | Routes, Models, Services, Middleware, Validators, Controllers |
+| **FrontendWriterAgent** | Agnes | Components, Hooks, Stores, Forms, API clients, Pages |
+| **FlutterWriterAgent** | Otto | Widgets, Models, Services, Blocs, Pages, Localization |
+
+---
+
+## Core Concepts
+
+### Event-Driven Communication
+
+All agents communicate through the centralized EventBus:
 
 ```javascript
-const { orchestrator } = await initializeMinions();
+import { getEventBus, EventTypes } from 'minions';
 
-// Register agents with dependencies
-orchestrator.registerAgent('data-agent', loaderFn, []);
-orchestrator.registerAgent('analyzer', loaderFn, ['data-agent']);
-orchestrator.registerAgent('reporter', loaderFn, ['analyzer']);
+const eventBus = getEventBus();
 
-// Execute - runs: data-agent → analyzer → reporter
+// Publish events
+eventBus.publish(EventTypes.CODE_GENERATED, {
+  agent: 'backend-writer',
+  files: ['src/api/users.js']
+});
+
+// Subscribe to events
+const unsubscribe = eventBus.subscribe(
+  EventTypes.TESTS_FAILED,
+  'my-handler',
+  (data) => console.log('Tests failed:', data.failures)
+);
+```
+
+### Agent Registration & Orchestration
+
+```javascript
+import { initializeMinions, createAgent } from 'minions';
+
+const { orchestrator, eventBus } = await initializeMinions();
+
+// Create and register agents with dependencies
+const fetchAgent = createAgent({
+  name: 'fetch-agent',
+  execute: async () => { /* fetch data */ }
+});
+
+orchestrator.registerAgent('fetch-agent', async () => fetchAgent, []);
+orchestrator.registerAgent('process-agent', async () => processAgent, ['fetch-agent']);
+
+// Execute in dependency order
 const result = await orchestrator.execute();
-
-// Check status
-const status = orchestrator.getStatus();
 ```
 
-### Autonomous Loop Manager
-
-Manages test-fix-verify cycles automatically:
+### Autonomous Fix Loops
 
 ```javascript
 import { getAutonomousLoopManager } from 'minions';
 
 const loopManager = getAutonomousLoopManager();
 
-// Register custom matcher for routing failures to agents
-loopManager.registerAgentMatcher((failure, platform) => {
-  if (failure.file?.includes('api/')) return 'api-agent';
-  if (failure.file?.includes('frontend/')) return 'frontend-agent';
+// Register matcher to route failures to appropriate agents
+loopManager.registerAgentMatcher((failure) => {
+  if (failure.file?.includes('api/')) return 'backend-agent';
+  if (failure.file?.includes('components/')) return 'frontend-agent';
   return null;
 });
 
-// Register agents that can fix issues
-loopManager.registerAgent('api-agent', apiAgentInstance);
-
-// Loop triggers automatically on TESTS_FAILED events
+// Loop activates automatically on TESTS_FAILED events
 ```
 
-### Health Monitor
+---
 
-Tracks agent health with configurable checks:
+## Foundation Services
+
+### Singleton Pattern
+
+All core services use singleton factories for consistent access:
 
 ```javascript
-import { getHealthMonitor, HealthStatus } from 'minions';
+import {
+  getEventBus,
+  getOrchestrator,
+  getHealthMonitor,
+  getMetricsCollector,
+  getAlertingSystem,
+  getRollbackManager,
+  getMemoryStore,
+  getKnowledgeBrain,
+  getReinforcementLearner
+} from 'minions';
+```
 
+### Health Monitoring
+
+```javascript
 const healthMonitor = getHealthMonitor();
 
 // Register custom health check
 healthMonitor.registerHealthCheck('my-agent', async (metrics) => ({
-  passed: metrics.custom_metric > threshold,
-  message: 'Custom metric check'
+  passed: metrics.errorRate < 5,
+  message: 'Error rate check'
 }));
 
 // Get health summary
 const summary = healthMonitor.getHealthSummary();
-// { total_agents, healthy, degraded, unhealthy, average_score }
+// { total_agents: 5, healthy: 3, degraded: 1, unhealthy: 1, average_score: 78.5 }
 ```
 
 ### Alerting System
 
-Triggers alerts on threshold violations:
-
 ```javascript
-import { getAlertingSystem } from 'minions';
-
 const alerting = getAlertingSystem();
 
-// Register alert handlers
+// Register handlers
 alerting.registerHandler('slack', async (alert) => {
-  await slack.send({
-    channel: '#alerts',
-    text: `[${alert.severity}] ${alert.title}: ${alert.message}`
-  });
+  await slack.send({ text: `[${alert.severity}] ${alert.message}` });
 });
 
-// Update thresholds
+// Configure thresholds
 alerting.updateThresholds('P1_CRITICAL', {
-  errorRate: 15,      // Trigger at 15% error rate
+  errorRate: 10,
   executionTime: 600000  // 10 minutes
 });
 ```
 
-## Specialized Agents
-
-Minions includes pre-built specialized agents for common development workflows.
-
-### Tester Agent
-
-Multi-platform test orchestration with comprehensive analysis capabilities:
+### Persistence (MemoryStore)
 
 ```javascript
-import { getTesterAgent } from 'minions';
+const memoryStore = getMemoryStore();
 
-const tester = getTesterAgent();
+// Store with optional TTL
+await memoryStore.set(MemoryNamespace.CONFIG, 'api-settings', {
+  baseUrl: 'https://api.example.com'
+}, { ttl: 3600000 });
 
-// Run tests with multiple capabilities
-await tester.runTests({
-  platform: 'backend',
-  testPaths: ['tests/'],
-  coverage: true
-});
+// Retrieve
+const config = await memoryStore.get(MemoryNamespace.CONFIG, 'api-settings');
 
-// Features:
-// - Multi-platform runners (Backend, React, Flutter, E2E)
-// - Coverage analysis with gap detection
-// - Regression detection
-// - Flaky test identification
-// - Performance benchmarking
-// - Mutation testing
-// - Bug and fix suggestion reports
+// Knowledge base
+await memoryStore.addKnowledge('BEST_PRACTICE', 'validation',
+  'Always validate user input at API boundaries',
+  { confidence: 0.95 }
+);
 ```
 
-### Docker Agent
+---
 
-Complete Docker lifecycle management:
+## Learning & Evolution System
+
+Minions includes a comprehensive self-learning system:
+
+### Reinforcement Learning
 
 ```javascript
-import { getDockerAgent } from 'minions';
+const learner = getReinforcementLearner();
 
-const docker = getDockerAgent();
+// Q-learning with Thompson sampling
+await learner.recordExperience({
+  state: 'test_failure',
+  action: 'apply_auto_fix',
+  reward: 1.0,  // SUCCESS
+  nextState: 'tests_passing'
+});
 
-// Validate and build Docker images
-await docker.validate('./Dockerfile');
-await docker.build({ context: '.', tag: 'myapp:latest' });
-
-// Features:
-// - File, config, and dependency change detection
-// - Dockerfile and docker-compose validation
-// - Image size optimization
-// - Layer analysis
-// - Vulnerability scanning
-// - Health and resource monitoring
+// Get best action for state
+const action = learner.selectAction('test_failure');
 ```
 
-### GitHub Agent
-
-Complete GitHub automation:
+### Dynamic Skill Generation
 
 ```javascript
-import { getGithubAgent } from 'minions';
+const skillGen = getDynamicSkillGenerator();
 
-const github = getGithubAgent();
-
-// Manage branches and PRs
-await github.createBranch('feature/new-feature');
-await github.createPullRequest({
-  title: 'Add new feature',
-  body: 'Description...',
-  base: 'main',
-  head: 'feature/new-feature'
+// Generate skill from detected patterns
+const skill = await skillGen.generateSkill({
+  pattern: 'null_check_fix',
+  examples: patternExamples
 });
 
-// Features:
-// - Branch and PR management
-// - Automated code review engine
-// - Merge conflict detection and resolution
-// - Issue tracking and management
-// - Release management with analytics
+// Skills are sandboxed and canary-deployed
 ```
 
-### Codebase Analyzer Agent
-
-System-wide deep analysis across codebases:
+### Knowledge Brain
 
 ```javascript
-import { getCodebaseAnalyzer } from 'minions';
+const brain = getKnowledgeBrain();
 
-const analyzer = getCodebaseAnalyzer();
-
-// Run comprehensive analysis
-const report = await analyzer.analyze({
-  projectRoot: '/path/to/project',
-  analyzers: ['security', 'performance', 'dependencies', 'technical-debt']
+// Store and retrieve knowledge across agents
+await brain.store({
+  type: 'CODE_PATTERN',
+  topic: 'error-handling',
+  content: { pattern: 'try-catch-log', effectiveness: 0.92 }
 });
 
-// Features:
-// - Codebase-level security scanning
-// - Performance analysis across files
-// - Dependency mapping
-// - API contract validation
-// - Technical debt measurement
+// Query with similarity search
+const knowledge = await brain.query({
+  type: 'CODE_PATTERN',
+  similarity: 'error handling in async functions'
+});
 ```
 
-### Document Agent
-
-Bidirectional code-documentation synchronization:
+### Cross-Agent Teaching
 
 ```javascript
-import { getDocumentAgent } from 'minions';
+const teacher = getCrossAgentTeacher();
 
-const docAgent = getDocumentAgent();
-
-// Sync documentation with code
-await docAgent.sync({
-  codeDir: 'src/',
-  docsDir: 'docs/',
-  mode: 'bidirectional'
+// Share skills between agents
+await teacher.teach({
+  fromAgent: 'backend-agent',
+  toAgent: 'frontend-agent',
+  skill: 'validation-patterns',
+  curriculum: curriculumDefinition
 });
-
-// Features:
-// - Code → Docs: Parse code and update documentation (OpenAPI, CHANGELOG)
-// - Docs → Code: Parse docs and generate platform-specific digests
-// - Breaking change detection
-// - Conflict resolution
-// - Document versioning
-// - Incremental parsing with caching
 ```
 
-## Code Writer Agents
-
-Minions includes specialized code generation agents for different platforms.
-
-### Flutter Writer Agent
-
-Generates Flutter/Dart code with 6 specialized skills:
-
-```javascript
-import { getFlutterWriterAgent } from 'minions';
-
-const flutter = getFlutterWriterAgent();
-
-await flutter.configure({
-  projectPath: './my-flutter-app',
-  stateManagement: 'bloc',  // bloc | provider | riverpod
-  useFreezed: true
-});
-
-await flutter.initialize();
-
-// Generate a widget
-const widget = await flutter.generateWidget({
-  name: 'UserCard',
-  type: 'stateless',
-  props: [
-    { name: 'user', type: 'User', required: true },
-    { name: 'onTap', type: 'VoidCallback' }
-  ]
-});
-
-// Generate a Bloc
-const bloc = await flutter.generateBloc({
-  name: 'Auth',
-  events: ['Login', 'Logout', 'CheckStatus'],
-  states: ['Initial', 'Loading', 'Authenticated', 'Unauthenticated', 'Error']
-});
-
-// Skills:
-// - WidgetGenerator: Stateless/Stateful widgets
-// - ModelGenerator: Freezed/JSON serializable models
-// - ServiceGenerator: Dio-based API services
-// - BlocGenerator: Bloc/Cubit state management
-// - PageGenerator: Scaffold pages with navigation
-// - LocalizationGenerator: ARB files for i18n
-```
-
-### Backend Writer Agent
-
-Generates Node.js/Express backend code with 6 specialized skills:
-
-```javascript
-import { getBackendWriterAgent } from 'minions';
-
-const backend = getBackendWriterAgent();
-
-await backend.configure({
-  projectPath: './my-backend',
-  orm: 'mongoose',        // mongoose | sequelize
-  validator: 'joi'        // joi | zod
-});
-
-await backend.initialize();
-
-// Generate a route
-const route = await backend.generateRoute({
-  name: 'users',
-  basePath: '/api/users',
-  endpoints: [
-    { method: 'GET', path: '/', handler: 'list' },
-    { method: 'POST', path: '/', handler: 'create' },
-    { method: 'GET', path: '/:id', handler: 'getById' }
-  ]
-});
-
-// Generate a Mongoose model
-const model = await backend.generateModel({
-  name: 'User',
-  orm: 'mongoose',
-  fields: [
-    { name: 'email', type: 'string', required: true, unique: true },
-    { name: 'name', type: 'string', required: true },
-    { name: 'role', type: 'string', enum: ['admin', 'user'], default: 'user' }
-  ]
-});
-
-// Skills:
-// - RouteGenerator: Express routes with middleware
-// - ModelGenerator: Mongoose/Sequelize models
-// - ServiceGenerator: Business logic layer
-// - MiddlewareGenerator: Auth, rate limiting, error handling
-// - ValidatorGenerator: Joi/Zod validation schemas
-// - ControllerGenerator: Request handlers
-```
-
-### Frontend Writer Agent
-
-Generates React/TypeScript frontend code with 6 specialized skills:
-
-```javascript
-import { getFrontendWriterAgent } from 'minions';
-
-const frontend = getFrontendWriterAgent();
-
-await frontend.configure({
-  projectPath: './my-frontend',
-  stateManagement: 'context',  // context | zustand | redux
-  cssFramework: 'tailwind',
-  typescript: true
-});
-
-await frontend.initialize();
-
-// Generate a component
-const component = await frontend.generateComponent({
-  name: 'UserProfile',
-  type: 'functional',
-  props: [
-    { name: 'userId', type: 'string', required: true },
-    { name: 'onUpdate', type: '(user: User) => void' }
-  ],
-  hooks: ['useState', 'useEffect']
-});
-
-// Generate a custom hook
-const hook = await frontend.generateHook({
-  name: 'useUser',
-  type: 'query',
-  endpoint: '/api/users/:id',
-  returnType: 'User'
-});
-
-// Skills:
-// - ComponentGenerator: React functional components
-// - HookGenerator: Custom hooks (state, query, mutation)
-// - StoreGenerator: Context/Zustand/Redux stores
-// - FormGenerator: React Hook Form integration
-// - ApiGenerator: React Query/SWR hooks
-// - PageGenerator: Page components with layouts
-```
+---
 
 ## Built-in Skills
+
+### Analysis Skills
+
+```javascript
+import { getCodeReviewer, getSecurityScanner, getDependencyAnalyzer } from 'minions';
+
+// Code review
+const reviewer = getCodeReviewer();
+const review = await reviewer.review('src/api.js');
+// { qualityScore: 85, issues: [...], summary: '...' }
+
+// Security scanning
+const scanner = getSecurityScanner();
+const results = await scanner.scan('/path/to/project');
+// Detects: SQL injection, XSS, hardcoded secrets, weak auth, etc.
+
+// Dependency analysis
+const analyzer = getDependencyAnalyzer();
+const deps = await analyzer.analyze('/path/to/project');
+// { direct: [...], dev: [...], outdated: [...], vulnerabilities: [...] }
+```
 
 ### Auto-Fixer
 
 ```javascript
-import { getAutoFixer } from 'minions';
-
 const autoFixer = getAutoFixer({ projectRoot: '/path/to/project' });
-await autoFixer.initialize();
-await autoFixer.handleTestFailure({ testOutput, failedTests });
+await autoFixer.handleTestFailure({
+  testOutput: rawOutput,
+  failedTests: failures,
+  platform: 'backend'
+});
+// Automatically fixes: null checks, missing imports, type mismatches, async issues
 ```
 
-### Code Reviewer
+---
+
+## Specialized Agents
+
+### Tester Agent
 
 ```javascript
-import { getCodeReviewer } from 'minions';
+const tester = getTesterAgent();
 
-const reviewer = getCodeReviewer();
-await reviewer.initialize();
-const review = await reviewer.review('/path/to/file.js');
-// { issues, qualityScore, summary }
+const results = await tester.runTests({
+  platform: 'backend',  // backend | react | flutter | e2e
+  testPaths: ['tests/'],
+  coverage: true,
+  mutations: true  // Enable mutation testing
+});
+
+// Features: multi-platform, coverage analysis, regression detection,
+// flaky test identification, performance benchmarking, mutation testing
 ```
 
-### Security Scanner
+### Docker Agent
 
 ```javascript
-import { getSecurityScanner } from 'minions';
+const docker = getDockerAgent();
 
-const scanner = getSecurityScanner();
-const results = await scanner.scan('/path/to/project');
-// Detects: hardcoded secrets, SQL injection, XSS, weak auth, etc.
+await docker.validate('./Dockerfile');
+await docker.build({ context: '.', tag: 'myapp:latest' });
+
+// Features: change detection, Dockerfile validation, layer analysis,
+// size optimization, vulnerability scanning, health monitoring
 ```
 
-### Test Generator
+### Database Agent (Dave)
 
 ```javascript
-import { getTestGenerator } from 'minions';
+const dbAgent = getDatabaseAgent();
 
-const generator = getTestGenerator();
-const tests = await generator.generate('/path/to/source.js');
+await dbAgent.designSchema(requirements);
+await dbAgent.createMigration({ type: 'add_column', table: 'users' });
+await dbAgent.analyzeQuery(slowQuery);
+const erd = await dbAgent.mapRelationships();
 ```
 
-### Dependency Analyzer
+### Performance Agent (Kevin)
 
 ```javascript
-import { getDependencyAnalyzer } from 'minions';
+const perfAgent = getPerformanceAgent();
 
-const analyzer = getDependencyAnalyzer();
-const deps = await analyzer.analyze('/path/to/project');
+await perfAgent.profile({ duration: 30000 });
+await perfAgent.runBenchmarks();
+await perfAgent.analyzeMemory();
+const bottlenecks = await perfAgent.detectBottlenecks();
 ```
 
-## Creating Custom Agents
+---
 
-```javascript
-import { getEventBus, EventTypes, createLogger } from 'minions';
+## Web Interface (Gru)
 
-const logger = createLogger('MyAgent');
-
-class MyAgent {
-  constructor() {
-    this.name = 'my-agent';
-    this.eventBus = getEventBus();
-    this.unsubscribers = [];
-  }
-
-  async initialize() {
-    // Subscribe to events
-    this.unsubscribers.push(
-      this.eventBus.subscribe(
-        EventTypes.AUTO_FIX_REQUESTED,
-        this.name,
-        this.handleFixRequest.bind(this)
-      )
-    );
-  }
-
-  async handleFixRequest(data) {
-    if (data.targetAgent !== this.name) return;
-
-    for (const task of data.tasks) {
-      await this.fixTask(task);
-    }
-
-    this.eventBus.publish(EventTypes.FIX_COMPLETED, {
-      agent: this.name,
-      tasksCompleted: data.tasks.length
-    });
-  }
-
-  async execute() {
-    await this.initialize();
-
-    // Main execution logic
-    logger.info('Agent executing...');
-
-    this.eventBus.publish(EventTypes.AGENT_COMPLETED, {
-      agent: this.name,
-      execution_time_ms: 100
-    });
-  }
-
-  async cleanup() {
-    this.unsubscribers.forEach(fn => fn());
-  }
-}
-```
-
-See `examples/example-agent.js` for a complete template.
-
-## Event Types
-
-```javascript
-import { EventTypes } from 'minions';
-
-// Code Events
-EventTypes.CODE_GENERATED      // New code created
-EventTypes.CODE_UPDATED        // Code modified
-EventTypes.CODE_ANALYZED       // Code analysis complete
-
-// Testing Events
-EventTypes.TESTS_STARTED       // Test run started
-EventTypes.TESTS_COMPLETED     // All tests passed
-EventTypes.TESTS_FAILED        // Some tests failed
-
-// Agent Lifecycle
-EventTypes.AGENT_STARTED       // Agent began execution
-EventTypes.AGENT_COMPLETED     // Agent finished successfully
-EventTypes.AGENT_FAILED        // Agent encountered error
-
-// Auto-Fix Coordination
-EventTypes.AUTO_FIX_REQUESTED  // Request to fix issues
-EventTypes.FIX_COMPLETED       // Fix applied successfully
-EventTypes.FIX_FAILED          // Fix failed
-
-// Health & Metrics
-EventTypes.METRICS_COLLECTED   // Metrics snapshot taken
-EventTypes.ALERT_TRIGGERED     // Alert threshold exceeded
-EventTypes.AGENT_HEALTH_CHECK  // Health check performed
-
-// See foundation/event-bus/eventTypes.js for full list (80+ events)
-```
-
-## Client Interface Agents
-
-Minions includes a client-friendly web interface for project planning and execution.
-
-### Gru Agent (Web Interface)
-
-Start the Gru web interface for conversational project planning:
+Start the web interface for conversational project planning:
 
 ```bash
-# Using Docker (recommended)
+# Docker
 cd docker && docker compose up -d
 # Access: http://localhost:2505
 
-# Using Node.js
-node index.js --gru
+# Node.js
+node index.js --gru --port 2505
 ```
 
-Features:
-- Conversational AI powered by Ollama (deepseek-coder) or Gemini
-- Project scanning and framework detection
-- Interactive plan creation and approval
-- Real-time execution monitoring
+### Features
 
-### Supporting Agents
-
-| Agent | Character | Role | Description |
-|-------|-----------|------|-------------|
-| **Gru** | Gru | Coordinator | Web interface, conversation handling, client intake |
-| **Dr. Nefario** | Dr. Nefario | Architect | Converts requirements to execution plans |
-| **Silas** | Silas Ramsbottom | Project Manager | Manages external project connections, framework detection |
-| **Lucy** | Lucy Wilde | Completion | Runs autonomous completion loops, gap detection |
-| **Tom** | Tom | Security & Risk | Security scanning, threat modeling (STRIDE), risk tracking |
-| **Vision** | - | Product Owner | README parsing, feature decomposition, acceptance criteria |
-| **Planner** | - | Execution Engine | Task coordination, progress tracking, iteration management |
-
-See [Gru Guide](docs/gru-guide.md) for detailed setup instructions.
-
-## Project Structure
-
-```
-minions/
-├── index.js                    # Main entry point & exports
-├── package.json
-├── docker/                     # Docker configuration
-│   ├── Dockerfile              # Multi-stage build (slim, dev, integrated)
-│   ├── docker-compose.yml      # Two-container setup (Ollama + Minions)
-│   └── docker-compose.gpu.yml  # GPU support for NVIDIA
-├── foundation/                 # Core infrastructure
-│   ├── event-bus/             # AgentEventBus, EventTypes (80+ events)
-│   ├── health-monitor/        # HealthMonitor, HealthStatus
-│   ├── metrics-collector/     # MetricsCollector
-│   ├── alerting/              # AlertingSystem
-│   ├── rollback-manager/      # RollbackManager (git-aware)
-│   ├── analyzers/             # BaseAnalyzer, SecurityScanner, PerformanceAnalyzer
-│   ├── parsers/               # ASTParser (Babel-based)
-│   ├── common/                # Logger (Pino-based)
-│   └── tests/                 # Unit tests (Jest)
-├── agents/
-│   ├── manager-agent/         # Orchestration components
-│   │   ├── orchestrator.js
-│   │   ├── autonomous-loop-manager.js
-│   │   ├── autonomous-build-manager.js
-│   │   ├── dependency-graph.js
-│   │   ├── change-detector.js
-│   │   └── agent-pool.js
-│   ├── skills/                # Reusable capabilities
-│   │   ├── BaseSkill.js
-│   │   ├── auto-fixer/
-│   │   ├── code-review/
-│   │   ├── security-scanner/
-│   │   ├── dependency-analyzer/
-│   │   └── test-generator/
-│   ├── tester-agent/          # Multi-platform testing
-│   │   ├── generators/        # Test generation
-│   │   ├── runners/           # Test execution
-│   │   ├── analyzers/         # Coverage, regression, flaky detection
-│   │   ├── benchmarks/        # Performance benchmarking
-│   │   └── reports/           # Report generation
-│   ├── docker-agent/          # Docker lifecycle
-│   │   ├── detectors/         # Change detection
-│   │   ├── builders/          # Image building
-│   │   ├── validators/        # Dockerfile validation
-│   │   ├── optimizers/        # Size optimization
-│   │   └── monitors/          # Health monitoring
-│   ├── github-agent/          # GitHub automation
-│   │   ├── branches/          # Branch/PR management
-│   │   ├── reviews/           # Code review engine
-│   │   ├── merges/            # Merge management
-│   │   └── releases/          # Release management
-│   ├── codebase-analyzer-agent/   # Deep codebase analysis
-│   │   └── analyzers/         # Security, performance, debt
-│   ├── document-agent/        # Documentation sync
-│   │   ├── parsers/           # Code↔Docs parsing
-│   │   ├── digest-generators/ # Platform-specific digests
-│   │   └── validators/        # Document validation
-│   ├── flutter-writer-agent/  # Flutter code generation
-│   │   └── skills/            # Widget, Model, Service, Bloc, Page, L10n
-│   ├── backend-writer-agent/  # Backend code generation
-│   │   └── skills/            # Route, Model, Service, Middleware, Validator, Controller
-│   ├── frontend-writer-agent/ # Frontend code generation
-│   │   └── skills/            # Component, Hook, Store, Form, Api, Page
-│   ├── writer-skills/         # Base class for writer skills
-│   │   └── BaseWriterSkill.js
-│   ├── gru-agent/             # Client interface coordinator
-│   │   ├── WebServer.js       # Express + WebSocket server
-│   │   ├── ConversationEngine.js
-│   │   ├── OllamaAdapter.js   # Ollama/Gemini integration
-│   │   └── public/            # Web dashboard (HTML/CSS/JS)
-│   ├── nefario-agent/         # Plan generation agent
-│   ├── project-manager-agent/ # External project management (Silas)
-│   ├── project-completion-agent/ # Autonomous completion (Lucy)
-│   ├── security-risk-agent/   # Security & risk management (Tom)
-│   │   ├── ThreatModeler.js   # STRIDE threat modeling
-│   │   ├── RiskTracker.js     # Risk register management
-│   │   ├── AuditLogger.js     # Security audit trail
-│   │   └── OpsValidator.js    # Deployment validation
-│   ├── vision-agent/          # Product owner agent
-│   │   ├── ReadmeParser.js    # README analysis
-│   │   ├── FeatureDecomposer.js # Epic → Story → Task
-│   │   └── AcceptanceGenerator.js # BDD criteria
-│   └── planner-agent/         # Execution engine
-│       ├── ExecutionPlanner.js # Plan creation
-│       ├── Coordinator.js     # Agent assignment
-│       └── ProgressTracker.js # Progress measurement
-├── examples/                  # Usage examples
-│   ├── basic-usage.js
-│   └── example-agent.js
-├── projects/                  # Connected external projects
-└── docs/                      # Documentation
-    ├── component-index.md     # Quick reference for all components
-    ├── api-reference.md       # Complete API documentation
-    ├── architecture.md        # Framework internals
-    ├── getting-started.md     # Setup guide
-    ├── creating-agents.md     # Agent development patterns
-    ├── skills-guide.md        # Skills documentation
-    └── gru-guide.md           # Gru Agent setup guide
-```
-
-## Self-Evolution
-
-Minions is a **self-improving framework**. You can extend it by describing what you want in markdown, and Minions will analyze, plan, generate code, and test automatically.
-
-### How to Extend Minions
-
-**Step 1: Write your evolution plan**
-
-Create or edit `minions-self-evolution-plan.md`:
-
-```markdown
-# My Evolution Plan
-
-## Features
-
-### New Agent: Email Notifier
-Create an agent that sends email notifications when builds fail.
-- Should integrate with SendGrid API
-- Support HTML templates
-- Rate limiting to prevent spam
-
-### Enhancement: Better Logging
-Add structured JSON logging with correlation IDs.
-- Log levels: debug, info, warn, error
-- Include timestamp, agent name, event type
-
-## Requirements
-- Must be backwards compatible
-- Include unit tests for all new code
-- Follow existing code patterns
-```
-
-**Step 2: Run evolution**
-
-```bash
-node evolve.js
-```
-
-**Step 3: Review the commits**
-
-Each phase auto-commits its changes:
-```
-feat(evolution): Phase 1 - Analysis complete
-feat(evolution): Phase 2 - Feature decomposition complete
-feat(evolution): Phase 3 - Code generation complete
-feat(evolution): Phase 4 - Test and fix cycle complete
-```
-
-### Evolution Phases
-
-| Phase | What Happens |
-|-------|--------------|
-| 1 | Vision Agent reads your plan, Architect creates blueprint |
-| 2 | Features decomposed into Epics → Stories → Tasks |
-| 3 | Writer agents generate code in `generated/` folder |
-| 4 | Tests run, failures auto-fixed via autonomous loop |
-
-### CLI Options
-
-```bash
-node evolve.js                     # Full evolution with commits
-node evolve.js --no-commit         # Skip git commits
-node evolve.js --phase=2           # Start from phase 2
-node evolve.js --dry-run           # Preview without executing
-node evolve.js --continue-on-error # Don't stop on failures
-```
-
-### Tips for Writing Evolution Plans
-
-- **Be specific** - "Add rate limiting" is better than "improve performance"
-- **Include acceptance criteria** - What does "done" look like?
-- **Reference existing patterns** - "Similar to TesterAgent" helps the generator
-- **List dependencies** - If feature B needs feature A, say so
-
-## Configuration
+- **Conversational AI** - Chat with Gru about your project (Ollama or Gemini)
+- **Project Scanning** - Automatic framework and dependency detection
+- **Plan Generation** - Dr. Nefario creates detailed execution plans
+- **Real-time Monitoring** - Watch execution progress with live updates
+- **Learning Dashboard** - Monitor RL policies, skills, and A/B tests at `/evolve`
 
 ### Environment Variables
 
 ```bash
-# Logging
-LOG_LEVEL=debug           # trace, debug, info, warn, error
-NODE_ENV=development      # development, production
-
-# Optional Redis for distributed deployments
-REDIS_HOST=localhost
-REDIS_PORT=6379
+OLLAMA_HOST=http://localhost:11434  # Ollama server URL
+OLLAMA_MODEL=deepseek-coder:6.7b    # AI model
+GEMINI_API_KEY=your-key             # Gemini fallback
+MINIONS_PORT=2505                   # Web server port
 ```
 
-### initializeMinions Options
+---
+
+## Event Types Reference
 
 ```javascript
-await initializeMinions({
-  enableMetrics: true,      // Enable MetricsCollector (default: true)
-  enableHealth: true,       // Enable HealthMonitor (default: true)
-  enableAlerting: true,     // Enable AlertingSystem (default: true)
-  maxConcurrency: 5         // Max parallel agents (default: 5)
-});
+// Agent Lifecycle
+AgentEvents.AGENT_STARTED, AGENT_COMPLETED, AGENT_FAILED, AGENT_PAUSED, AGENT_RESUMED
+
+// Testing
+TestEvents.TESTS_STARTED, TESTS_COMPLETED, TESTS_FAILED
+
+// Code Operations
+CodeEvents.CODE_GENERATED, CODE_REVIEWED, AUTO_FIX_REQUESTED, FIX_COMPLETED
+
+// Security (Tom)
+SecurityEvents.SCAN_COMPLETED, VULNERABILITY_FOUND, RISK_IDENTIFIED, THREAT_ADDED
+
+// Project Management (Silas)
+ProjectManagerEvents.PROJECT_CONNECTED, PROJECT_SCANNED, PROJECT_ERROR
+
+// Completion (Lucy)
+CompletionEvents.GAP_DETECTED, GAP_RESOLVED, PROGRESS_UPDATED, COMPLETION_FINISHED
+
+// Database (Dave)
+DatabaseEvents.SCHEMA_DESIGNED, MIGRATION_CREATED, QUERY_OPTIMIZED
+
+// Performance (Kevin)
+PerformanceEvents.HOTSPOT_DETECTED, REGRESSION_DETECTED, BOTTLENECK_DETECTED
+
+// Learning
+LearningEvents.PATTERN_DETECTED, SKILL_GENERATED, POLICY_UPDATED
 ```
+
+See [docs/component-index.md](docs/component-index.md) for the complete list of 80+ event types.
+
+---
 
 ## Testing
 
 ```bash
-# Run all tests with coverage
+# Run all tests with coverage (85% threshold)
 npm test
 
 # Watch mode
 npm run test:watch
 
-# Run specific test file
+# Single test file
 cd foundation && NODE_OPTIONS=--experimental-vm-modules jest tests/eventBus.test.js
 
-# Run tests matching pattern
+# Pattern matching
 cd foundation && NODE_OPTIONS=--experimental-vm-modules jest --testNamePattern="should publish"
 ```
 
-**Coverage Threshold:** 85% for branches, functions, lines, and statements.
+---
 
-## Extension Points
+## Project Structure
 
-### Custom Analyzers
-
-```javascript
-import { BaseAnalyzer, SEVERITY, CATEGORY } from 'minions';
-
-class CustomAnalyzer extends BaseAnalyzer {
-  constructor() {
-    super('CustomAnalyzer');
-  }
-
-  async analyze(code, options = {}) {
-    this.clearIssues();
-    // Your analysis logic
-    this.addIssue({
-      type: 'custom-issue',
-      severity: SEVERITY.MEDIUM,
-      category: CATEGORY.QUALITY,
-      message: 'Issue description',
-      location: { file: 'path', line: 10 }
-    });
-    return this.formatResults();
-  }
-}
+```
+minions/
+├── index.js                    # Main entry point
+├── foundation/                 # Core infrastructure
+│   ├── event-bus/              # AgentEventBus, EventTypes (80+ events)
+│   ├── health-monitor/         # HealthMonitor, HealthStatus
+│   ├── metrics-collector/      # MetricsCollector
+│   ├── alerting/               # AlertingSystem
+│   ├── rollback-manager/       # RollbackManager (git-aware)
+│   ├── memory-store/           # MemoryStore, DecisionLogger
+│   ├── state-machine/          # StateMachine
+│   ├── resilience/             # CircuitBreaker, RateLimiter
+│   ├── learning/               # ReinforcementLearner, DynamicSkillGenerator
+│   ├── knowledge-brain/        # KnowledgeBrain, CrossAgentTeacher
+│   └── tests/                  # Unit tests (Jest)
+├── agents/
+│   ├── manager-agent/          # Orchestrator, DependencyGraph, AutonomousLoop
+│   ├── gru-agent/              # Web interface (Express + WebSocket)
+│   ├── nefario-agent/          # Plan generation
+│   ├── project-manager-agent/  # Silas - project registry
+│   ├── project-completion-agent/ # Lucy - completion loops
+│   ├── security-risk-agent/    # Tom - security & risk
+│   ├── tester-agent/           # Multi-platform testing
+│   ├── docker-agent/           # Docker lifecycle
+│   ├── github-agent/           # GitHub automation
+│   ├── database-agent/         # Dave - schema & migrations
+│   ├── performance-agent/      # Kevin - profiling
+│   ├── backend-writer-agent/   # Stuart - backend code gen
+│   ├── frontend-writer-agent/  # Agnes - frontend code gen
+│   ├── flutter-writer-agent/   # Otto - Flutter code gen
+│   └── skills/                 # AutoFixer, CodeReviewer, etc.
+├── docker/                     # Docker configuration
+│   ├── Dockerfile              # Multi-stage build
+│   └── docker-compose.yml      # Ollama + Minions setup
+└── docs/                       # Documentation
 ```
 
-### Custom Skills
-
-```javascript
-import { BaseSkill, SEVERITY, CATEGORY } from 'minions';
-
-class CustomSkill extends BaseSkill {
-  constructor(options = {}) {
-    super('CustomSkill', options);
-  }
-
-  async onInitialize() {
-    // Custom initialization
-  }
-
-  async execute(input) {
-    this.startRun();
-    try {
-      const result = await this.performTask(input);
-      this.completeRun();
-      return result;
-    } catch (error) {
-      this.failRun(error);
-      throw error;
-    }
-  }
-}
-```
-
-## API Reference
-
-See [docs/api-reference.md](docs/api-reference.md) for complete API documentation.
+---
 
 ## Documentation
 
-- [Component Index](docs/component-index.md) - Quick reference for all components, singletons, and events
-- [Getting Started](docs/getting-started.md) - Step-by-step setup and first agent tutorial
-- [Gru Guide](docs/gru-guide.md) - Web interface setup with Docker and Ollama
-- [Architecture Guide](docs/architecture.md) - Deep dive into framework internals and data flows
-- [API Reference](docs/api-reference.md) - Complete API documentation for all components
-- [Creating Agents](docs/creating-agents.md) - Agent development patterns and best practices
-- [Skills Guide](docs/skills-guide.md) - Using and creating skills
+| Document | Description |
+|----------|-------------|
+| [Getting Started](docs/getting-started.md) | Installation, setup, and first agent tutorial |
+| [Architecture Guide](docs/architecture.md) | Deep dive into framework internals and data flows |
+| [API Reference](docs/api-reference.md) | Complete API documentation for all components |
+| [Component Index](docs/component-index.md) | Quick reference for all components and events |
+| [Creating Agents](docs/creating-agents.md) | Agent development patterns and best practices |
+| [Skills Guide](docs/skills-guide.md) | Using and creating skills |
+| [Gru Guide](docs/gru-guide.md) | Web interface setup with Docker and Ollama |
+
+---
 
 ## License
 
@@ -987,9 +569,7 @@ MIT
 
 **Minions Framework**
 
-Created by **Kareem Hussein**
-
-**Inweb Software Solutions**
+Created by **Kareem Hussein** | **Inweb Software Solutions**
 
 *Building the future of autonomous AI development*
 

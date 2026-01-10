@@ -2314,3 +2314,347 @@ Apply if Approved → Version bump
     ↓
 Learn from Success → Pattern storage
 ```
+
+---
+
+## Learning & Evolution System Architecture
+
+The learning system enables agents to learn from experience, share knowledge, and automatically generate new skills.
+
+### Learning System Overview
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          LEARNING & EVOLUTION SYSTEM                         │
+├──────────────────┬──────────────────┬──────────────────┬───────────────────┤
+│  Reinforcement   │   Knowledge      │    Dynamic       │   Cross-Agent     │
+│    Learner       │     Brain        │ Skill Generator  │    Teacher        │
+├──────────────────┼──────────────────┼──────────────────┼───────────────────┤
+│ Q-learning with  │ Distributed      │ LLM-based skill  │ Skill transfer    │
+│ Thompson sampling│ collective       │ synthesis from   │ between agents    │
+│                  │ intelligence     │ detected patterns│                   │
+├──────────────────┴──────────────────┴──────────────────┴───────────────────┤
+│                          Pattern Recognition Engine                          │
+│                    Identifies recurring patterns in agent behavior           │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### ReinforcementLearner Architecture
+
+Q-learning implementation with Thompson sampling for exploration.
+
+```
+┌─────────────────────────────────────────┐
+│          ReinforcementLearner            │
+├─────────────────────────────────────────┤
+│ - qTable: Map<state, Map<action, Q>>    │
+│ - actionSuccesses: Map<action, {α, β}>  │
+│ - episodes: Episode[]                    │
+│ - config: { α, γ, ε, decay, min_ε }     │
+├─────────────────────────────────────────┤
+│ + selectAction(state)                    │
+│ + recordExperience(s, a, r, s')         │
+│ + updateQValue(s, a, r, s')             │
+│ + getPolicy()                            │
+│ + savePolicy() / loadPolicy()            │
+│ + startEpisode() / endEpisode(reward)   │
+│ + getStatistics()                        │
+└─────────────────────────────────────────┘
+
+Q-Learning Update:
+Q(s,a) ← Q(s,a) + α[r + γ·max_a'Q(s',a') - Q(s,a)]
+
+Parameters:
+- α (learning rate): 0.1
+- γ (discount factor): 0.95
+- ε (exploration rate): 0.2 → 0.05
+- decay: 0.995
+```
+
+### Reward Signal Processing
+
+```
+Agent Action
+    ↓
+Observe Outcome
+    ↓
+Map to Reward Signal:
+    ├─→ SUCCESS: +1.0
+    ├─→ PARTIAL_SUCCESS: +0.5
+    ├─→ FAILURE: -0.5
+    ├─→ TIMEOUT: -0.3
+    ├─→ USER_POSITIVE: +0.8
+    └─→ QUALITY_BONUS: +0.3
+    ↓
+Record Experience (s, a, r, s')
+    ↓
+Update Q-Table
+    ↓
+Decay Exploration Rate
+```
+
+### KnowledgeBrain Architecture
+
+Distributed collective intelligence system.
+
+```
+┌─────────────────────────────────────────┐
+│            KnowledgeBrain                │
+├─────────────────────────────────────────┤
+│ - localStore: MemoryStore               │
+│ - graphStore: RelationshipGraph         │
+│ - cache: LRUCache                       │
+│ - vectorIndex: TF-IDF                   │
+├─────────────────────────────────────────┤
+│ + store(knowledge)                      │
+│ + query(criteria)                       │
+│ + findPatterns(spec)                    │
+│ + propagateKnowledge(agents)            │
+│ + buildRelationshipGraph()              │
+│ + getPatternStats(pattern)              │
+└─────────────────────────────────────────┘
+
+Knowledge Types:
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│  CODE_PATTERN   │ │    BUG_FIX      │ │  ARCHITECTURE   │
+└─────────────────┘ └─────────────────┘ └─────────────────┘
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│ BEST_PRACTICE   │ │ ERROR_SOLUTION  │ │PERFORMANCE_TIP  │
+└─────────────────┘ └─────────────────┘ └─────────────────┘
+┌─────────────────┐ ┌─────────────────┐ ┌─────────────────┐
+│ LEARNED_SKILL   │ │   RL_POLICY     │ │  EXPERIENCE     │
+└─────────────────┘ └─────────────────┘ └─────────────────┘
+
+Quality Levels: VERIFIED > TRUSTED > COMMUNITY > EXPERIMENTAL
+```
+
+### DynamicSkillGenerator Architecture
+
+LLM-based skill synthesis from detected patterns.
+
+```
+┌─────────────────────────────────────────┐
+│        DynamicSkillGenerator             │
+├─────────────────────────────────────────┤
+│ - ollamaAdapter: OllamaAdapter          │
+│ - knowledgeBrain: KnowledgeBrain        │
+│ - sandbox: IsolatedVM                   │
+│ - skills: Map<id, GeneratedSkill>       │
+│ - abTests: Map<id, ABTest>              │
+├─────────────────────────────────────────┤
+│ + generateSkill(pattern)                │
+│ + deployCanary(skillId, %)              │
+│ + startABTest(skillA, skillB)           │
+│ + approveSkill(skillId)                 │
+│ + rejectSkill(skillId, reason)          │
+│ + evolveSkill(skillId)                  │
+│ + getCanaryMetrics(skillId)             │
+│ + getABTestResults(testId)              │
+└─────────────────────────────────────────┘
+
+Skill Lifecycle:
+Pattern Detected → Generated → Sandboxed → Canary → A/B Test → Approved
+                                  ↓                    ↓
+                               Failed              Rejected
+```
+
+### Skill Generation Flow
+
+```
+1. Pattern Detection (via DecisionLogger)
+   └─→ Recurring behavior identified
+       ├─→ Minimum occurrences: 3
+       └─→ Confidence threshold: 0.8
+
+2. Skill Synthesis (via OllamaAdapter)
+   └─→ LLM generates BaseSkill-extending class
+       ├─→ Execute method
+       ├─→ Test cases
+       └─→ Documentation
+
+3. Sandboxed Testing (via isolated-vm)
+   └─→ Run generated tests in isolation
+       ├─→ Measure success rate
+       ├─→ Check for side effects
+       └─→ Validate output format
+
+4. Canary Deployment
+   └─→ Route 10% of traffic to new skill
+       ├─→ Monitor success rate
+       ├─→ Compare to baseline
+       └─→ Duration: 1-24 hours
+
+5. A/B Testing (optional)
+   └─→ Compare new skill vs existing
+       ├─→ 50/50 traffic split
+       ├─→ Statistical significance: p < 0.05
+       └─→ Winner promotion
+
+6. Production Deployment
+   └─→ Full traffic routing
+       ├─→ Version tracking
+       └─→ Rollback capability
+```
+
+### CrossAgentTeacher Architecture
+
+Structured knowledge transfer between agents.
+
+```
+┌─────────────────────────────────────────┐
+│          CrossAgentTeacher               │
+├─────────────────────────────────────────┤
+│ - curricula: Map<skill, Curriculum>     │
+│ - sessions: Map<id, TeachingSession>    │
+│ - masteryRecords: Map<agent, Mastery>   │
+│ - knowledgeBrain: KnowledgeBrain        │
+├─────────────────────────────────────────┤
+│ + createCurriculum(skill, levels)       │
+│ + startTeachingSession(from, to, skill) │
+│ + submitExercise(sessionId, response)   │
+│ + validateMastery(sessionId)            │
+│ + updateMasteryLevel(agent, skill, lvl) │
+│ + getAgentCompetencies(agent)           │
+│ + findExperts(skill, level)             │
+│ + shareLearning(source, targets, know)  │
+└─────────────────────────────────────────┘
+
+Curriculum Structure:
+{
+  skill: 'validation-patterns',
+  levels: [
+    { name: 'Basic', topics: [...], exercises: [...] },
+    { name: 'Intermediate', prerequisites: ['Basic'], ... },
+    { name: 'Advanced', prerequisites: ['Intermediate'], ... }
+  ]
+}
+
+Mastery Progression:
+Novice → Basic → Intermediate → Advanced → Expert
+```
+
+### Teaching Session Flow
+
+```
+1. Curriculum Creation
+   └─→ Expert agent defines skill curriculum
+       ├─→ Multiple difficulty levels
+       ├─→ Prerequisites between levels
+       └─→ Exercises for each topic
+
+2. Session Initialization
+   └─→ Target agent starts learning
+       ├─→ Select appropriate starting level
+       └─→ Load relevant exercises
+
+3. Exercise Submission
+   └─→ Agent attempts exercises
+       ├─→ Responses evaluated
+       ├─→ Feedback provided
+       └─→ Progress tracked
+
+4. Mastery Validation
+   └─→ Final assessment
+       ├─→ All exercises completed
+       ├─→ Score threshold: 85%
+       └─→ Mastery level updated
+
+5. Knowledge Propagation
+   └─→ Successfully learned skills
+       ├─→ Stored in KnowledgeBrain
+       └─→ Available to other agents
+```
+
+### Learning Events
+
+```javascript
+// Reinforcement Learning
+EXPERIENCE_RECORDED   // Experience added to replay buffer
+POLICY_UPDATED        // Q-table updated
+EPISODE_COMPLETED     // Learning episode finished
+
+// Skill Generation
+PATTERN_DETECTED      // New pattern identified
+SKILL_GENERATING      // LLM synthesis in progress
+SKILL_GENERATED       // Skill code created
+SKILL_DEPLOYED        // Canary deployment started
+SKILL_APPROVED        // Promoted to production
+SKILL_REJECTED        // Failed validation
+SKILL_EVOLVED         // New version created
+
+// A/B Testing
+ABTEST_STARTED        // Test comparison begun
+ABTEST_COMPLETED      // Test finished
+ABTEST_WINNER         // Winner determined
+
+// Teaching
+TEACHING_STARTED      // Session initialized
+TEACHING_COMPLETED    // Session finished
+MASTERY_UPDATED       // Agent level changed
+
+// Knowledge
+KNOWLEDGE_STORED      // New knowledge added
+KNOWLEDGE_PROPAGATED  // Knowledge shared to agents
+```
+
+### Integration with Foundation
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     Learning System Integration                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐       │
+│  │ EventBus    │────▸│   Decision  │────▸│Reinforcement│       │
+│  │ (events)    │     │   Logger    │     │   Learner   │       │
+│  └─────────────┘     └─────────────┘     └─────────────┘       │
+│        │                    │                    │              │
+│        │                    ▼                    ▼              │
+│        │             ┌─────────────┐     ┌─────────────┐       │
+│        │             │  Knowledge  │◀────│   Dynamic   │       │
+│        │             │    Brain    │     │ Skill Gen   │       │
+│        │             └─────────────┘     └─────────────┘       │
+│        │                    │                                   │
+│        │                    ▼                                   │
+│        │             ┌─────────────┐                           │
+│        └────────────▸│ Cross-Agent │                           │
+│                      │   Teacher   │                           │
+│                      └─────────────┘                           │
+│                                                                  │
+│  Events Flow: DecisionLogger → ReinforcementLearner            │
+│  Knowledge Flow: Brain ↔ SkillGen ↔ Teacher                    │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Learning Dashboard API
+
+The Gru web interface exposes learning system controls at `/evolve`:
+
+```
+GET  /api/learning/stats          # Learning statistics
+GET  /api/learning/skills         # Generated skills
+GET  /api/learning/policy         # RL Q-table
+GET  /api/learning/patterns       # Detected patterns
+GET  /api/learning/teaching       # Teaching sessions
+GET  /api/learning/tests          # A/B test results
+
+POST /api/learning/rl/exploration # Set exploration rate
+POST /api/learning/rl/reset       # Reset RL policy
+POST /api/learning/skills/generate# Generate from pattern
+POST /api/learning/skills/:id/approve
+POST /api/learning/skills/:id/reject
+POST /api/learning/tests/start    # Start A/B test
+POST /api/learning/teaching/start # Start teaching session
+POST /api/learning/mastery        # Update mastery level
+```
+
+---
+
+## Related Documentation
+
+- [Component Index](./component-index.md) - Quick reference for all components
+- [API Reference](./api-reference.md) - Complete API documentation
+- [Learning System Guide](./learning-system.md) - Detailed learning system usage
+- [Creating Agents](./creating-agents.md) - Agent development patterns
+- [Getting Started](./getting-started.md) - Setup and first steps
