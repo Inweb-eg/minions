@@ -34,7 +34,13 @@ export const DecisionType = {
 
   // Agent coordination
   AGENT_DELEGATION: 'agent_delegation',
-  CONFLICT_RESOLUTION: 'conflict_resolution'
+  CONFLICT_RESOLUTION: 'conflict_resolution',
+
+  // Learning-specific types (Phase 0.1)
+  SKILL_EXECUTION: 'skill_execution',
+  PATTERN_DETECTED: 'pattern_detected',
+  LEARNING_UPDATE: 'learning_update',
+  REWARD_SIGNAL: 'reward_signal'
 };
 
 /**
@@ -60,6 +66,9 @@ class DecisionLogger {
     this.initialized = false;
     this.pendingDecisions = new Map(); // Track in-flight decisions
     this.decisionListeners = [];
+
+    // Learning-specific tracking (Phase 0.1)
+    this.patternCounts = new Map(); // Track pattern occurrence counts for skill generation
   }
 
   /**
@@ -449,6 +458,231 @@ class DecisionLogger {
    */
   generateDecisionId() {
     return `dec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  }
+
+  // ============================================================================
+  // LEARNING SYSTEM EXTENSIONS (Phase 0.1)
+  // These methods support the self-learning system by tracking skill executions
+  // and detecting patterns that can be converted into generated skills.
+  // ============================================================================
+
+  /**
+   * Record a skill execution as a decision
+   * Tracks skill executions for pattern detection and learning
+   * @param {object} execution - Execution details
+   * @param {string} execution.agent - Agent executing the skill
+   * @param {string} execution.skill - Skill name
+   * @param {any} execution.input - Skill input
+   * @param {any} execution.output - Skill output
+   * @param {boolean} execution.success - Whether execution succeeded
+   * @param {number} execution.duration - Execution duration in ms
+   * @param {string} [execution.error] - Error message if failed
+   * @returns {Promise<string>} Decision ID
+   */
+  async logSkillExecution(execution) {
+    await this.ensureInitialized();
+
+    const { agent, skill, input, output, success, duration, error } = execution;
+
+    const decisionId = await this.logDecision({
+      agent,
+      type: DecisionType.SKILL_EXECUTION,
+      context: { skill, input },
+      decision: { output, success, duration },
+      reasoning: success ? 'Skill executed successfully' : `Failed: ${error || 'Unknown error'}`,
+      metadata: {
+        skillName: skill,
+        executionTime: duration,
+        success,
+        error: error || null
+      }
+    });
+
+    // Update outcome immediately since we know the result
+    await this.updateOutcome(
+      decisionId,
+      success ? DecisionOutcome.SUCCESS : DecisionOutcome.FAILED,
+      { duration, error }
+    );
+
+    // Track pattern for potential skill generation
+    const pattern = `skill:${skill}:${success ? 'success' : 'failure'}`;
+    this.incrementPattern(pattern);
+
+    // Also track generic skill pattern
+    this.incrementPattern(`skill:${skill}`);
+
+    logger.debug(`Skill execution logged: ${skill} by ${agent}`, { success, duration });
+
+    return decisionId;
+  }
+
+  /**
+   * Increment pattern occurrence count
+   * Emits events when threshold counts are reached for skill generation
+   * @param {string} pattern - Pattern identifier (e.g., "skill:code-reviewer:success")
+   * @returns {number} New count for the pattern
+   */
+  incrementPattern(pattern) {
+    const count = (this.patternCounts.get(pattern) || 0) + 1;
+    this.patternCounts.set(pattern, count);
+
+    // Emit event at significant thresholds for skill generation consideration
+    const thresholds = [3, 5, 10, 25, 50, 100];
+    if (thresholds.includes(count)) {
+      this.eventBus?.publish('LEARNING_PATTERN_DETECTED', {
+        agent: 'decision-logger',
+        pattern,
+        count,
+        timestamp: Date.now()
+      });
+
+      logger.debug(`Pattern threshold reached: ${pattern} (count: ${count})`);
+    }
+
+    return count;
+  }
+
+  /**
+   * Get patterns that have occurred frequently
+   * Used by DynamicSkillGenerator to identify candidates for skill generation
+   * @param {number} [minCount=3] - Minimum occurrence count to include
+   * @returns {Array<{pattern: string, count: number}>} Sorted array of frequent patterns
+   */
+  getFrequentPatterns(minCount = 3) {
+    return Array.from(this.patternCounts.entries())
+      .filter(([, count]) => count >= minCount)
+      .map(([pattern, count]) => ({ pattern, count }))
+      .sort((a, b) => b.count - a.count);
+  }
+
+  /**
+   * Get experiences (skill executions) matching a pattern
+   * Used by DynamicSkillGenerator to analyze patterns for skill synthesis
+   * @param {string} pattern - Pattern to query (e.g., "skill:code-reviewer:success")
+   * @param {number} [limit=100] - Maximum experiences to return
+   * @returns {Promise<object[]>} Array of matching decision records
+   */
+  async getExperiencesForPattern(pattern, limit = 100) {
+    await this.ensureInitialized();
+
+    const decisions = await this.queryDecisions({
+      type: DecisionType.SKILL_EXECUTION,
+      limit: limit * 2 // Query more to filter
+    });
+
+    // Parse pattern to extract skill name and outcome filter
+    const patternParts = pattern.split(':');
+    const skillName = patternParts[1]; // e.g., "code-reviewer" from "skill:code-reviewer:success"
+    const outcomeFilter = patternParts[2]; // e.g., "success" or "failure"
+
+    return decisions.filter(d => {
+      // Match by skill name
+      if (d.metadata?.skillName !== skillName && !pattern.includes(d.metadata?.skillName)) {
+        return false;
+      }
+
+      // If outcome specified in pattern, filter by it
+      if (outcomeFilter === 'success' && d.outcome !== DecisionOutcome.SUCCESS) {
+        return false;
+      }
+      if (outcomeFilter === 'failure' && d.outcome !== DecisionOutcome.FAILED) {
+        return false;
+      }
+
+      return true;
+    }).slice(0, limit);
+  }
+
+  /**
+   * Calculate success rate for a specific skill
+   * Used for reinforcement learning reward signals and skill evaluation
+   * @param {string} skillName - Name of the skill
+   * @returns {Promise<number>} Success rate between 0 and 1
+   */
+  async getSkillSuccessRate(skillName) {
+    await this.ensureInitialized();
+
+    const decisions = await this.queryDecisions({
+      type: DecisionType.SKILL_EXECUTION
+    });
+
+    const skillDecisions = decisions.filter(d => d.metadata?.skillName === skillName);
+
+    if (skillDecisions.length === 0) {
+      return 0;
+    }
+
+    const successes = skillDecisions.filter(d => d.outcome === DecisionOutcome.SUCCESS).length;
+    return successes / skillDecisions.length;
+  }
+
+  /**
+   * Get skill execution statistics
+   * Provides detailed metrics for a specific skill
+   * @param {string} skillName - Name of the skill
+   * @returns {Promise<object>} Skill statistics
+   */
+  async getSkillStats(skillName) {
+    await this.ensureInitialized();
+
+    const decisions = await this.queryDecisions({
+      type: DecisionType.SKILL_EXECUTION
+    });
+
+    const skillDecisions = decisions.filter(d => d.metadata?.skillName === skillName);
+
+    if (skillDecisions.length === 0) {
+      return {
+        skillName,
+        executions: 0,
+        successes: 0,
+        failures: 0,
+        successRate: 0,
+        averageDuration: 0,
+        agents: []
+      };
+    }
+
+    const successes = skillDecisions.filter(d => d.outcome === DecisionOutcome.SUCCESS);
+    const failures = skillDecisions.filter(d => d.outcome === DecisionOutcome.FAILED);
+    const agents = [...new Set(skillDecisions.map(d => d.agent))];
+
+    let totalDuration = 0;
+    let durationCount = 0;
+    for (const d of skillDecisions) {
+      if (d.metadata?.executionTime) {
+        totalDuration += d.metadata.executionTime;
+        durationCount++;
+      }
+    }
+
+    return {
+      skillName,
+      executions: skillDecisions.length,
+      successes: successes.length,
+      failures: failures.length,
+      successRate: successes.length / skillDecisions.length,
+      averageDuration: durationCount > 0 ? totalDuration / durationCount : 0,
+      agents,
+      recentExecutions: skillDecisions.slice(0, 10)
+    };
+  }
+
+  /**
+   * Reset pattern counts (primarily for testing)
+   */
+  resetPatternCounts() {
+    this.patternCounts.clear();
+    logger.debug('Pattern counts reset');
+  }
+
+  /**
+   * Get current pattern counts
+   * @returns {Map<string, number>} Pattern counts map
+   */
+  getPatternCounts() {
+    return new Map(this.patternCounts);
   }
 }
 
