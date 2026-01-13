@@ -137,7 +137,7 @@ class ReinforcementLearner extends EventEmitter {
    */
   _subscribeToEvents() {
     // Learn from agent completions
-    this.eventBus.subscribe('AGENT_COMPLETED', 'reinforcement-learner', async (data) => {
+    this.eventBus.subscribe('agent:completed', 'reinforcement-learner', async (data) => {
       if (data.state && data.action) {
         const reward = this.calculateReward({
           success: true,
@@ -148,7 +148,7 @@ class ReinforcementLearner extends EventEmitter {
     });
 
     // Learn from failures
-    this.eventBus.subscribe('AGENT_FAILED', 'reinforcement-learner', async (data) => {
+    this.eventBus.subscribe('agent:failed', 'reinforcement-learner', async (data) => {
       if (data.state && data.action) {
         const reward = this.calculateReward({ success: false });
         await this.update(data.state, data.action, reward, data.nextState || {});

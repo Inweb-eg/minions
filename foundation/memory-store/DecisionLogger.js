@@ -530,7 +530,7 @@ class DecisionLogger {
     // Emit event at significant thresholds for skill generation consideration
     const thresholds = [3, 5, 10, 25, 50, 100];
     if (thresholds.includes(count)) {
-      this.eventBus?.publish('LEARNING_PATTERN_DETECTED', {
+      this.eventBus?.publish('learning:pattern:detected', {
         agent: 'decision-logger',
         pattern,
         count,

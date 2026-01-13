@@ -427,7 +427,7 @@ describe('DecisionLogger', () => {
       decisionLogger.incrementPattern('test:pattern');
 
       expect(publishedEvents).toHaveLength(1);
-      expect(publishedEvents[0].event).toBe('LEARNING_PATTERN_DETECTED');
+      expect(publishedEvents[0].event).toBe('learning:pattern:detected');
       expect(publishedEvents[0].data.pattern).toBe('test:pattern');
       expect(publishedEvents[0].data.count).toBe(3);
     });
