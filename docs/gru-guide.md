@@ -20,6 +20,9 @@ Complete guide for setting up and using Gru Agent - the conversational web inter
   - [Project Screen](#project-screen)
   - [Plan Screen](#plan-screen)
   - [Execution Screen](#execution-screen)
+  - [Projects Dashboard](#projects-dashboard)
+  - [Minion Chatter](#minion-chatter)
+  - [Learning Control Center](#learning-control-center)
 - [Configuration](#configuration)
 - [Troubleshooting](#troubleshooting)
 
@@ -405,6 +408,63 @@ Once you approve the plan, execution begins:
 **Controls:**
 - **Pause**: Pause execution (can resume later)
 - **Stop**: Stop execution entirely
+
+### Projects Dashboard
+
+Access at `/projects` to manage all connected projects in one place.
+
+**Features:**
+- **Stats Overview**: See total projects, running, completed, and error counts
+- **Project Cards**: Each connected project shows name, path, frameworks, languages, and timestamps
+- **Real-time Updates**: Progress bars and status badges update via WebSocket
+
+**Actions per Project:**
+- **Rescan**: Re-analyze project structure and detect framework changes
+- **Start**: Begin autonomous completion execution (Lucy)
+- **Pause/Resume**: Control execution flow
+- **Stop**: Halt execution completely
+- **Disconnect**: Remove project from the system
+
+**Connecting a Project:**
+1. Click "Connect Project" button
+2. Enter the full path (e.g., `/home/user/my-project`)
+3. Click "Connect"
+4. Project appears in the list with detected frameworks
+
+**Project Status Badges:**
+- `connected` - Project is registered but not executing
+- `executing` - Completion loop is running
+- `paused` - Execution is paused
+- `error` - An error occurred during execution
+
+### Minion Chatter
+
+Access at `/minions` to watch your agents communicate in real-time.
+
+**Features:**
+- **Live Chat Feed**: See translated agent events as minion dialogue
+- **Agent Roster**: View all available minions with their personalities
+- **Toggle Control**: Enable/disable chatter generation
+- **Clear History**: Remove all chat messages
+
+**How It Works:**
+- When agents emit events (task started, completed, errors), MinionTranslator converts them to character dialogue
+- Each agent has a unique personality (Gru, Dr. Nefario, Silas, Lucy, etc.)
+- Events are displayed with avatars, names, roles, and timestamps
+
+### Learning Control Center
+
+Access at `/evolve` to monitor and control the self-learning system.
+
+**Sections:**
+- **Stats**: Overall learning statistics
+- **RL Policy**: View and control exploration rate, reset Q-values
+- **Skills**: List generated skills, approve/reject canaries, toggle activation
+- **A/B Tests**: Start and monitor skill comparison tests
+- **Teaching**: Initiate cross-agent teaching sessions
+- **Events**: Live feed of learning events
+
+For detailed documentation, see [Evolve Guide](./evolve-guide.md).
 
 ---
 

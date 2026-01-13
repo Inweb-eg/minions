@@ -412,6 +412,94 @@ export class WebServer extends EventEmitter {
       res.sendFile(path.join(this.config.publicDir, 'evolve.html'));
     });
 
+    // ============ Projects API ============
+
+    // List all connected projects
+    this.app.get('/api/projects', (req, res) => {
+      this.emit('api:projects:list', { callback: (data) => res.json(data) });
+    });
+
+    // Get single project details
+    this.app.get('/api/projects/:name', (req, res) => {
+      this.emit('api:projects:get', {
+        name: req.params.name,
+        callback: (data) => data && !data.error ? res.json(data) : res.status(404).json({ error: 'Project not found' })
+      });
+    });
+
+    // Connect new project by path
+    this.app.post('/api/projects/connect', (req, res) => {
+      const { path } = req.body;
+      if (!path) {
+        return res.status(400).json({ error: 'path is required' });
+      }
+      this.emit('api:projects:connect', {
+        path,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    // Disconnect project
+    this.app.post('/api/projects/:name/disconnect', (req, res) => {
+      this.emit('api:projects:disconnect', {
+        name: req.params.name,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    // Rescan project structure
+    this.app.post('/api/projects/:name/rescan', (req, res) => {
+      this.emit('api:projects:rescan', {
+        name: req.params.name,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    // Start project completion execution
+    this.app.post('/api/projects/:name/start', (req, res) => {
+      this.emit('api:projects:start', {
+        name: req.params.name,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    // Pause execution
+    this.app.post('/api/projects/:name/pause', (req, res) => {
+      this.emit('api:projects:pause', {
+        name: req.params.name,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    // Resume execution
+    this.app.post('/api/projects/:name/resume', (req, res) => {
+      this.emit('api:projects:resume', {
+        name: req.params.name,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    // Stop execution
+    this.app.post('/api/projects/:name/stop', (req, res) => {
+      this.emit('api:projects:stop', {
+        name: req.params.name,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    // Get execution progress
+    this.app.get('/api/projects/:name/progress', (req, res) => {
+      this.emit('api:projects:progress', {
+        name: req.params.name,
+        callback: (data) => res.json(data)
+      });
+    });
+
+    // Serve projects.html for projects dashboard
+    this.app.get('/projects', (req, res) => {
+      res.sendFile(path.join(this.config.publicDir, 'projects.html'));
+    });
+
     // Serve index.html for all other routes (SPA support)
     this.app.get('*', (req, res) => {
       res.sendFile(path.join(this.config.publicDir, 'index.html'));
@@ -491,6 +579,10 @@ export class WebServer extends EventEmitter {
         this.emit('project:existing', { clientId, ...payload });
         break;
 
+      case 'project:path':
+        this.emit('project:path', { clientId, ...payload });
+        break;
+
       case 'project:confirm':
         this.emit('project:confirm', { clientId, ...payload });
         break;
@@ -567,6 +659,62 @@ export class WebServer extends EventEmitter {
           message: payload.message,
           conversationId: payload.conversationId,
           source: 'websocket'
+        });
+        break;
+
+      // Project management via WebSocket
+      case 'projects:list':
+        this.emit('api:projects:list', {
+          callback: (data) => this.sendToClient(clientId, { type: 'projects:list', data })
+        });
+        break;
+
+      case 'projects:connect':
+        this.emit('api:projects:connect', {
+          path: payload.path,
+          callback: (data) => this.sendToClient(clientId, { type: 'projects:connected', data })
+        });
+        break;
+
+      case 'projects:disconnect':
+        this.emit('api:projects:disconnect', {
+          name: payload.name,
+          callback: (data) => this.sendToClient(clientId, { type: 'projects:disconnected', data })
+        });
+        break;
+
+      case 'projects:rescan':
+        this.emit('api:projects:rescan', {
+          name: payload.name,
+          callback: (data) => this.sendToClient(clientId, { type: 'projects:scanned', data })
+        });
+        break;
+
+      case 'projects:start':
+        this.emit('api:projects:start', {
+          name: payload.name,
+          callback: (data) => this.sendToClient(clientId, { type: 'projects:execution:started', data })
+        });
+        break;
+
+      case 'projects:pause':
+        this.emit('api:projects:pause', {
+          name: payload.name,
+          callback: (data) => this.sendToClient(clientId, { type: 'projects:execution:paused', data })
+        });
+        break;
+
+      case 'projects:resume':
+        this.emit('api:projects:resume', {
+          name: payload.name,
+          callback: (data) => this.sendToClient(clientId, { type: 'projects:execution:resumed', data })
+        });
+        break;
+
+      case 'projects:stop':
+        this.emit('api:projects:stop', {
+          name: payload.name,
+          callback: (data) => this.sendToClient(clientId, { type: 'projects:execution:stopped', data })
         });
         break;
 

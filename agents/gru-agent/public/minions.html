@@ -554,9 +554,11 @@
           <span class="toggle-slider"></span>
         </label>
       </div>
-      <a href="/" class="btn-back" style="text-decoration: none; padding: 0.5rem 1rem; border-radius: 6px;">
-        Back to Dashboard
-      </a>
+      <nav style="display: flex; gap: 0.5rem; align-items: center;">
+        <a href="/" style="color: var(--text-secondary); text-decoration: none; padding: 0.5rem 0.75rem; border-radius: 6px;">Chat</a>
+        <a href="/projects" style="color: var(--text-secondary); text-decoration: none; padding: 0.5rem 0.75rem; border-radius: 6px;">Projects</a>
+        <a href="/evolve" style="color: var(--text-secondary); text-decoration: none; padding: 0.5rem 0.75rem; border-radius: 6px;">Learning</a>
+      </nav>
     </div>
   </header>
 
@@ -594,6 +596,7 @@
 
       <div class="chat-footer">
         <button class="btn-clear" onclick="clearChatter()">Clear Chat</button>
+        <button class="btn-back" onclick="window.location.href='/projects'" style="margin-left: auto;">View Projects</button>
         <button class="btn-back" onclick="window.location.href='/evolve'">View Learning</button>
       </div>
     </main>

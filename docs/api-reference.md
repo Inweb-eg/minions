@@ -2026,6 +2026,98 @@ Gracefully shutdown the agent.
 await gru.shutdown();
 ```
 
+#### Gru Web Pages
+
+| Route | Description |
+|-------|-------------|
+| `/` | Main chat interface |
+| `/projects` | Projects dashboard - connect, monitor, and control projects |
+| `/minions` | Minion Chatter - watch agents communicate in real-time |
+| `/evolve` | Learning Control Center - monitor and control self-learning |
+
+#### Projects REST API
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/projects` | List all connected projects |
+| GET | `/api/projects/:name` | Get single project details |
+| POST | `/api/projects/connect` | Connect project by path `{ path }` |
+| POST | `/api/projects/:name/disconnect` | Disconnect project |
+| POST | `/api/projects/:name/rescan` | Rescan project structure |
+| POST | `/api/projects/:name/start` | Start completion execution |
+| POST | `/api/projects/:name/pause` | Pause execution |
+| POST | `/api/projects/:name/resume` | Resume execution |
+| POST | `/api/projects/:name/stop` | Stop execution |
+| GET | `/api/projects/:name/progress` | Get execution progress |
+
+**Example - Connect a project:**
+```javascript
+const res = await fetch('/api/projects/connect', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ path: '/home/user/my-project' })
+});
+const { success, project, error } = await res.json();
+```
+
+**Example - List projects:**
+```javascript
+const res = await fetch('/api/projects');
+const { success, projects } = await res.json();
+// projects: [{ name, sourcePath, framework, language, status, ... }]
+```
+
+#### Projects WebSocket API
+
+**Client → Server Messages:**
+```javascript
+// List all projects
+ws.send(JSON.stringify({ type: 'projects:list' }));
+
+// Connect project
+ws.send(JSON.stringify({ type: 'projects:connect', payload: { path: '/path/to/project' } }));
+
+// Disconnect project
+ws.send(JSON.stringify({ type: 'projects:disconnect', payload: { name: 'project-name' } }));
+
+// Rescan project
+ws.send(JSON.stringify({ type: 'projects:rescan', payload: { name: 'project-name' } }));
+
+// Execution control
+ws.send(JSON.stringify({ type: 'projects:start', payload: { name: 'project-name' } }));
+ws.send(JSON.stringify({ type: 'projects:pause', payload: { name: 'project-name' } }));
+ws.send(JSON.stringify({ type: 'projects:resume', payload: { name: 'project-name' } }));
+ws.send(JSON.stringify({ type: 'projects:stop', payload: { name: 'project-name' } }));
+```
+
+**Server → Client Messages (broadcast):**
+```javascript
+// Response to projects:list
+{ type: 'projects:list', data: { projects: [...] } }
+
+// Project events
+{ type: 'projects:connected', data: { project: {...} } }
+{ type: 'projects:disconnected', data: { name: 'project-name' } }
+{ type: 'projects:scanned', data: { name: 'project-name', result: {...} } }
+
+// Execution events
+{ type: 'projects:execution:started', data: { project: 'name' } }
+{ type: 'projects:execution:progress', data: { project: 'name', percentage: 45, phase: 'Gap Detection' } }
+{ type: 'projects:execution:paused', data: { project: 'name' } }
+{ type: 'projects:execution:resumed', data: { project: 'name' } }
+{ type: 'projects:execution:completed', data: { project: 'name', percentage: 100 } }
+{ type: 'projects:execution:error', data: { project: 'name', error: 'message' } }
+```
+
+#### Minion Chatter REST API
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/minions/chatter?limit=50` | Get chatter history |
+| GET | `/api/minions/personalities` | Get minion personalities |
+| POST | `/api/minions/chatter/toggle` | Enable/disable chatter `{ enabled }` |
+| DELETE | `/api/minions/chatter` | Clear chatter history |
+
 ---
 
 ### NefarioAgent

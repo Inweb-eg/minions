@@ -358,7 +358,7 @@ class GruDashboard {
     this.addMessage('user', path);
     this.showTypingIndicator();
 
-    this.send('chat', { message: path, type: 'path' });
+    this.send('project:path', { path });
     this.projectPathInput.value = '';
   }
 

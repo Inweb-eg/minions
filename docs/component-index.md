@@ -67,12 +67,38 @@ MemoryNamespace = {
 }
 ```
 
-**Key Methods:**
+**MemoryStore Key Methods:**
 ```javascript
 memoryStore.set(namespace, key, value, { ttl })
 memoryStore.get(namespace, key)
 memoryStore.addKnowledge(category, topic, content, options)
 memoryStore.queryKnowledge(query)
+```
+
+**DecisionLogger Key Methods:**
+```javascript
+// Core decision logging
+decisionLogger.logDecision({ agent, type, context, decision, metadata })
+decisionLogger.updateOutcome(decisionId, outcome)
+decisionLogger.getDecisions({ agent, type, since, limit })
+
+// Learning extension methods (Phase 0.1)
+decisionLogger.logSkillExecution({ agent, skill, input, output, success, duration, error })
+decisionLogger.incrementPattern(pattern)              // Track pattern occurrences
+decisionLogger.getFrequentPatterns(threshold)         // Get patterns above threshold
+decisionLogger.getExperiencesForPattern(pattern)      // Get skill executions for DynamicSkillGenerator
+decisionLogger.getSkillSuccessRate(skillName)         // Get success rate (0-1)
+decisionLogger.getSkillStats(skillName)               // Get { total, successes, failures, rate }
+```
+
+**DecisionTypes:**
+```javascript
+DecisionType = {
+  ACTION_SELECTION, RESOURCE_ALLOCATION, ERROR_HANDLING,
+  PRIORITIZATION, CONFIGURATION, DELEGATION,
+  // Learning types (Phase 0.1)
+  SKILL_EXECUTION, PATTERN_DETECTED, LEARNING_UPDATE, REWARD_SIGNAL
+}
 ```
 
 ### State Management
@@ -342,6 +368,7 @@ orchestrator.stop()
 | `ProjectIntake.js` | - | New/existing project workflow, Docker project discovery |
 | `StatusTracker.js` | - | Real-time execution status |
 | `OllamaAdapter.js` | - | AI provider (Ollama/Gemini) |
+| `MinionTranslator.js` | `getMinionTranslator()` | Translates agent events to minion chatter |
 
 **Key Methods:**
 ```javascript
@@ -362,11 +389,34 @@ gru.setLearningSystem(knowledgeBrain);
 await gru.start();
 ```
 
-**API Endpoints:**
+**Web Pages:**
+- `/` - Main chat interface
+- `/projects` - Projects dashboard (connect, monitor, control projects)
+- `/minions` - Minion Chatter (watch agents communicate)
+- `/evolve` - Learning Control Center dashboard
+
+**Conversation API Endpoints:**
 - `/api/conversations` - CRUD for conversation history
 - `/api/conversations/grouped` - Conversations grouped by project
 - `/api/projects/discover` - Discover projects in Docker mount
-- `/evolve` - Learning Control Center dashboard
+
+**Projects API Endpoints:**
+- `GET /api/projects` - List all connected projects
+- `GET /api/projects/:name` - Get single project details
+- `POST /api/projects/connect` - Connect project by path `{ path }`
+- `POST /api/projects/:name/disconnect` - Disconnect project
+- `POST /api/projects/:name/rescan` - Rescan project structure
+- `POST /api/projects/:name/start` - Start completion execution
+- `POST /api/projects/:name/pause` - Pause execution
+- `POST /api/projects/:name/resume` - Resume execution
+- `POST /api/projects/:name/stop` - Stop execution
+- `GET /api/projects/:name/progress` - Get execution progress
+
+**Minion Chatter API Endpoints:**
+- `GET /api/minions/chatter` - Get chatter history
+- `GET /api/minions/personalities` - Get minion personalities
+- `POST /api/minions/chatter/toggle` - Enable/disable chatter `{ enabled }`
+- `DELETE /api/minions/chatter` - Clear chatter history
 
 **Learning System API (Read):**
 - `GET /api/learning/stats` - Learning statistics

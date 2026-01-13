@@ -108,15 +108,33 @@ export class GruAgent extends EventEmitter {
     if (agents.lucy) this.lucy = agents.lucy;
     if (agents.nefario) this.nefario = agents.nefario;
 
-    // Subscribe to Lucy events for status tracking
+    // Subscribe to Lucy events for status tracking and WebSocket broadcasts
     if (this.lucy) {
-      this.lucy.on('completion:started', (data) => this.statusTracker.onLucyEvent('completion:started', data));
-      this.lucy.on('completion:progress:updated', (data) => this.statusTracker.onLucyEvent('completion:progress:updated', data));
+      this.lucy.on('completion:started', (data) => {
+        this.statusTracker.onLucyEvent('completion:started', data);
+        this.webServer.broadcast({ type: 'projects:execution:started', data });
+      });
+      this.lucy.on('completion:progress:updated', (data) => {
+        this.statusTracker.onLucyEvent('completion:progress:updated', data);
+        this.webServer.broadcast({ type: 'projects:execution:progress', data });
+      });
       this.lucy.on('completion:gap:detected', (data) => this.statusTracker.onLucyEvent('completion:gap:detected', data));
       this.lucy.on('completion:gap:resolved', (data) => this.statusTracker.onLucyEvent('completion:gap:resolved', data));
-      this.lucy.on('completion:paused', (data) => this.statusTracker.onLucyEvent('completion:paused', data));
-      this.lucy.on('completion:finished', (data) => this.statusTracker.onLucyEvent('completion:finished', data));
-      this.lucy.on('completion:error', (data) => this.statusTracker.onLucyEvent('completion:error', data));
+      this.lucy.on('completion:paused', (data) => {
+        this.statusTracker.onLucyEvent('completion:paused', data);
+        this.webServer.broadcast({ type: 'projects:execution:paused', data });
+      });
+      this.lucy.on('completion:resumed', (data) => {
+        this.webServer.broadcast({ type: 'projects:execution:resumed', data });
+      });
+      this.lucy.on('completion:finished', (data) => {
+        this.statusTracker.onLucyEvent('completion:finished', data);
+        this.webServer.broadcast({ type: 'projects:execution:completed', data });
+      });
+      this.lucy.on('completion:error', (data) => {
+        this.statusTracker.onLucyEvent('completion:error', data);
+        this.webServer.broadcast({ type: 'projects:execution:error', data });
+      });
     }
 
     // Subscribe to Silas events
@@ -348,6 +366,60 @@ export class GruAgent extends EventEmitter {
     this.emit(GruEvents.PROJECT_EXISTING, { clientId, projectInfo });
 
     return result;
+  }
+
+  /**
+   * Handle project path submission from user
+   * @param {string} path - Project path provided by user
+   * @param {string} clientId - Client ID
+   */
+  async handleProjectPath(path, clientId) {
+    try {
+      this.state = AgentState.SCANNING;
+
+      // Notify client that scanning is starting
+      this.webServer.sendToClient(clientId, {
+        type: 'project:scanning'
+      });
+
+      const scanResult = await this.projectIntake.collectProjectInfo({ path });
+
+      if (scanResult.error) {
+        this.state = AgentState.COLLECTING;
+        this.webServer.sendToClient(clientId, {
+          type: 'error',
+          message: scanResult.error
+        });
+        // Re-show path modal for retry
+        this.webServer.sendToClient(clientId, {
+          type: 'project:needsPath'
+        });
+        return scanResult;
+      }
+
+      this.webServer.sendToClient(clientId, {
+        type: 'project:scanned',
+        summary: scanResult.summary,
+        detected: scanResult.detected
+      });
+
+      this.emit(GruEvents.SCAN_COMPLETE, { clientId, result: scanResult });
+      return scanResult;
+    } catch (error) {
+      this.logger.error(`Project path handling error: ${error.message}`);
+      this.state = AgentState.COLLECTING;
+
+      this.webServer.sendToClient(clientId, {
+        type: 'error',
+        message: `Failed to scan project: ${error.message}`
+      });
+      // Re-show path modal for retry
+      this.webServer.sendToClient(clientId, {
+        type: 'project:needsPath'
+      });
+
+      throw error;
+    }
   }
 
   /**
@@ -625,6 +697,10 @@ export class GruAgent extends EventEmitter {
 
     this.webServer.on('project:existing', async ({ clientId, ...data }) => {
       await this.startExistingProject(data, clientId);
+    });
+
+    this.webServer.on('project:path', async ({ clientId, path }) => {
+      await this.handleProjectPath(path, clientId);
     });
 
     this.webServer.on('project:confirm', async ({ clientId, confirmed, corrections }) => {
@@ -1180,6 +1256,160 @@ export class GruAgent extends EventEmitter {
         callback({ success: true });
       } catch (error) {
         callback({ success: false, error: error.message });
+      }
+    });
+
+    // ============ Projects API Handlers ============
+
+    // List all connected projects
+    this.webServer.on('api:projects:list', ({ callback }) => {
+      try {
+        const projects = this.silas ? this.silas.list() : [];
+        callback({ success: true, projects });
+      } catch (error) {
+        this.logger.error(`Failed to list projects: ${error.message}`);
+        callback({ success: false, projects: [], error: error.message });
+      }
+    });
+
+    // Get single project details
+    this.webServer.on('api:projects:get', ({ name, callback }) => {
+      try {
+        const project = this.silas?.getProject(name);
+        if (project) {
+          callback(project);
+        } else {
+          callback({ error: 'Project not found' });
+        }
+      } catch (error) {
+        callback({ error: error.message });
+      }
+    });
+
+    // Connect project by path
+    this.webServer.on('api:projects:connect', async ({ path, callback }) => {
+      try {
+        if (!this.silas) {
+          callback({ success: false, error: 'Project manager (Silas) not available' });
+          return;
+        }
+        const result = await this.silas.connect(path, {});
+        this.webServer.broadcast({ type: 'projects:connected', data: result.project });
+        callback({ success: true, project: result.project });
+      } catch (error) {
+        this.logger.error(`Failed to connect project: ${error.message}`);
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    // Disconnect project
+    this.webServer.on('api:projects:disconnect', async ({ name, callback }) => {
+      try {
+        if (!this.silas) {
+          callback({ success: false, error: 'Project manager (Silas) not available' });
+          return;
+        }
+        const result = await this.silas.disconnect(name);
+        this.webServer.broadcast({ type: 'projects:disconnected', data: { name } });
+        callback({ success: true, name });
+      } catch (error) {
+        this.logger.error(`Failed to disconnect project: ${error.message}`);
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    // Rescan project structure
+    this.webServer.on('api:projects:rescan', async ({ name, callback }) => {
+      try {
+        if (!this.silas) {
+          callback({ success: false, error: 'Project manager (Silas) not available' });
+          return;
+        }
+        const result = await this.silas.scan(name);
+        this.webServer.broadcast({ type: 'projects:scanned', data: { name, result } });
+        callback({ success: true, name, result });
+      } catch (error) {
+        this.logger.error(`Failed to rescan project: ${error.message}`);
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    // Start project completion execution
+    this.webServer.on('api:projects:start', async ({ name, callback }) => {
+      try {
+        if (!this.lucy) {
+          callback({ success: false, error: 'Project completion agent (Lucy) not available' });
+          return;
+        }
+        const project = this.silas?.getProject(name);
+        if (!project) {
+          callback({ success: false, error: 'Project not found' });
+          return;
+        }
+        await this.lucy.startCompletion(project);
+        callback({ success: true, project: name });
+      } catch (error) {
+        this.logger.error(`Failed to start project execution: ${error.message}`);
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    // Pause execution
+    this.webServer.on('api:projects:pause', async ({ name, callback }) => {
+      try {
+        if (!this.lucy) {
+          callback({ success: false, error: 'Project completion agent (Lucy) not available' });
+          return;
+        }
+        await this.lucy.pauseCompletion();
+        callback({ success: true });
+      } catch (error) {
+        this.logger.error(`Failed to pause execution: ${error.message}`);
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    // Resume execution
+    this.webServer.on('api:projects:resume', async ({ name, callback }) => {
+      try {
+        if (!this.lucy) {
+          callback({ success: false, error: 'Project completion agent (Lucy) not available' });
+          return;
+        }
+        await this.lucy.resumeCompletion();
+        callback({ success: true });
+      } catch (error) {
+        this.logger.error(`Failed to resume execution: ${error.message}`);
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    // Stop execution
+    this.webServer.on('api:projects:stop', async ({ name, callback }) => {
+      try {
+        if (!this.lucy) {
+          callback({ success: false, error: 'Project completion agent (Lucy) not available' });
+          return;
+        }
+        await this.lucy.stopCompletion();
+        callback({ success: true });
+      } catch (error) {
+        this.logger.error(`Failed to stop execution: ${error.message}`);
+        callback({ success: false, error: error.message });
+      }
+    });
+
+    // Get execution progress
+    this.webServer.on('api:projects:progress', async ({ name, callback }) => {
+      try {
+        if (!this.lucy) {
+          callback({ percentage: 0, gaps: [], error: 'Lucy not available' });
+          return;
+        }
+        const progress = await this.lucy.getProgress(name);
+        callback(progress || { percentage: 0, gaps: [] });
+      } catch (error) {
+        callback({ percentage: 0, gaps: [], error: error.message });
       }
     });
   }
