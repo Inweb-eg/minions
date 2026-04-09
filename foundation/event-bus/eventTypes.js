@@ -253,6 +253,46 @@ export const LearningEvents = {
   LEARNING_ERROR: 'learning:error'
 };
 
+// Permission Events
+export const PermissionEvents = {
+  PERMISSION_REQUESTED: 'permission:requested',
+  PERMISSION_GRANTED: 'permission:granted',
+  PERMISSION_DENIED: 'permission:denied',
+  MODE_CHANGED: 'permission:mode:changed',
+  RULE_ADDED: 'permission:rule:added',
+  RULE_REMOVED: 'permission:rule:removed'
+};
+
+// Hook Events
+export const HookEvents = {
+  HOOK_REGISTERED: 'hook:registered',
+  HOOK_UNREGISTERED: 'hook:unregistered',
+  HOOK_EXECUTED: 'hook:executed',
+  HOOK_DENIED: 'hook:denied',
+  HOOK_ERROR: 'hook:error'
+};
+
+// Streaming & Abort Events
+export const StreamingEvents = {
+  PROGRESS_UPDATE: 'streaming:progress:update',
+  GROUP_STARTED: 'streaming:group:started',
+  GROUP_COMPLETED: 'streaming:group:completed',
+  AGENT_PROGRESS: 'streaming:agent:progress',
+  ABORT_INITIATED: 'streaming:abort:initiated',
+  ABORT_COMPLETED: 'streaming:abort:completed',
+  ABORT_CASCADED: 'streaming:abort:cascaded'
+};
+
+// Error Recovery Events
+export const RecoveryEvents = {
+  RECOVERY_STARTED: 'recovery:started',
+  RECOVERY_STAGE_ENTERED: 'recovery:stage:entered',
+  RECOVERY_STAGE_COMPLETED: 'recovery:stage:completed',
+  RECOVERY_SUCCEEDED: 'recovery:succeeded',
+  RECOVERY_FAILED: 'recovery:failed',
+  RECOVERY_ESCALATED: 'recovery:escalated'
+};
+
 // Aggregate all event types
 export const EventTypes = {
   ...AgentEvents,
@@ -269,7 +309,11 @@ export const EventTypes = {
   ...PerformanceEvents,
   ...NotificationEvents,
   ...InfrastructureEvents,
-  ...LearningEvents
+  ...LearningEvents,
+  ...PermissionEvents,
+  ...HookEvents,
+  ...StreamingEvents,
+  ...RecoveryEvents
 };
 
 export default EventTypes;
