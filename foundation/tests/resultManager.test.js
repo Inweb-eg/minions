@@ -46,7 +46,7 @@ describe('ResultManager', () => {
     it('should generate preview', async () => {
       const result = await rm.capture('test-agent', 'Hello world');
 
-      expect(result.preview).toBe('"Hello world"');
+      expect(result.preview).toBe('Hello world');
       expect(result.hasMore).toBe(false);
     });
 
