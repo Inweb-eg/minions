@@ -5,6 +5,9 @@ import { getRollbackManager } from '../../foundation/rollback-manager/RollbackMa
 import { getDependencyGraph } from './dependency-graph.js';
 import { getAutonomousLoopManager } from './autonomous-loop-manager.js';
 import { createLogger } from '../../foundation/common/logger.js';
+import { getHookManager, HookPoint } from '../../foundation/hooks/HookManager.js';
+import { getStreamingExecutor, AbortReason } from '../../foundation/streaming/StreamingExecutor.js';
+import { getErrorRecoveryPipeline } from '../../foundation/recovery/ErrorRecoveryPipeline.js';
 
 const logger = createLogger('Orchestrator');
 
@@ -27,6 +30,9 @@ class Orchestrator {
     this.rollbackManager = getRollbackManager ? getRollbackManager() : null;
     this.dependencyGraph = getDependencyGraph ? getDependencyGraph() : null;
     this.autonomousLoopManager = getAutonomousLoopManager ? getAutonomousLoopManager() : null;
+    this.hookManager = null;
+    this.streamingExecutor = null;
+    this.recoveryPipeline = null;
     this.maxConcurrency = 5; // Max agents running in parallel
     this.currentlyRunning = new Set();
     this.executionQueue = [];
@@ -46,6 +52,16 @@ class Orchestrator {
     if (this.metricsCollector) {
       this.metricsCollector.start();
     }
+
+    try { this.hookManager = getHookManager(); this.hookManager.initialize(); } catch (e) { /* optional */ }
+    try { this.streamingExecutor = getStreamingExecutor(); this.streamingExecutor.initialize(); } catch (e) { /* optional */ }
+    try {
+      this.recoveryPipeline = getErrorRecoveryPipeline();
+      this.recoveryPipeline.initialize({
+        rollbackManager: this.rollbackManager,
+        streamingExecutor: this.streamingExecutor
+      });
+    } catch (e) { /* optional */ }
 
     logger.info('Orchestrator initialized with autonomous loop support');
   }
@@ -210,10 +226,25 @@ class Orchestrator {
     const startTime = Date.now();
 
     try {
+      // Run pre-system hooks
+      if (this.hookManager) {
+        const hookResult = await this.hookManager.execute(HookPoint.PRE_SYSTEM_EXECUTION, {
+          changedFiles, timestamp: startTime
+        });
+        if (!hookResult.allowed) {
+          throw new Error(`Pre-system hook denied execution: ${hookResult.reason}`);
+        }
+      }
+
       // Run pre-execution validation
       const validation = await this.runPreExecutionValidation();
       if (!validation.canProceed) {
         throw new Error(`Pre-execution validation failed: ${JSON.stringify(validation.validations)}`);
+      }
+
+      // Create system-level AbortController
+      if (this.streamingExecutor) {
+        this.streamingExecutor.createSystemAbort();
       }
 
       // Create checkpoint before execution
@@ -236,14 +267,25 @@ class Orchestrator {
 
       // Execute each level sequentially, but agents within a level in parallel
       for (const group of plan.groups) {
+        if (this.streamingExecutor && this.streamingExecutor.isSystemAborted()) {
+          logger.warn('System aborted, stopping execution');
+          break;
+        }
+
+        const groupId = `level-${group.level}-${Date.now()}`;
         logger.info(`Executing level ${group.level}: ${group.agents.join(', ')}`);
 
-        await this.executeParallelGroup(group.agents);
+        await this.executeParallelGroup(group.agents, groupId, checkpointId);
 
-        // Check if any agent failed
+        if (this.streamingExecutor) {
+          this.streamingExecutor.markGroupCompleted(groupId);
+          this.streamingExecutor.cleanupGroup(groupId);
+        }
+
+        // Check if any agent failed (only non-recovered failures)
         const failures = group.agents.filter(agent => {
           const result = this.executionResults.get(agent);
-          return result && !result.success;
+          return result && !result.success && !result.recovered && !result.skipped;
         });
 
         if (failures.length > 0) {
@@ -256,6 +298,14 @@ class Orchestrator {
 
           throw new Error(`Orchestration failed: ${failures.join(', ')}`);
         }
+      }
+
+      // Run post-system hooks
+      if (this.hookManager) {
+        await this.hookManager.execute(HookPoint.POST_SYSTEM_EXECUTION, {
+          results: Object.fromEntries(this.executionResults),
+          duration: Date.now() - startTime
+        });
       }
 
       // Commit checkpoint on success
@@ -278,30 +328,55 @@ class Orchestrator {
       throw error;
     } finally {
       this.isExecuting = false;
+      if (this.streamingExecutor) {
+        this.streamingExecutor.reset();
+      }
     }
   }
 
   /**
    * Execute a group of agents in parallel with concurrency control
    */
-  async executeParallelGroup(agents) {
+  async executeParallelGroup(agents, groupId = null, checkpointId = null) {
+    if (this.streamingExecutor && groupId) {
+      this.streamingExecutor.createGroupAbort(groupId);
+    }
+
     const queue = [...agents];
-    const executing = new Map(); // Map<agentName, {promise, settled}>
+    const executing = new Map();
 
     while (queue.length > 0 || executing.size > 0) {
-      // Start new agents up to maxConcurrency
+      if (this.streamingExecutor && groupId) {
+        const gc = this.streamingExecutor.groupControllers?.get(groupId);
+        if (gc?.signal?.aborted || this.streamingExecutor.isSystemAborted()) {
+          for (const a of queue) {
+            this.executionResults.set(a, { success: false, error: 'Aborted', duration: 0, aborted: true });
+          }
+          queue.length = 0;
+          break;
+        }
+      }
+
       while (executing.size < this.maxConcurrency && queue.length > 0) {
         const agentName = queue.shift();
         const entry = { settled: false };
 
-        // Wrap promise to track when it settles
-        const promise = this.executeAgent(agentName)
+        if (this.streamingExecutor && groupId) {
+          this.streamingExecutor.createAgentAbort(agentName, groupId);
+        }
+
+        const promise = this.executeAgent(agentName, groupId, checkpointId)
           .then(result => {
             entry.settled = true;
             return result;
           })
           .catch(error => {
             entry.settled = true;
+            if (error.critical && this.streamingExecutor && groupId) {
+              this.streamingExecutor.abortGroup(groupId, AbortReason.CRITICAL_FAILURE, {
+                cascade: true, sourceAgent: agentName
+              });
+            }
             throw error;
           });
 
@@ -355,88 +430,107 @@ class Orchestrator {
   /**
    * Execute a single agent
    */
-  async executeAgent(agentName) {
+  async executeAgent(agentName, groupId = null, checkpointId = null) {
     const startTime = Date.now();
 
     try {
       logger.info(`Starting agent: ${agentName}`);
 
-      // Publish agent started event
-      if (this.eventBus) {
-        this.eventBus.publish(EventTypes.AGENT_STARTED, {
-          agent: agentName,
-          timestamp: startTime
+      // Run pre-agent hooks (includes permission check if installed)
+      if (this.hookManager) {
+        const hookResult = await this.hookManager.execute(HookPoint.PRE_AGENT_EXECUTION, {
+          agentName, groupId, timestamp: startTime
         });
+        if (!hookResult.allowed) {
+          logger.warn(`Agent ${agentName} denied by hook: ${hookResult.reason}`);
+          this.executionResults.set(agentName, {
+            success: false, denied: true, reason: hookResult.reason,
+            duration: Date.now() - startTime, timestamp: startTime
+          });
+          return;
+        }
       }
 
-      // Load and execute the actual agent
-      const agent = await this.loadAgent(agentName);
+      if (this.streamingExecutor) this.streamingExecutor.markStarted(agentName);
 
+      if (this.eventBus) {
+        this.eventBus.publish(EventTypes.AGENT_STARTED, { agent: agentName, timestamp: startTime });
+      }
+
+      if (this.streamingExecutor && this.streamingExecutor.isAborted(agentName)) {
+        throw Object.assign(new Error(`Agent ${agentName} aborted`), { aborted: true });
+      }
+
+      const agent = await this.loadAgent(agentName);
       if (agent) {
-        // Check if agent has an execute method
-        if (typeof agent.execute === 'function') {
-          await agent.execute();
-        } else if (typeof agent.run === 'function') {
-          await agent.run();
-        } else if (typeof agent.analyze === 'function') {
-          await agent.analyze();
-        } else {
-          // Agent loaded but no standard execution method
-          logger.debug(`Agent ${agentName} loaded but has no standard execute method`);
-        }
+        const signal = this.streamingExecutor ? this.streamingExecutor.getAgentSignal(agentName) : null;
+        const opts = signal ? { signal } : undefined;
+        if (typeof agent.execute === 'function') await agent.execute(opts);
+        else if (typeof agent.run === 'function') await agent.run(opts);
+        else if (typeof agent.analyze === 'function') await agent.analyze(opts);
+        else logger.debug(`Agent ${agentName} loaded but has no standard execute method`);
       } else {
-        // Agent could not be loaded - just log and continue
         logger.debug(`Agent ${agentName} not available, skipping execution`);
       }
 
       const duration = Date.now() - startTime;
+      if (this.streamingExecutor) this.streamingExecutor.markCompleted(agentName);
 
-      // Record success
       this.executionResults.set(agentName, {
-        success: true,
-        duration,
-        timestamp: startTime,
-        agentLoaded: !!agent
+        success: true, duration, timestamp: startTime, agentLoaded: !!agent
       });
-
-      if (this.metricsCollector) {
-        this.metricsCollector.recordExecution(agentName, true, duration);
+      if (this.metricsCollector) this.metricsCollector.recordExecution(agentName, true, duration);
+      if (this.hookManager) {
+        await this.hookManager.execute(HookPoint.POST_AGENT_EXECUTION, { agentName, success: true, duration });
       }
-
-      // Publish agent completed event
       if (this.eventBus) {
-        this.eventBus.publish(EventTypes.AGENT_COMPLETED, {
-          agent: agentName,
-          execution_time_ms: duration
-        });
+        this.eventBus.publish(EventTypes.AGENT_COMPLETED, { agent: agentName, execution_time_ms: duration });
       }
-
       logger.info(`Agent completed: ${agentName} (${duration}ms)`);
 
     } catch (error) {
       const duration = Date.now() - startTime;
+      if (this.streamingExecutor) this.streamingExecutor.markFailed(agentName, error);
 
-      // Record failure
-      this.executionResults.set(agentName, {
-        success: false,
-        error: error.message,
-        duration,
-        timestamp: startTime
-      });
-
-      if (this.metricsCollector) {
-        this.metricsCollector.recordExecution(agentName, false, duration, error);
+      // Attempt recovery before recording failure
+      if (this.recoveryPipeline && !error.aborted) {
+        const self = this;
+        const recovery = await this.recoveryPipeline.recover(agentName, error, {
+          groupId, checkpointId,
+          signal: this.streamingExecutor ? this.streamingExecutor.getAgentSignal(agentName) : null,
+          retryFn: async () => {
+            const a = await self.loadAgent(agentName);
+            if (a && typeof a.execute === 'function') await a.execute();
+            else if (a && typeof a.run === 'function') await a.run();
+          }
+        });
+        if (recovery.recovered) {
+          const td = Date.now() - startTime;
+          this.executionResults.set(agentName, {
+            success: true, [recovery.action === 'skipped' ? 'skipped' : 'recovered']: true,
+            duration: td, timestamp: startTime, recoveryStage: recovery.stage
+          });
+          if (this.streamingExecutor) this.streamingExecutor.markCompleted(agentName);
+          if (this.metricsCollector) this.metricsCollector.recordExecution(agentName, true, td);
+          logger.info(`Agent ${agentName} recovered via ${recovery.stage} (${td}ms)`);
+          return;
+        }
       }
 
-      // Publish agent failed event
-      if (this.eventBus) {
-        this.eventBus.publish(EventTypes.AGENT_FAILED, {
-          agent: agentName,
-          error: error.message,
-          execution_time_ms: duration
+      this.executionResults.set(agentName, {
+        success: false, error: error.message, duration, timestamp: startTime
+      });
+      if (this.metricsCollector) this.metricsCollector.recordExecution(agentName, false, duration, error);
+      if (this.hookManager) {
+        await this.hookManager.execute(HookPoint.POST_AGENT_EXECUTION, {
+          agentName, success: false, error: error.message, duration
         });
       }
-
+      if (this.eventBus) {
+        this.eventBus.publish(EventTypes.AGENT_FAILED, {
+          agent: agentName, error: error.message, execution_time_ms: duration
+        });
+      }
       logger.error(`Agent failed: ${agentName}:`, error);
       throw error;
 
@@ -468,6 +562,7 @@ class Orchestrator {
     }
 
     logger.warn('Emergency stop requested');
+    if (this.streamingExecutor) this.streamingExecutor.abortSystem(AbortReason.USER_REQUESTED);
     this.isExecuting = false;
 
     // Wait for currently running agents to finish
